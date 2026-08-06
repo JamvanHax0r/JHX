@@ -1,29 +1,6 @@
 const axios = require('axios');
 const cheerio = require('cheerio');
 
-// Helper: kode 4 digit random
-function makeCode() {
-  return Math.random().toString(36).substring(2, 6).toUpperCase();
-}
-
-// Helper: base64url (tanpa + / =)
-function toB64(str) {
-  return Buffer.from(str, 'utf8').toString('base64')
-    .replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
-}
-
-// Helper: dapetin ukuran file dari upstream (fix size 0 bug)
-async function getSize(url) {
-  try {
-    const r = await axios.head(url, {
-      timeout: 8000,
-      headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36' }
-    });
-    const len = parseInt(r.headers['content-length'] || '0');
-    return isNaN(len) ? 0 : len;
-  } catch { return 0; }
-}
-
 module.exports = async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
@@ -46,26 +23,32 @@ module.exports = async function handler(req, res) {
 
     const jantung = {
       'Content-Type': 'application/x-www-form-urlencoded',
-      'HX-Request': 'true', 'HX-Trigger': 'main-form', 'HX-Target': 'target',
+      'HX-Request': 'true',
+      'HX-Trigger': 'main-form',
+      'HX-Target': 'target',
       'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
     };
 
     const initRes = await axios.get('https://reelsvideo.io/id-4', { headers: { 'User-Agent': jantung['User-Agent'] } });
     const $init = cheerio.load(initRes.data);
-    const tt = $init('#tt').val(), ts = $init('#ts').val();
+    const tt = $init('#tt').val();
+    const ts = $init('#ts').val();
     if (!tt || !ts) throw new Error('Gagal mengambil parameter tt dan ts');
 
     const { data: { jobId } } = await axios.post('https://cap.jhx.my.id/api/createTask', {
-      url: 'https://reelsvideo.io/id-4', type: 'turnstile-min', sitekey: '0x4AAAAAACVCPoioqL3q_FXF'
+      url: 'https://reelsvideo.io/id-4',
+      type: 'turnstile-min',
+      sitekey: '0x4AAAAAACVCPoioqL3q_FXF'
     });
 
-    let token, tries = 0;
+    let token;
+    let tries = 0;
     while (!token && tries < 25) {
       tries++;
       await new Promise(r => setTimeout(r, 2000));
       const { data } = await axios.post('https://cap.jhx.my.id/api/getResult', { jobId });
       if (data.status === 'ready') token = data.solution.token;
-      if (data.status === 'failed') throw new Error('Solver gagal');
+      if (data.status === 'failed') throw new Error('Solver gagal menyelesaikan challenge');
     }
     if (!token) throw new Error('Solver timeout');
 
@@ -79,7 +62,6 @@ module.exports = async function handler(req, res) {
       media: []
     };
 
-    const items = [];
     $('#profile_grid .bg-white.relative.rounded-3xl').each((_, el) => {
       let type = 'unknown';
       if ($(el).find('.type_videos').length) type = 'video';
@@ -87,29 +69,8 @@ module.exports = async function handler(req, res) {
       else if ($(el).find('.type_audio').length) type = 'audio';
       const thumbnail = $(el).find('[data-bg]').attr('data-bg');
       const downloadUrl = $(el).find('a.download_link, a.mp3').attr('href');
-      if (downloadUrl) items.push({ type, thumbnail, downloadUrl });
+      if (downloadUrl) resultData.media.push({ type, thumbnail, downloadUrl });
     });
-
-    // Parallel HEAD request untuk dapetin size
-    const sizes = await Promise.all(items.map(i => getSize(i.downloadUrl)));
-
-    // Generate proxy URL + branded filename
-    for (let i = 0; i < items.length; i++) {
-      const m = items[i];
-      const code = makeCode();
-      const endpoint = m.type === 'video' ? 'resvid' : 'resimg';
-      const ext = m.type === 'video' ? 'mp4' : m.type === 'audio' ? 'mp3' : 'jpg';
-      const filename = `JHIG_${m.type === 'video' ? 'vid' : m.type === 'audio' ? 'aud' : 'img'}_${code}.${ext}`;
-
-      resultData.media.push({
-        type: m.type,
-        thumbnail: m.thumbnail,
-        proxyUrl: `https://jhx.my.id/api/${endpoint}?code=${code}&url=${toB64(m.downloadUrl)}`,
-        filename: filename,
-        size: sizes[i],
-        sizeHuman: sizes[i] > 0 ? (sizes[i] / (sizes[i] > 1048576 ? 1048576 : 1024)).toFixed(2) + (sizes[i] > 1048576 ? ' MB' : ' KB') : 'unknown'
-      });
-    }
 
     return res.status(200).json(formatRes(true, resultData));
   } catch (e) {

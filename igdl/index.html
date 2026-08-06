@@ -31,7 +31,6 @@ tailwind.config = { theme: { extend: {
   .card{background:rgba(11,14,20,.7);border:1px solid rgba(255,255,255,.07);backdrop-filter:blur(14px)}
   .beat{display:inline-block;animation:beat 1.3s ease-in-out infinite}
   @keyframes beat{0%,100%{transform:scale(1)}12%{transform:scale(1.25)}24%{transform:scale(1)}36%{transform:scale(1.2)}48%{transform:scale(1)}}
-  .spin{animation:spin 1s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}
   ::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:#05060a}::-webkit-scrollbar-thumb{background:#334155;border-radius:3px}
   ::selection{background:#ec4899;color:#fff}
 </style>
@@ -39,7 +38,6 @@ tailwind.config = { theme: { extend: {
 <body class="font-sans antialiased">
 <div class="grid-bg"></div><div class="orb orb-1"></div><div class="orb orb-2"></div>
 
-<!-- NAV -->
 <nav class="fixed w-full top-0 z-50 bg-night/75 backdrop-blur-xl border-b border-line">
   <div class="max-w-5xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
     <div class="flex items-center gap-4">
@@ -51,18 +49,16 @@ tailwind.config = { theme: { extend: {
       </a>
     </div>
     <span class="flex items-center gap-2 font-mono text-[10px] text-lm border border-lm/25 bg-lm/5 rounded-full px-3 py-1">
-      <span class="w-1.5 h-1.5 rounded-full bg-lm animate-pulse"></span>STABLE · v2.1
+      <span class="w-1.5 h-1.5 rounded-full bg-lm animate-pulse"></span>STABLE · v2.2
     </span>
   </div>
 </nav>
 
 <main class="max-w-5xl mx-auto px-4 sm:px-6 pt-28 pb-20">
-  <!-- HEADER -->
   <p class="font-mono text-xs text-slate-600 mb-4">~/modules/<span class="text-pk">ig-downloader</span></p>
   <h1 class="font-display font-bold text-4xl sm:text-5xl text-white mb-4">Instagram <span class="tgrad">Downloader</span></h1>
   <p class="text-slate-400 max-w-2xl leading-relaxed mb-10">Tempel link Reels, Post, atau Story. Sistem mengekstrak seluruh media — video, foto, sampai audio — tanpa watermark, dalam hitungan detik.</p>
 
-  <!-- TOOL -->
   <div class="card rounded-2xl p-6 sm:p-8 border-t-2 border-t-pk/60">
     <label class="font-mono text-[11px] text-slate-500 tracking-widest block mb-3">TARGET URL</label>
     <div class="flex flex-col sm:flex-row gap-3">
@@ -75,20 +71,18 @@ tailwind.config = { theme: { extend: {
     <p id="status" class="hidden font-mono text-[11px] text-cy mt-4"></p>
     <div id="err" class="hidden mt-5 p-4 rounded-lg bg-red-500/10 border border-red-500/30 text-red-400 text-sm"></div>
 
-    <!-- RESULT -->
     <div id="res" class="hidden mt-8 border-t border-line pt-7">
       <div class="flex items-center gap-4 mb-7">
         <img id="rpic" src="" class="w-14 h-14 rounded-full border-2 border-pk/60 shadow-[0_0_18px_rgba(236,72,153,.35)]" alt="">
         <div>
           <p id="ruser" class="font-display font-bold text-lg text-white"></p>
-          <p class="font-mono text-[11px] text-lm">✓ media ditemukan — siap diekstrak</p>
+          <p class="font-mono text-[11px] text-lm">✓ media ditemukan — proxy aktif, siap diekstrak</p>
         </div>
       </div>
       <div id="rgrid" class="grid sm:grid-cols-2 gap-4"></div>
     </div>
   </div>
 
-  <!-- DOCS -->
   <div class="grid lg:grid-cols-2 gap-5 mt-10">
     <div class="card rounded-xl overflow-hidden">
       <div class="px-5 py-3 border-b border-line font-mono text-xs text-slate-500">endpoint</div>
@@ -98,17 +92,16 @@ tailwind.config = { theme: { extend: {
       </div>
     </div>
     <div class="card rounded-xl overflow-hidden">
-      <div class="px-5 py-3 border-b border-line font-mono text-xs text-slate-500">catatan operator</div>
-      <ul class="p-5 text-sm text-slate-400 space-y-2.5">
-        <li><span class="text-pk">→</span> Support Reels, Post carousel, dan Story publik.</li>
-        <li><span class="text-pk">→</span> Challenge diselesaikan otomatis via solver cluster.</li>
-        <li><span class="text-pk">→</span> Link media bersifat sementara — segera simpan.</li>
-      </ul>
+      <div class="px-5 py-3 border-b border-line font-mono text-xs text-slate-500">proxy endpoints</div>
+      <div class="p-5 font-mono text-sm space-y-2">
+        <p><span class="text-cy bg-cy/10 border border-cy/25 rounded px-2 py-0.5 text-[10px] font-semibold">GET</span> <span class="text-slate-300">/api/resimg?code=XXXX</span></p>
+        <p><span class="text-pk bg-pk/10 border border-pk/25 rounded px-2 py-0.5 text-[10px] font-semibold">GET</span> <span class="text-slate-300">/api/resvid?code=XXXX</span></p>
+        <p class="text-slate-500 text-xs pt-1">File di-serve dari jhx.my.id, bukan dari third-party.</p>
+      </div>
     </div>
   </div>
 </main>
 
-<!-- FOOTER -->
 <footer class="border-t border-line bg-panel/60 py-9 px-4 text-center space-y-2.5">
   <p class="text-sm text-slate-400">Made with <span class="beat text-pk">❤</span> by <span class="tgrad font-display font-bold text-base">JamvanHax0r</span></p>
   <p class="text-sm text-slate-500">Supported by: <span class="text-cy font-medium">BCCTeam</span> <span class="text-slate-700">—</span> <span class="text-vi font-medium">FLMGroup</span> <span class="text-slate-700">—</span> <span class="text-pk font-medium">Fiony Bot</span></p>
@@ -121,7 +114,7 @@ const $ = id => document.getElementById(id);
 
 async function pasteUrl(){ try { $('url').value = await navigator.clipboard.readText(); } catch(e){ $('url').focus(); } }
 
-const steps = ['[1/3] mengambil parameter target…','[2/3] solving challenge…','[3/3] ekstraksi media…'];
+const steps = ['[1/4] mengambil parameter target…','[2/4] solving challenge…','[3/4] ekstraksi media…','[4/4] menghitung ukuran file…'];
 async function run(){
   const url = $('url').value.trim();
   $('err').classList.add('hidden'); $('res').classList.add('hidden');
@@ -129,27 +122,35 @@ async function run(){
 
   $('btn').disabled = true; $('status').classList.remove('hidden');
   let s = 0; $('status').textContent = steps[0];
-  const iv = setInterval(() => { s = Math.min(s+1, 2); $('status').textContent = steps[s]; }, 4000);
+  const iv = setInterval(() => { s = Math.min(s+1, 3); $('status').textContent = steps[s]; }, 3500);
 
   try {
     const r = await fetch('/api/ig-downloader', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ url }) });
     const j = await r.json();
     clearInterval(iv);
     if (!j.Status) throw new Error(j.error || 'Gagal mengambil data.');
-    $('status').textContent = '✓ selesai — ' + j.data.media.length + ' media ditemukan';
+    $('status').textContent = '✓ selesai — ' + j.data.media.length + ' media diekstrak via proxy jhx.my.id';
     $('ruser').textContent = '@' + (j.data.username || 'unknown');
     if (j.data.profilePic) $('rpic').src = j.data.profilePic;
-    $('rgrid').innerHTML = j.data.media.map((m, i) => `
+
+    $('rgrid').innerHTML = j.data.media.map((m, i) => {
+      const ext = m.filename.split('.').pop();
+      const typeColor = m.type === 'video' ? 'pk' : m.type === 'audio' ? 'vi' : 'cy';
+      return `
       <div class="card rounded-xl overflow-hidden group">
         <div class="relative h-40 bg-black/60">
           ${m.thumbnail ? `<img src="${m.thumbnail}" onerror="this.style.display='none'" class="w-full h-full object-cover opacity-80 group-hover:opacity-100 group-hover:scale-105 transition-all duration-500" alt="">` : ''}
           <span class="absolute top-2.5 left-2.5 font-mono text-[10px] uppercase tracking-wider text-white bg-black/70 border border-line rounded px-2 py-1">${m.type}</span>
+          ${m.sizeHuman !== 'unknown' ? `<span class="absolute top-2.5 right-2.5 font-mono text-[10px] text-white bg-${typeColor}/80 rounded px-2 py-1">${m.sizeHuman}</span>` : ''}
         </div>
-        <div class="p-4 flex items-center justify-between">
-          <span class="font-mono text-[11px] text-slate-500">media_${String(i+1).padStart(2,'0')}.${m.type === 'image' ? 'jpg' : 'mp4'}</span>
-          <a href="${m.downloadUrl}" target="_blank" rel="noopener" class="font-mono text-xs text-pk hover:text-white transition-colors">[ save ⤓ ]</a>
+        <div class="p-4 space-y-3">
+          <p class="font-mono text-[11px] text-slate-400 truncate" title="${m.filename}">${m.filename}</p>
+          <a href="${m.proxyUrl}" download="${m.filename}" class="block w-full text-center font-mono text-xs bg-white/5 hover:bg-${typeColor}/20 border border-${typeColor}/40 text-white py-2.5 rounded-lg transition-all">
+            ⤓ SAVE VIA PROXY
+          </a>
         </div>
-      </div>`).join('');
+      </div>`;
+    }).join('');
     $('res').classList.remove('hidden');
   } catch(e){ clearInterval(iv); $('status').classList.add('hidden'); showErr(e.message); }
   finally { $('btn').disabled = false; }
