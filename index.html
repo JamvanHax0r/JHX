@@ -1,1 +1,321 @@
-soon eaa
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JH-Tools | Premium Digital Tools & API Platform</title>
+<meta name="description" content="Infrastruktur tools digital all-in-one: Captcha Solver, Downloader, Music, AI Assistant. Cepat, privat, gratis.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://jhx.my.id/">
+<meta property="og:title" content="JH-Tools | Premium Digital Tools & API Platform">
+<meta property="og:description" content="Satu platform untuk semua digital tools. REST API rapi, cepat, dan privat.">
+<meta property="og:image" content="https://jhax0r.my.id/logo.jpeg">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#05060a">
+<link rel="icon" href="https://jhax0r.my.id/logo.jpeg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+tailwind.config = {
+  theme: { extend: {
+    fontFamily: { sans:['Inter','sans-serif'], display:['Space Grotesk','sans-serif'], mono:['JetBrains Mono','monospace'] },
+    colors: { night:'#05060a', panel:'#0b0e14', line:'rgba(255,255,255,0.07)', cy:'#22d3ee', vi:'#8b5cf6', pk:'#ec4899', lm:'#a3e635' }
+  }}
+}
+</script>
+<style>
+  html{scroll-behavior:smooth}
+  body{background:#05060a;color:#e6e8ee;overflow-x:hidden}
+  .grid-bg{position:fixed;inset:0;z-index:-2;background-image:linear-gradient(rgba(255,255,255,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.035) 1px,transparent 1px);background-size:56px 56px;mask-image:radial-gradient(ellipse 80% 60% at 50% 0%,black 40%,transparent 100%)}
+  .orb{position:fixed;border-radius:9999px;filter:blur(110px);z-index:-1;opacity:.35}
+  .orb-1{width:480px;height:480px;background:#0e7490;top:-160px;left:-120px}
+  .orb-2{width:420px;height:420px;background:#6d28d9;top:20%;right:-160px;opacity:.25}
+  #particles{position:fixed;inset:0;z-index:-1;pointer-events:none}
+  .tgrad{background:linear-gradient(90deg,#22d3ee,#8b5cf6,#ec4899,#22d3ee);background-size:300% 100%;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;animation:flow 7s linear infinite}
+  @keyframes flow{0%{background-position:0% 50%}100%{background-position:300% 50%}}
+  .card{background:rgba(11,14,20,.7);border:1px solid rgba(255,255,255,.07);backdrop-filter:blur(14px);transition:all .35s cubic-bezier(.4,0,.2,1)}
+  .card:hover{border-color:rgba(34,211,238,.45);transform:translateY(-4px);box-shadow:0 12px 40px -12px rgba(34,211,238,.15)}
+  .card-soon{opacity:.55}
+  .card-soon:hover{transform:none;border-color:rgba(255,255,255,.07);box-shadow:none}
+  .reveal{opacity:0;transform:translateY(28px);transition:all .8s cubic-bezier(.5,0,0,1)}
+  .reveal.on{opacity:1;transform:none}
+  .cursor{display:inline-block;width:8px;height:16px;background:#a3e635;vertical-align:middle;animation:blink 1s steps(1) infinite}
+  @keyframes blink{50%{opacity:0}}
+  .beat{display:inline-block;animation:beat 1.3s ease-in-out infinite;transform-origin:center}
+  @keyframes beat{0%,100%{transform:scale(1)}12%{transform:scale(1.25)}24%{transform:scale(1)}36%{transform:scale(1.2)}48%{transform:scale(1)}}
+  ::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:#05060a}::-webkit-scrollbar-thumb{background:#334155;border-radius:3px}::-webkit-scrollbar-thumb:hover{background:#22d3ee}
+  ::selection{background:#8b5cf6;color:#fff}
+</style>
+</head>
+<body class="font-sans antialiased">
+<div class="grid-bg"></div>
+<div class="orb orb-1"></div>
+<div class="orb orb-2"></div>
+<canvas id="particles"></canvas>
+
+<!-- NAVBAR -->
+<nav class="fixed w-full top-0 z-50 bg-night/75 backdrop-blur-xl border-b border-line">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+    <a href="/" class="flex items-center gap-3 group">
+      <img src="https://jhax0r.my.id/logo.jpeg" class="h-9 w-9 rounded-lg border border-line group-hover:border-cy/60 transition-colors" alt="JH-Tools">
+      <span class="font-display font-bold text-lg tracking-wide text-white">JH-<span class="tgrad">TOOLS</span></span>
+    </a>
+    <div class="hidden md:flex items-center gap-7 text-sm text-slate-400">
+      <a href="#modules" class="hover:text-cy transition-colors">Modules</a>
+      <a href="#api" class="hover:text-cy transition-colors">API Reference</a>
+      <a href="#about" class="hover:text-cy transition-colors">About</a>
+      <span class="flex items-center gap-2 font-mono text-[11px] text-lm border border-lm/25 bg-lm/5 rounded-full px-3 py-1">
+        <span class="w-1.5 h-1.5 rounded-full bg-lm animate-pulse"></span>ALL SYSTEMS OPERATIONAL
+      </span>
+    </div>
+    <button id="mnav" class="md:hidden text-slate-300 p-2"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg></button>
+  </div>
+  <div id="mmenu" class="hidden md:hidden border-t border-line bg-night/95 backdrop-blur-xl px-6 py-4 space-y-3 text-sm text-slate-300">
+    <a href="#modules" class="block">Modules</a><a href="#api" class="block">API Reference</a><a href="#about" class="block">About</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<header class="relative pt-32 pb-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+  <div class="grid lg:grid-cols-2 gap-14 items-center">
+    <div class="reveal on">
+      <p class="font-mono text-xs text-vi mb-5">// premium digital infrastructure — v2.0</p>
+      <h1 class="font-display font-bold text-4xl sm:text-5xl lg:text-6xl leading-[1.08] text-white mb-6">
+        Satu Platform.<br><span class="tgrad">Semua Digital Tools.</span>
+      </h1>
+      <p class="text-slate-400 text-base sm:text-lg leading-relaxed mb-9 max-w-xl">
+        Captcha Solver, Downloader, Music, hingga AI Assistant — terpusat dalam satu infrastruktur API yang cepat, privat, dan gratis. Dirancang untuk operator, oleh operator.
+      </p>
+      <div class="flex flex-col sm:flex-row gap-4">
+        <a href="#modules" class="px-7 py-3.5 rounded-lg bg-gradient-to-r from-cy to-vi text-night font-semibold text-center hover:shadow-[0_0_35px_rgba(34,211,238,.35)] transition-shadow">Jelajahi Modules</a>
+        <a href="#api" class="px-7 py-3.5 rounded-lg border border-line font-mono text-sm text-slate-300 hover:border-vi/60 hover:text-white transition-colors text-center">curl -X POST /api →</a>
+      </div>
+      <p class="font-mono text-[11px] text-slate-600 mt-7">// 100% gratis • tanpa kartu kredit • tanpa paywall</p>
+    </div>
+
+    <!-- TERMINAL -->
+    <div class="reveal on card rounded-xl overflow-hidden shadow-2xl shadow-vi/10">
+      <div class="flex items-center gap-2 px-4 py-3 border-b border-line bg-white/[.02]">
+        <span class="w-3 h-3 rounded-full bg-[#ff5f57]"></span><span class="w-3 h-3 rounded-full bg-[#febc2e]"></span><span class="w-3 h-3 rounded-full bg-[#28c840]"></span>
+        <span class="ml-3 font-mono text-xs text-slate-500">jh-tools — zsh</span>
+      </div>
+      <div class="p-5 font-mono text-[12.5px] leading-relaxed">
+        <p class="text-slate-300"><span class="text-lm">➜</span> <span class="text-cy">~</span> <span id="typed"></span><span class="cursor"></span></p>
+        <div id="termout" class="opacity-0 transition-opacity duration-700">
+          <p class="text-slate-500 pl-4">-H "content-type: application/json" \</p>
+          <p class="text-slate-500 pl-4">-d '{ "url": "https://www.instagram.com/p/…" }'</p>
+          <p class="text-slate-400 mt-3">{</p>
+          <p class="pl-4"><span class="text-cy">"Skrep_by"</span>: <span class="text-lm">"JH a.k.a Dhika"</span>,</p>
+          <p class="pl-4"><span class="text-cy">"Status"</span>: <span class="text-vi">true</span>,</p>
+          <p class="pl-4"><span class="text-cy">"media"</span>: [ { <span class="text-cy">"type"</span>: <span class="text-lm">"video"</span>, <span class="text-cy">"url"</span>: <span class="text-lm">"…/video.mp4"</span> } ]</p>
+          <p class="text-slate-400">}</p>
+          <p class="text-slate-300 mt-3"><span class="text-lm">➜</span> <span class="text-cy">~</span> <span class="text-lm">200 OK</span> · 47ms</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- STATS STRIP -->
+<section class="border-y border-line bg-panel/40">
+  <div class="max-w-7xl mx-auto px-4 grid grid-cols-2 md:grid-cols-4 divide-x divide-line">
+    <div class="py-6 px-4 text-center"><p class="font-mono text-xl text-cy">99.9%</p><p class="font-mono text-[10px] text-slate-500 tracking-widest mt-1">UPTIME SLA</p></div>
+    <div class="py-6 px-4 text-center"><p class="font-mono text-xl text-vi">&lt;50MS</p><p class="font-mono text-[10px] text-slate-500 tracking-widest mt-1">EDGE LATENCY</p></div>
+    <div class="py-6 px-4 text-center"><p class="font-mono text-xl text-pk">AES-256</p><p class="font-mono text-[10px] text-slate-500 tracking-widest mt-1">ENCRYPTION</p></div>
+    <div class="py-6 px-4 text-center"><p class="font-mono text-xl text-lm">24/7</p><p class="font-mono text-[10px] text-slate-500 tracking-widest mt-1">MONITORING</p></div>
+  </div>
+</section>
+
+<!-- MODULES -->
+<section id="modules" class="py-24 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+  <div class="reveal mb-14">
+    <p class="font-mono text-xs text-vi mb-3">// 01 — MODULES</p>
+    <h2 class="font-display font-bold text-3xl sm:text-4xl text-white">Pilih Module, Jalankan.</h2>
+    <p class="text-slate-400 mt-3 max-w-2xl">Setiap module punya halaman dan endpoint sendiri. Ringan dipakai, cepat berjalan, aman dari awal sampai akhir.</p>
+  </div>
+  <div class="grid md:grid-cols-2 gap-5">
+    <a href="/igdl/" class="reveal card rounded-xl p-7 group block">
+      <div class="flex items-center justify-between mb-5">
+        <span class="w-11 h-11 rounded-lg bg-pk/10 border border-pk/25 flex items-center justify-center"><svg class="w-5 h-5 text-pk" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg></span>
+        <span class="font-mono text-[10px] text-lm border border-lm/25 bg-lm/5 rounded-full px-2.5 py-1">● STABLE</span>
+      </div>
+      <h3 class="font-display font-bold text-xl text-white mb-2 group-hover:text-cy transition-colors">Instagram Downloader</h3>
+      <p class="text-sm text-slate-400 leading-relaxed mb-6">Ekstrak video, foto & audio dari Reels, Post, dan Story. Tanpa watermark, tanpa antrian.</p>
+      <div class="flex items-center justify-between font-mono text-xs">
+        <span class="text-slate-500">POST /api/ig-downloader</span>
+        <span class="text-cy group-hover:translate-x-1 transition-transform">/igdl/ →</span>
+      </div>
+    </a>
+    <div class="reveal card card-soon rounded-xl p-7">
+      <div class="flex items-center justify-between mb-5">
+        <span class="w-11 h-11 rounded-lg bg-cy/10 border border-cy/25 flex items-center justify-center"><svg class="w-5 h-5 text-cy" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg></span>
+        <span class="font-mono text-[10px] text-slate-500 border border-line rounded-full px-2.5 py-1">○ BETA — SOON</span>
+      </div>
+      <h3 class="font-display font-bold text-xl text-white mb-2">Captcha Solver</h3>
+      <p class="text-sm text-slate-400 leading-relaxed mb-6">Bypass Turnstile & reCAPTCHA otomatis via neural solver cluster milik sendiri.</p>
+      <p class="font-mono text-xs text-slate-600">POST /api/captcha-solver</p>
+    </div>
+    <div class="reveal card card-soon rounded-xl p-7">
+      <div class="flex items-center justify-between mb-5">
+        <span class="w-11 h-11 rounded-lg bg-vi/10 border border-vi/25 flex items-center justify-center"><svg class="w-5 h-5 text-vi" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2z"/></svg></span>
+        <span class="font-mono text-[10px] text-slate-500 border border-line rounded-full px-2.5 py-1">○ SOON</span>
+      </div>
+      <h3 class="font-display font-bold text-xl text-white mb-2">Music Tools</h3>
+      <p class="text-sm text-slate-400 leading-relaxed mb-6">Ekstraksi lirik, metadata, dan konversi format audio dengan fidelity terjaga.</p>
+      <p class="font-mono text-xs text-slate-600">POST /api/music</p>
+    </div>
+    <div class="reveal card card-soon rounded-xl p-7">
+      <div class="flex items-center justify-between mb-5">
+        <span class="w-11 h-11 rounded-lg bg-lm/10 border border-lm/25 flex items-center justify-center"><svg class="w-5 h-5 text-lm" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg></span>
+        <span class="font-mono text-[10px] text-slate-500 border border-line rounded-full px-2.5 py-1">○ SOON</span>
+      </div>
+      <h3 class="font-display font-bold text-xl text-white mb-2">AI Assistant</h3>
+      <p class="text-sm text-slate-400 leading-relaxed mb-6">Model bahasa yang dioptimalkan untuk coding, analisis, dan otomasi tugas.</p>
+      <p class="font-mono text-xs text-slate-600">POST /api/ai</p>
+    </div>
+  </div>
+</section>
+
+<!-- API REFERENCE -->
+<section id="api" class="py-24 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto border-t border-line">
+  <div class="reveal mb-14">
+    <p class="font-mono text-xs text-vi mb-3">// 02 — API REFERENCE</p>
+    <h2 class="font-display font-bold text-3xl sm:text-4xl text-white">REST API yang Rapi.</h2>
+    <p class="text-slate-400 mt-3 max-w-2xl">Semua module terekspos sebagai endpoint JSON. Tanpa SDK wajib, tanpa auth ribet — public beta.</p>
+  </div>
+  <div class="grid lg:grid-cols-5 gap-6">
+    <div class="lg:col-span-3 space-y-3 reveal">
+      <div class="card rounded-lg px-5 py-4 flex items-center gap-4">
+        <span class="font-mono text-[10px] font-semibold text-lm bg-lm/10 border border-lm/25 rounded px-2 py-1">POST</span>
+        <span class="font-mono text-sm text-white flex-1 truncate">/api/ig-downloader</span>
+        <span class="hidden sm:block text-xs text-slate-500">Ekstrak media Instagram</span>
+        <span class="font-mono text-[10px] text-lm">● LIVE</span>
+      </div>
+      <div class="card rounded-lg px-5 py-4 flex items-center gap-4">
+        <span class="font-mono text-[10px] font-semibold text-cy bg-cy/10 border border-cy/25 rounded px-2 py-1">GET</span>
+        <span class="font-mono text-sm text-white flex-1 truncate">/api/health</span>
+        <span class="hidden sm:block text-xs text-slate-500">Health check & uptime</span>
+        <span class="font-mono text-[10px] text-lm">● LIVE</span>
+      </div>
+      <div class="card card-soon rounded-lg px-5 py-4 flex items-center gap-4">
+        <span class="font-mono text-[10px] font-semibold text-slate-400 bg-white/5 border border-line rounded px-2 py-1">POST</span>
+        <span class="font-mono text-sm text-slate-300 flex-1 truncate">/api/captcha-solver</span>
+        <span class="hidden sm:block text-xs text-slate-600">Solve challenge otomatis</span>
+        <span class="font-mono text-[10px] text-slate-600">○ SOON</span>
+      </div>
+      <div class="pt-4 grid sm:grid-cols-3 gap-3 font-mono text-[11px] text-slate-500">
+        <p class="border border-line rounded-lg p-3">FORMAT<br><span class="text-slate-300">application/json</span></p>
+        <p class="border border-line rounded-lg p-3">RATE LIMIT<br><span class="text-slate-300">30 req / menit</span></p>
+        <p class="border border-line rounded-lg p-3">AUTH<br><span class="text-slate-300">tidak diperlukan</span></p>
+      </div>
+    </div>
+    <div class="lg:col-span-2 reveal">
+      <div class="card rounded-xl overflow-hidden">
+        <div class="flex items-center justify-between px-4 py-2.5 border-b border-line">
+          <span class="font-mono text-xs text-slate-500">quickstart.js</span>
+          <button onclick="copyCode()" class="font-mono text-[10px] text-cy hover:text-white transition-colors" id="copybtn">[ copy ]</button>
+        </div>
+        <pre id="codeblock" class="p-4 font-mono text-[11.5px] leading-relaxed text-slate-300 overflow-x-auto">const res = await fetch(
+  "https://jhx.my.id/api/ig-downloader",
+  {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ url: IG_URL })
+  }
+);
+const json = await res.json();
+// json.data.media[] → downloadUrl</pre>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ABOUT -->
+<section id="about" class="py-24 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto border-t border-line">
+  <div class="grid lg:grid-cols-2 gap-12 items-center">
+    <div class="reveal">
+      <p class="font-mono text-xs text-vi mb-3">// 03 — ABOUT</p>
+      <h2 class="font-display font-bold text-3xl sm:text-4xl text-white mb-6">Dibangun Operator,<br>untuk Operator.</h2>
+      <p class="text-slate-400 leading-relaxed mb-4">JH-Tools lahir dari kebutuhan harian: alat yang cepat, jujur soal privasi, dan tidak dibebani iklan atau paywall tersembunyi. Setiap module dirancang, diuji, dan dirawat oleh tim kecil yang memakai tool-nya sendiri setiap hari.</p>
+      <p class="text-slate-400 leading-relaxed">Seluruh sistem berjalan di atas arsitektur edge yang ringan, dipantau 24/7, dan terus diperbarui berdasarkan masukan komunitas.</p>
+    </div>
+    <div class="grid gap-4 reveal">
+      <div class="card rounded-xl p-5 flex gap-4 items-start"><span class="font-mono text-cy text-lg">⚡</span><div><h3 class="font-semibold text-white mb-1">Cepat</h3><p class="text-sm text-slate-400">Diproses di edge node terdekat, respon di bawah 50ms.</p></div></div>
+      <div class="card rounded-xl p-5 flex gap-4 items-start"><span class="font-mono text-vi text-lg">🔒</span><div><h3 class="font-semibold text-white mb-1">Privat</h3><p class="text-sm text-slate-400">Zero-retention. Request diproses lalu dibuang, tidak disimpan.</p></div></div>
+      <div class="card rounded-xl p-5 flex gap-4 items-start"><span class="font-mono text-lm text-lg">∞</span><div><h3 class="font-semibold text-white mb-1">Gratis</h3><p class="text-sm text-slate-400">Seluruh module inti gratis selamanya untuk komunitas.</p></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto pb-24">
+  <div class="reveal card rounded-2xl p-10 sm:p-14 text-center relative overflow-hidden">
+    <div class="absolute inset-0 bg-gradient-to-br from-cy/10 via-transparent to-vi/10 pointer-events-none"></div>
+    <h2 class="font-display font-bold text-3xl sm:text-4xl text-white mb-4 relative">Siap Masuk Sistem?</h2>
+    <p class="text-slate-400 mb-8 relative">Mulai dari module yang sudah stabil — Instagram Downloader.</p>
+    <a href="/igdl/" class="relative inline-block px-9 py-4 rounded-lg bg-gradient-to-r from-pk to-vi text-white font-semibold hover:shadow-[0_0_40px_rgba(236,72,153,.35)] transition-shadow">Buka /igdl/ →</a>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="border-t border-line bg-panel/60 pt-14 pb-8 px-4 sm:px-6 lg:px-8">
+  <div class="max-w-7xl mx-auto grid md:grid-cols-3 gap-10 mb-12">
+    <div>
+      <div class="flex items-center gap-3 mb-4">
+        <img src="https://jhax0r.my.id/logo.jpeg" class="h-8 w-8 rounded-lg border border-line" alt="JH-Tools">
+        <span class="font-display font-bold text-white">JH-TOOLS</span>
+      </div>
+      <p class="text-sm text-slate-500 leading-relaxed">Kumpulan tools untuk automation, ekstraksi media, dan AI — cepat, privat, dan tanpa biaya.</p>
+    </div>
+    <div>
+      <h4 class="font-mono text-xs text-slate-500 tracking-widest mb-4">NAVIGASI</h4>
+      <div class="space-y-2 text-sm text-slate-400">
+        <a href="#modules" class="block hover:text-cy transition-colors">Modules</a>
+        <a href="#api" class="block hover:text-cy transition-colors">API Reference</a>
+        <a href="#about" class="block hover:text-cy transition-colors">About</a>
+      </div>
+    </div>
+    <div>
+      <h4 class="font-mono text-xs text-slate-500 tracking-widest mb-4">MODULES</h4>
+      <div class="space-y-2 text-sm text-slate-400">
+        <a href="/igdl/" class="block hover:text-pk transition-colors">Instagram Downloader</a>
+        <span class="block text-slate-600">Captcha Solver — soon</span>
+        <span class="block text-slate-600">Music Tools — soon</span>
+      </div>
+    </div>
+  </div>
+  <div class="max-w-7xl mx-auto border-t border-line pt-7 text-center space-y-2.5">
+    <p class="text-sm text-slate-400">Made with <span class="beat text-pk">❤</span> by <span class="tgrad font-display font-bold text-base">JamvanHax0r</span></p>
+    <p class="text-sm text-slate-500">Supported by: <span class="text-cy font-medium">BCCTeam</span> <span class="text-slate-700">—</span> <span class="text-vi font-medium">FLMGroup</span> <span class="text-slate-700">—</span> <span class="text-pk font-medium">Fiony Bot</span></p>
+    <p class="font-mono text-xs text-slate-600">© <span id="yr"></span> — All Rights Reserved</p>
+  </div>
+</footer>
+
+<script>
+document.getElementById('yr').textContent = new Date().getFullYear();
+document.getElementById('mnav').onclick = () => document.getElementById('mmenu').classList.toggle('hidden');
+
+const io = new IntersectionObserver(es => es.forEach(e => e.isIntersecting && e.target.classList.add('on')), { threshold: .12 });
+document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+
+const cmd = 'curl -X POST https://jhx.my.id/api/ig-downloader \\';
+let i = 0;
+(function type(){ if (i <= cmd.length) { document.getElementById('typed').textContent = cmd.slice(0, i++); setTimeout(type, 28); } else { document.getElementById('termout').style.opacity = 1; } })();
+
+function copyCode(){ navigator.clipboard.writeText(document.getElementById('codeblock').innerText); const b = document.getElementById('copybtn'); b.textContent = '[ copied ✓ ]'; setTimeout(() => b.textContent = '[ copy ]', 1500); }
+
+const cv = document.getElementById('particles'), cx = cv.getContext('2d'); let P = [];
+function rs(){ cv.width = innerWidth; cv.height = innerHeight; } addEventListener('resize', rs); rs();
+const cols = ['34,211,238','139,92,246','236,72,153'];
+for (let n = 0; n < Math.min(innerWidth / 22, 70); n++) P.push({ x: Math.random()*cv.width, y: Math.random()*cv.height, vx:(Math.random()-.5)*.4, vy:(Math.random()-.5)*.4, r: Math.random()*1.6+.4, c: cols[n%3] });
+(function loop(){ cx.clearRect(0,0,cv.width,cv.height);
+  P.forEach(p => { p.x+=p.vx; p.y+=p.vy; if(p.x<0||p.x>cv.width)p.vx*=-1; if(p.y<0||p.y>cv.height)p.vy*=-1;
+    cx.beginPath(); cx.arc(p.x,p.y,p.r,0,7); cx.fillStyle = 'rgba('+p.c+',.5)'; cx.fill(); });
+  for (let a=0;a<P.length;a++) for (let b=a+1;b<P.length;b++) { const dx=P[a].x-P[b].x, dy=P[a].y-P[b].y, d=dx*dx+dy*dy;
+    if (d < 12000) { cx.strokeStyle = 'rgba(139,92,246,'+(0.08 - d/150000)+')'; cx.beginPath(); cx.moveTo(P[a].x,P[a].y); cx.lineTo(P[b].x,P[b].y); cx.stroke(); } }
+  requestAnimationFrame(loop); })();
+</script>
+</body>
+</html>
