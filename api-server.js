@@ -3,13 +3,21 @@ const fs = require('fs');
 const path = require('path');
 const axios = require('axios');
 const cheerio = require('cheerio');
-const cors = require('cors');
 
 const app = express();
-app.use(cors({ origin: ['https://jhx.my.id', 'http://localhost:3000'] }));
 app.use(express.json({ limit: '10mb' }));
 
-/* STORAGE */
+app.use((req, res, next) => {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, x-jh-key');
+  if (req.method === 'OPTIONS') return res.status(204).end();
+  next();
+});
+
+process.on('uncaughtException', (e) => console.error('[GUARD] uncaughtException:', e.message));
+process.on('unhandledRejection', (e) => console.error('[GUARD] unhandledRejection:', (e && e.message) || e));
+
 const DATA_DIR = path.join(__dirname, 'data');
 if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
 
@@ -31,10 +39,8 @@ function makeCode() {
 }
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 
-/* HEALTH CHECK */
-app.get('/', (req, res) => res.json({ service: 'JH-Tools API', status: 'operational', uptime: process.uptime() }));
+app.get('/', (req, res) => res.json({ service: 'JH-Tools API', status: 'operational', uptime: process.uptime(), port: 4100 }));
 
-/* RESSTORE (internal) */
 app.post('/resstore', (req, res) => {
   if (req.headers['x-jh-key'] !== 'JH-SECRET-2026') return res.status(401).json({ error: 'unauthorized' });
   const { key, url, b64, ct, kind, p } = req.body;
@@ -43,7 +49,6 @@ app.post('/resstore', (req, res) => {
   res.json({ ok: true });
 });
 
-/* UPLOAD */
 app.post('/upload', (req, res) => {
   try {
     const { b64, ct } = req.body;
@@ -54,7 +59,6 @@ app.post('/upload', (req, res) => {
   } catch (e) { res.status(500).json({ status: false, error: e.message }); }
 });
 
-/* IG DOWNLOADER */
 app.post('/ig-downloader', async (req, res) => {
   try {
     const url = (req.body && req.body.url) || '';
@@ -71,14 +75,14 @@ app.post('/ig-downloader', async (req, res) => {
     const tt = $init('#tt').val(), ts = $init('#ts').val();
     if (!tt || !ts) throw new Error('Gagal ambil parameter tt/ts');
 
-    const { data: { jobId } } = await axios.post('https://cap.jhax0r.my.id/api/createTask', {
+    const { data: { jobId } } = await axios.post('https://cap.jhx.my.id/api/createTask', {
       url: 'https://reelsvideo.io/id-4', type: 'turnstile-min', sitekey: '0x4AAAAAACVCPoioqL3q_FXF'
     });
 
     let token, tries = 0;
     while (!token && tries < 25) {
       tries++; await sleep(2000);
-      const { data } = await axios.post('https://cap.jhax0r.my.id/api/getResult', { jobId });
+      const { data } = await axios.post('https://cap.jhx.my.id/api/getResult', { jobId });
       if (data.status === 'ready') token = data.solution.token;
       if (data.status === 'failed') throw new Error('Solver gagal');
     }
@@ -105,14 +109,14 @@ app.post('/ig-downloader', async (req, res) => {
       catch { return 0; }
     }));
 
-    async function register(route, target, kind) {
+    function register(route, target, kind) {
       if (!target) return target;
       const code = makeCode();
       storeSet(route + ':' + code, { u: target, k: kind });
       return 'https://api.jhx.my.id/' + route + '/' + code;
     }
 
-    const mediaList = await Promise.all(items.map(async (m, i) => {
+    const mediaList = items.map((m, i) => {
       const code = makeCode();
       const route = m.type === 'image' ? 'resimg' : 'resvid';
       const kind = m.type === 'video' ? 'vid' : m.type === 'audio' ? 'aud' : 'img';
@@ -120,22 +124,21 @@ app.post('/ig-downloader', async (req, res) => {
       storeSet(route + ':' + code, { u: m.downloadUrl, k: kind });
       return {
         type: m.type,
-        thumbnail: await register('resimg', m.thumbnail, 'img'),
+        thumbnail: register('resimg', m.thumbnail, 'img'),
         url: 'https://api.jhx.my.id/' + route + '/' + code,
         filename: 'JHIG_' + kind + '_' + code + '.' + ext,
         size: sizes[i],
         sizeHuman: sizes[i] > 0 ? (sizes[i] > 1048576 ? (sizes[i]/1048576).toFixed(2)+' MB' : (sizes[i]/1024).toFixed(1)+' KB') : null
       };
-    }));
+    });
 
     res.json({
       Skrep_by: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: true,
-      data: { username: $('#profile_grid .text-400-16-18').first().text().trim(), profilePic: await register('resimg', rawProfilePic, 'img'), media: mediaList }
+      data: { username: $('#profile_grid .text-400-16-18').first().text().trim(), profilePic: register('resimg', rawProfilePic, 'img'), media: mediaList }
     });
   } catch (e) { res.status(500).json({ Status: false, error: e.response?.data || e.message }); }
 });
 
-/* FACESWAP */
 const UA = 'Mozilla/5.0 (Linux; Android 13; Mobile) AppleWebKit/537.36';
 const VH = { 'accept': '*/*', 'content-type': 'application/json', 'referrer': 'https://vidmage.ai/id/face-swap', 'User-Agent': UA };
 async function vpost(p, body) { const r = await axios.post('https://vidmage.ai' + p, body, { headers: VH, validateStatus: () => true }); return r.data; }
@@ -181,9 +184,9 @@ app.post('/faceswap', async (req, res) => {
   } catch (e) { res.status(500).json({ status: false, error: e.message }); }
 });
 
-/* PROXY: /resimg/:code & /resvid/:code */
-app.get('/:route(resimg|resvid)/:code', async (req, res) => {
-  const { route, code } = req.params;
+async function serveProxy(req, res) {
+  const route = req.path.startsWith('/resvid') ? 'resvid' : 'resimg';
+  const code = req.params.code;
   const item = storeGet(route + ':' + code);
   if (!item) return res.status(410).json({ error: 'link expired' });
   const kind = item.k || 'img';
@@ -201,13 +204,17 @@ app.get('/:route(resimg|resvid)/:code', async (req, res) => {
 
   try {
     const up = await axios.get(item.u, { responseType: 'stream', timeout: 60000, headers: { 'User-Agent': UA, 'Referer': 'https://www.instagram.com/', 'Accept': '*/*' } });
+    up.data.on('error', (e) => console.error('[STREAM]', e.message));
     res.setHeader('Content-Type', up.headers['content-type'] || (kind === 'vid' ? 'video/mp4' : 'image/jpeg'));
     if (up.headers['content-length']) res.setHeader('Content-Length', up.headers['content-length']);
     res.setHeader('Content-Disposition', 'attachment; filename="' + prefix + '_' + code + '.' + ext + '"');
     res.setHeader('Cache-Control', 'public, max-age=86400');
     up.data.pipe(res);
   } catch (e) { res.status(502).json({ error: 'upstream error' }); }
-});
+}
+app.get('/resimg/:code', serveProxy);
+app.get('/resvid/:code', serveProxy);
 
-const PORT = process.env.PORT || 4000;
-app.listen(PORT, () => console.log(`✓ JH-Tools API running on port ${PORT}`));
+const PORT = 4100;
+const server = app.listen(PORT, () => console.log('✓ JH-Tools API running on port ' + PORT));
+server.on('error', (e) => { console.error('LISTEN ERROR:', e.message); process.exit(1); });
