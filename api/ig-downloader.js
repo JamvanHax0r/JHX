@@ -42,7 +42,7 @@ module.exports = async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ Status: false, error: 'Method tidak diizinkan' });
 
   const formatRes = (status, data) => ({
-    Skrep_by: "JH a.k.a Dhika",
+    Developer: "JH a.k.a Dhika",
     Kesayangan: "Fiony Alveria♡",
     Status: status,
     ...(status ? { data } : { error: data })
