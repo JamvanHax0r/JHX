@@ -76,7 +76,7 @@ tailwind.config = { theme: { extend: {
         </div>
       </div>
       <div id="t-url-box">
-        <input id="t-url" type="text" oninput="state.target=this.value.trim()||null;mark('t')" placeholder="https://…/foto-target.jpg" class="w-full bg-black/50 border border-line rounded-lg px-4 py-3.5 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-cy/60 font-mono">
+        <input id="t-url" type="text" oninput="state.target=this.value.trim()||null;document.getElementById('t-img').src=this.value;mark('t')" placeholder="https://…/foto-target.jpg" class="w-full bg-black/50 border border-line rounded-lg px-4 py-3.5 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-cy/60 font-mono">
       </div>
       <div id="t-up-box" class="hidden">
         <div id="t-drop" class="drop rounded-xl h-28 flex flex-col items-center justify-center gap-1.5 cursor-pointer text-center px-4" onclick="document.getElementById('t-file').click()">
@@ -102,7 +102,7 @@ tailwind.config = { theme: { extend: {
         </div>
       </div>
       <div id="s-url-box">
-        <input id="s-url" type="text" oninput="state.swap=this.value.trim()||null;mark('s')" placeholder="https://…/foto-wajah.jpg" class="w-full bg-black/50 border border-line rounded-lg px-4 py-3.5 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-pk/60 font-mono">
+        <input id="s-url" type="text" oninput="state.swap=this.value.trim()||null;document.getElementById('s-img').src=this.value;mark('s')" placeholder="https://…/foto-wajah.jpg" class="w-full bg-black/50 border border-line rounded-lg px-4 py-3.5 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-pk/60 font-mono">
       </div>
       <div id="s-up-box" class="hidden">
         <div id="s-drop" class="drop rounded-xl h-28 flex flex-col items-center justify-center gap-1.5 cursor-pointer text-center px-4" onclick="document.getElementById('s-file').click()">

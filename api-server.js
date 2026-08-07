@@ -59,6 +59,7 @@ app.post('/upload', (req, res) => {
   } catch (e) { res.status(500).json({ status: false, error: e.message }); }
 });
 
+/* ================= IG DOWNLOADER ================= */
 app.post('/ig-downloader', async (req, res) => {
   try {
     const url = (req.body && req.body.url) || '';
@@ -133,57 +134,87 @@ app.post('/ig-downloader', async (req, res) => {
     });
 
     res.json({
-      Skrep_by: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: true,
+      Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: true,
       data: { username: $('#profile_grid .text-400-16-18').first().text().trim(), profilePic: register('resimg', rawProfilePic, 'img'), media: mediaList }
     });
   } catch (e) { res.status(500).json({ Status: false, error: e.response?.data || e.message }); }
 });
 
-const UA = 'Mozilla/5.0 (Linux; Android 13; Mobile) AppleWebKit/537.36';
-const VH = { 'accept': '*/*', 'content-type': 'application/json', 'referrer': 'https://vidmage.ai/id/face-swap', 'User-Agent': UA };
-async function vpost(p, body) { const r = await axios.post('https://vidmage.ai' + p, body, { headers: VH, validateStatus: () => true }); return r.data; }
-async function getFaceId(imageUrl) {
-  const det = await vpost('/api/internal/cloud-make/face-detection', { targetFileURL: imageUrl, mediaType: 'image', priority: 0, language: 'id_ID', regionCode: 'ID' });
-  if (!det || !det.businessId) throw new Error('Deteksi wajah gagal!');
-  let task = null;
+/* ============ FACESWAP ENGINE V2 (ANTI-BLOCK) ============ */
+const UA = 'Mozilla/5.0 (Linux; Android 13; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/127.0.0.0 Safari/537.36';
+const VH = {
+  'accept': '*/*',
+  'accept-language': 'id-ID',
+  'content-type': 'application/json',
+  'sec-fetch-mode': 'cors',
+  'sec-fetch-site': 'same-origin',
+  'origin': 'https://vidmage.ai',
+  'referer': 'https://vidmage.ai/id/face-swap',
+  'User-Agent': UA
+};
+
+async function vpost(base, p, body) {
+  const r = await axios.post(base + p, body, { headers: VH, validateStatus: () => true, timeout: 30000 });
+  return r.data;
+}
+
+async function getFaceId(base, imageUrl) {
+  const det = await vpost(base, '/api/internal/cloud-make/face-detection', { targetFileURL: imageUrl, mediaType: 'image', priority: 0, language: 'id_ID', regionCode: 'ID' });
+  if (!det || !det.businessId) throw new Error('DETECT_RAW: ' + JSON.stringify(det).slice(0, 250));
+  let task = null, last = null;
   for (let i = 0; i < 15; i++) {
     await sleep(3000);
-    const poll = await vpost('/api/face-swap/task-result', { businessId: det.businessId, lastQuery: false, language: 'id_ID', regionCode: 'ID' });
-    if (poll.code === 200 && poll.data && poll.data.extraEventResult) { task = poll.data; break; }
+    const poll = await vpost(base, '/api/face-swap/task-result', { businessId: det.businessId, lastQuery: false, language: 'id_ID', regionCode: 'ID' });
+    last = poll;
+    if (poll && poll.code === 200 && poll.data && poll.data.extraEventResult) { task = poll.data; break; }
   }
-  if (!task) throw new Error('Timeout deteksi wajah!');
-  const parse = await vpost('/api/internal/cloud-make/parse-result', { type: 'imageFaceDetection', result: { code: 200, data: task, message: 'successful', success: true }, language: 'id_ID', regionCode: 'ID' });
-  if (!parse || !parse.data || !parse.data[0]) throw new Error('Gagal parse wajah!');
+  if (!task) throw new Error('POLL_RAW: ' + JSON.stringify(last).slice(0, 250));
+  const parse = await vpost(base, '/api/internal/cloud-make/parse-result', { type: 'imageFaceDetection', result: { code: 200, data: task, message: 'successful', success: true }, language: 'id_ID', regionCode: 'ID' });
+  if (!parse || !parse.data || !parse.data[0]) throw new Error('PARSE_RAW: ' + JSON.stringify(parse).slice(0, 250));
   return parse.data[0];
+}
+
+async function runFaceSwap(base, targetUrl, swapUrl) {
+  await vpost(base, '/api/internal/free-swap/get', { localStorageUsage: { imageUsed: 0, videoUsed: 0, gifUsed: 0 } });
+  const tf = await getFaceId(base, targetUrl);
+  const sf = await getFaceId(base, swapUrl);
+  const sw = await vpost(base, '/api/internal/cloud-make/swap-face', {
+    mediaType: 'image', targetFileURL: targetUrl,
+    faceParams: [{ faceID: tf.faceID, remoteTargetFaceCroppedURL: tf.remoteTargetFaceCroppedURL, remoteReferenceFacePublicURL: sf.remoteTargetFaceCroppedURL }],
+    priority: 0, language: 'id_ID', regionCode: 'ID', localStorageUsage: { imageUsed: 0, videoUsed: 0, gifUsed: 0 }
+  });
+  if (!sw || !sw.businessId) throw new Error('SWAP_RAW: ' + JSON.stringify(sw).slice(0, 250));
+  let fin = null, last = null;
+  for (let i = 0; i < 20; i++) {
+    await sleep(3000);
+    const r = await vpost(base, '/api/face-swap/task-result', { businessId: sw.businessId, lastQuery: false, language: 'id_ID', regionCode: 'ID' });
+    last = r;
+    if (r && r.code === 200 && r.data && r.data.fileUrl) { fin = r.data; break; }
+  }
+  if (!fin) throw new Error('SWAPPOLL_RAW: ' + JSON.stringify(last).slice(0, 250));
+  const pf = await vpost(base, '/api/internal/cloud-make/parse-result', { type: 'swapFace', result: { code: 200, data: fin, message: 'successful', success: true }, language: 'id_ID', regionCode: 'ID' });
+  if (!pf || !pf.data) throw new Error('FINALPARSE_RAW: ' + JSON.stringify(pf).slice(0, 250));
+  return pf.data;
 }
 
 app.post('/faceswap', async (req, res) => {
   try {
     const { target, swap } = req.body;
     if (!target || !swap) return res.status(400).json({ status: false, error: 'URL target dan swap wajib diisi!' });
-    await vpost('/api/internal/free-swap/get', { localStorageUsage: { imageUsed: 0, videoUsed: 0, gifUsed: 0 } });
-    const [tf, sf] = await Promise.all([getFaceId(target), getFaceId(swap)]);
-    const sw = await vpost('/api/internal/cloud-make/swap-face', {
-      mediaType: 'image', targetFileURL: target,
-      faceParams: [{ faceID: tf.faceID, remoteTargetFaceCroppedURL: tf.remoteTargetFaceCroppedURL, remoteReferenceFacePublicURL: sf.remoteTargetFaceCroppedURL }],
-      priority: 0, language: 'id_ID', regionCode: 'ID', localStorageUsage: { imageUsed: 0, videoUsed: 0, gifUsed: 0 }
-    });
-    if (!sw || !sw.businessId) throw new Error('Swap ditolak server!');
-    let fin = null;
-    for (let i = 0; i < 20; i++) {
-      await sleep(3000);
-      const r = await vpost('/api/face-swap/task-result', { businessId: sw.businessId, lastQuery: false, language: 'id_ID', regionCode: 'ID' });
-      if (r.code === 200 && r.data && r.data.fileUrl) { fin = r.data; break; }
+    const bases = ['https://jhx.my.id/FionySwap', 'https://vidmage.ai'];
+    let result = null, lastErr = '';
+    for (const base of bases) {
+      try { result = await runFaceSwap(base, target, swap); break; }
+      catch (e) { lastErr = e.message; console.error('[FACESWAP] gagal via', base, '→', e.message); }
     }
-    if (!fin) throw new Error('Timeout nunggu hasil!');
-    const pf = await vpost('/api/internal/cloud-make/parse-result', { type: 'swapFace', result: { code: 200, data: fin, message: 'successful', success: true }, language: 'id_ID', regionCode: 'ID' });
-    if (!pf || !pf.data) throw new Error('Gagal parse hasil!');
+    if (!result) return res.status(500).json({ status: false, error: 'Deteksi wajah gagal! ' + lastErr });
     const code = makeCode();
-    storeSet('resimg:' + code, { u: pf.data, k: 'img', p: 'JHSwap' });
-    res.json({ author_skrep: 'JH a.k.a Dhika', kesayangan: 'Fiony Alveria♡', status: true, data: { url: 'https://api.jhx.my.id/resimg/' + code, filename: 'JHSwap_' + code + '.jpg' } });
+    storeSet('resimg:' + code, { u: result, k: 'img', p: 'JHSwap' });
+    res.json({ Developer: 'JH a.k.a Dhika', kesayangan: 'Fiony Alveria♡', status: true, data: { url: 'https://api.jhx.my.id/resimg/' + code, filename: 'JHSwap_' + code + '.jpg' } });
   } catch (e) { res.status(500).json({ status: false, error: e.message }); }
 });
 
+/* ================= PROXY FILE ================= */
 async function serveProxy(req, res) {
   const route = req.path.startsWith('/resvid') ? 'resvid' : 'resimg';
   const code = req.params.code;
