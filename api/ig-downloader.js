@@ -26,6 +26,14 @@ async function storeLink(key, target, kind) {
   } catch { return false; }
 }
 
+// Daftarin URL apa pun (thumb/profile/download) jadi link pendek jhx.my.id
+async function registerLink(route, target, kind) {
+  if (!target) return target;
+  const code = makeCode();
+  const ok = await storeLink(route + ':' + code, target, kind);
+  return ok ? 'https://jhx.my.id/' + route + '/' + code : target;
+}
+
 module.exports = async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
@@ -75,12 +83,7 @@ module.exports = async function handler(req, res) {
     const resp = await axios.post('https://reelsvideo.io/id-4', payload, { headers: jantung });
     const $ = cheerio.load(resp.data);
 
-    const resultData = {
-      username: $('#profile_grid .text-400-16-18').first().text().trim(),
-      profilePic: $('#profile_grid img.rounded-full').first().attr('src'),
-      media: []
-    };
-
+    const rawProfilePic = $('#profile_grid img.rounded-full').first().attr('src');
     const items = [];
     $('#profile_grid .bg-white.relative.rounded-3xl').each((_, el) => {
       let type = 'unknown';
@@ -92,27 +95,39 @@ module.exports = async function handler(req, res) {
       if (downloadUrl) items.push({ type, thumbnail, downloadUrl });
     });
 
-    const [sizes] = await Promise.all([Promise.all(items.map(i => getSize(i.downloadUrl)))]);
+    const sizes = await Promise.all(items.map(i => getSize(i.downloadUrl)));
 
-    // Daftarin link pendek + rakit result
-    const register = items.map((m, i) => {
+    // Mask SEMUA URL: download + thumbnail + profilePic
+    const mediaList = await Promise.all(items.map(async (m, i) => {
       const code = makeCode();
       const route = m.type === 'image' ? 'resimg' : 'resvid';
       const kind = m.type === 'video' ? 'vid' : m.type === 'audio' ? 'aud' : 'img';
       const ext = kind === 'vid' ? 'mp4' : kind === 'aud' ? 'mp3' : 'jpg';
-      return storeLink(route + ':' + code, m.downloadUrl, kind).then(() => ({
+
+      const [shortUrl, shortThumb] = await Promise.all([
+        storeLink(route + ':' + code, m.downloadUrl, kind)
+          .then(ok => ok ? 'https://jhx.my.id/' + route + '/' + code : m.downloadUrl),
+        registerLink('resimg', m.thumbnail, 'img')
+      ]);
+
+      return {
         type: m.type,
-        thumbnail: m.thumbnail,
-        url: 'https://jhx.my.id/' + route + '/' + code,
+        thumbnail: shortThumb,
+        url: shortUrl,
         filename: 'JHIG_' + kind + '_' + code + '.' + ext,
         size: sizes[i],
         sizeHuman: sizes[i] > 0
           ? (sizes[i] > 1048576 ? (sizes[i] / 1048576).toFixed(2) + ' MB' : (sizes[i] / 1024).toFixed(1) + ' KB')
           : null
-      }));
-    });
+      };
+    }));
 
-    resultData.media = await Promise.all(register);
+    const resultData = {
+      username: $('#profile_grid .text-400-16-18').first().text().trim(),
+      profilePic: await registerLink('resimg', rawProfilePic, 'img'),
+      media: mediaList
+    };
+
     return res.status(200).json(formatRes(true, resultData));
   } catch (e) {
     return res.status(500).json(formatRes(false, e.response?.data || e.message));
