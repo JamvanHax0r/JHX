@@ -1,27 +1,29 @@
 const axios = require('axios');
 const cheerio = require('cheerio');
 
-// Helper: kode 4 digit random
+const STORE_URL = 'https://jhx.my.id/resstore';
+const STORE_SECRET = 'JH-SECRET-2026';
+
 function makeCode() {
-  return Math.random().toString(36).substring(2, 6).toUpperCase();
+  return Math.random().toString(36).replace(/[^a-z0-9]/gi, '').substring(0, 4).toUpperCase().padEnd(4, '7');
 }
 
-// Helper: base64url (tanpa + / =)
-function toB64(str) {
-  return Buffer.from(str, 'utf8').toString('base64')
-    .replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
-}
-
-// Helper: dapetin ukuran file dari upstream (fix size 0 bug)
 async function getSize(url) {
   try {
-    const r = await axios.head(url, {
-      timeout: 8000,
-      headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36' }
-    });
+    const r = await axios.head(url, { timeout: 8000, headers: { 'User-Agent': 'Mozilla/5.0' } });
     const len = parseInt(r.headers['content-length'] || '0');
     return isNaN(len) ? 0 : len;
   } catch { return 0; }
+}
+
+async function storeLink(key, target, kind) {
+  try {
+    await axios.post(STORE_URL, { key, url: target, kind }, {
+      timeout: 8000,
+      headers: { 'Content-Type': 'application/json', 'x-jh-key': STORE_SECRET }
+    });
+    return true;
+  } catch { return false; }
 }
 
 module.exports = async function handler(req, res) {
@@ -90,27 +92,27 @@ module.exports = async function handler(req, res) {
       if (downloadUrl) items.push({ type, thumbnail, downloadUrl });
     });
 
-    // Parallel HEAD request untuk dapetin size
-    const sizes = await Promise.all(items.map(i => getSize(i.downloadUrl)));
+    const [sizes] = await Promise.all([Promise.all(items.map(i => getSize(i.downloadUrl)))]);
 
-    // Generate proxy URL + branded filename
-    for (let i = 0; i < items.length; i++) {
-      const m = items[i];
+    // Daftarin link pendek + rakit result
+    const register = items.map((m, i) => {
       const code = makeCode();
-      const endpoint = m.type === 'video' ? 'resvid' : 'resimg';
-      const ext = m.type === 'video' ? 'mp4' : m.type === 'audio' ? 'mp3' : 'jpg';
-      const filename = `JHIG_${m.type === 'video' ? 'vid' : m.type === 'audio' ? 'aud' : 'img'}_${code}.${ext}`;
-
-      resultData.media.push({
+      const route = m.type === 'image' ? 'resimg' : 'resvid';
+      const kind = m.type === 'video' ? 'vid' : m.type === 'audio' ? 'aud' : 'img';
+      const ext = kind === 'vid' ? 'mp4' : kind === 'aud' ? 'mp3' : 'jpg';
+      return storeLink(route + ':' + code, m.downloadUrl, kind).then(() => ({
         type: m.type,
         thumbnail: m.thumbnail,
-        proxyUrl: `https://jhx.my.id/api/${endpoint}?code=${code}&url=${toB64(m.downloadUrl)}`,
-        filename: filename,
+        url: 'https://jhx.my.id/' + route + '/' + code,
+        filename: 'JHIG_' + kind + '_' + code + '.' + ext,
         size: sizes[i],
-        sizeHuman: sizes[i] > 0 ? (sizes[i] / (sizes[i] > 1048576 ? 1048576 : 1024)).toFixed(2) + (sizes[i] > 1048576 ? ' MB' : ' KB') : 'unknown'
-      });
-    }
+        sizeHuman: sizes[i] > 0
+          ? (sizes[i] > 1048576 ? (sizes[i] / 1048576).toFixed(2) + ' MB' : (sizes[i] / 1024).toFixed(1) + ' KB')
+          : null
+      }));
+    });
 
+    resultData.media = await Promise.all(register);
     return res.status(200).json(formatRes(true, resultData));
   } catch (e) {
     return res.status(500).json(formatRes(false, e.response?.data || e.message));
