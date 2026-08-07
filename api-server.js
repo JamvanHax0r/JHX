@@ -55,7 +55,7 @@ app.post('/upload', (req, res) => {
     if (!b64) return res.status(400).json({ status: false, error: 'File kosong!' });
     const code = makeCode();
     storeSet('resimg:' + code, { b64, ct: ct || 'image/jpeg', k: 'img' });
-    res.json({ status: true, url: 'https://api.jhx.my.id/resimg/' + code });
+    res.json({ status: true, url: 'https://api.jhx.my.id/resimg/' + code + '.jpg' });
   } catch (e) { res.status(500).json({ status: false, error: e.message }); }
 });
 
@@ -114,7 +114,7 @@ app.post('/ig-downloader', async (req, res) => {
       if (!target) return target;
       const code = makeCode();
       storeSet(route + ':' + code, { u: target, k: kind });
-      return 'https://api.jhx.my.id/' + route + '/' + code;
+      return 'https://api.jhx.my.id/' + route + '/' + code + (route === 'resvid' ? '.mp4' : '.jpg');
     }
 
     const mediaList = items.map((m, i) => {
@@ -126,7 +126,7 @@ app.post('/ig-downloader', async (req, res) => {
       return {
         type: m.type,
         thumbnail: register('resimg', m.thumbnail, 'img'),
-        url: 'https://api.jhx.my.id/' + route + '/' + code,
+        url: 'https://api.jhx.my.id/' + route + '/' + code + '.' + ext,
         filename: 'JHIG_' + kind + '_' + code + '.' + ext,
         size: sizes[i],
         sizeHuman: sizes[i] > 0 ? (sizes[i] > 1048576 ? (sizes[i]/1048576).toFixed(2)+' MB' : (sizes[i]/1024).toFixed(1)+' KB') : null
@@ -210,14 +210,14 @@ app.post('/faceswap', async (req, res) => {
     if (!result) return res.status(500).json({ status: false, error: 'Deteksi wajah gagal! ' + lastErr });
     const code = makeCode();
     storeSet('resimg:' + code, { u: result, k: 'img', p: 'JHSwap' });
-    res.json({ Developer: 'JH a.k.a Dhika', kesayangan: 'Fiony Alveria♡', status: true, data: { url: 'https://api.jhx.my.id/resimg/' + code, filename: 'JHSwap_' + code + '.jpg' } });
+    res.json({ Developer: 'JH a.k.a Dhika', kesayangan: 'Fiony Alveria♡', status: true, data: { url: 'https://api.jhx.my.id/resimg/' + code + '.jpg', filename: 'JHSwap_' + code + '.jpg' } });
   } catch (e) { res.status(500).json({ status: false, error: e.message }); }
 });
 
 /* ================= PROXY FILE ================= */
 async function serveProxy(req, res) {
   const route = req.path.startsWith('/resvid') ? 'resvid' : 'resimg';
-  const code = req.params.code;
+  const code = String(req.params.code).split('.')[0];
   const item = storeGet(route + ':' + code);
   if (!item) return res.status(410).json({ error: 'link expired' });
   const kind = item.k || 'img';
