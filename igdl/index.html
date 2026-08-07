@@ -125,7 +125,7 @@ async function run(){
   const iv = setInterval(() => { s = Math.min(s+1, 2); $('status').textContent = steps[s]; }, 4000);
 
   try {
-    const r = await fetch('/api/ig-downloader', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ url }) });
+    const r = await fetch('https://api.jhx.my.id/ig-downloader', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ url }) });
     const j = await r.json();
     clearInterval(iv);
     if (!j.Status) throw new Error(j.error || 'Gagal mengambil data.');
