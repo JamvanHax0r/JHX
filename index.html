@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>JH-Tools | Premium Digital Tools & API Platform</title>
-<meta name="description" content="Infrastruktur tools digital all-in-one: Captcha Solver, Downloader, Music, AI Assistant. Cepat, privat, gratis.">
+<meta name="description" content="Infrastruktur tools digital all-in-one: Captcha Solver, Downloader, AI FaceSwap, Music, AI Assistant. Cepat, privat, gratis.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://jhx.my.id/">
 <meta property="og:title" content="JH-Tools | Premium Digital Tools & API Platform">
@@ -65,6 +65,7 @@ tailwind.config = {
     <div class="hidden md:flex items-center gap-7 text-sm text-slate-400">
       <a href="#modules" class="hover:text-cy transition-colors">Modules</a>
       <a href="#api" class="hover:text-cy transition-colors">API Reference</a>
+      <a href="#workflow" class="hover:text-cy transition-colors">Workflow</a>
       <a href="#about" class="hover:text-cy transition-colors">About</a>
       <span class="flex items-center gap-2 font-mono text-[11px] text-lm border border-lm/25 bg-lm/5 rounded-full px-3 py-1">
         <span class="w-1.5 h-1.5 rounded-full bg-lm animate-pulse"></span>ALL SYSTEMS OPERATIONAL
@@ -73,7 +74,10 @@ tailwind.config = {
     <button id="mnav" class="md:hidden text-slate-300 p-2"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg></button>
   </div>
   <div id="mmenu" class="hidden md:hidden border-t border-line bg-night/95 backdrop-blur-xl px-6 py-4 space-y-3 text-sm text-slate-300">
-    <a href="#modules" class="block">Modules</a><a href="#api" class="block">API Reference</a><a href="#about" class="block">About</a>
+    <a href="#modules" class="block">Modules</a>
+    <a href="#api" class="block">API Reference</a>
+    <a href="#workflow" class="block">Workflow</a>
+    <a href="#about" class="block">About</a>
   </div>
 </nav>
 
@@ -86,7 +90,7 @@ tailwind.config = {
         Satu Platform.<br><span class="tgrad">Semua Digital Tools.</span>
       </h1>
       <p class="text-slate-400 text-base sm:text-lg leading-relaxed mb-9 max-w-xl">
-        Captcha Solver, Downloader, Music, hingga AI Assistant — terpusat dalam satu infrastruktur API yang cepat, privat, dan gratis. Dirancang untuk operator, oleh operator.
+        Captcha Solver, Downloader, AI FaceSwap, Music, hingga AI Assistant — terpusat dalam satu infrastruktur API yang cepat, privat, dan gratis. Dirancang untuk operator, oleh operator.
       </p>
       <div class="flex flex-col sm:flex-row gap-4">
         <a href="#modules" class="px-7 py-3.5 rounded-lg bg-gradient-to-r from-cy to-vi text-night font-semibold text-center hover:shadow-[0_0_35px_rgba(34,211,238,.35)] transition-shadow">Jelajahi Modules</a>
@@ -95,7 +99,6 @@ tailwind.config = {
       <p class="font-mono text-[11px] text-slate-600 mt-7">// 100% gratis • tanpa kartu kredit • tanpa paywall</p>
     </div>
 
-    <!-- TERMINAL -->
     <div class="reveal on card rounded-xl overflow-hidden shadow-2xl shadow-vi/10">
       <div class="flex items-center gap-2 px-4 py-3 border-b border-line bg-white/[.02]">
         <span class="w-3 h-3 rounded-full bg-[#ff5f57]"></span><span class="w-3 h-3 rounded-full bg-[#febc2e]"></span><span class="w-3 h-3 rounded-full bg-[#28c840]"></span>
@@ -135,7 +138,9 @@ tailwind.config = {
     <h2 class="font-display font-bold text-3xl sm:text-4xl text-white">Pilih Module, Jalankan.</h2>
     <p class="text-slate-400 mt-3 max-w-2xl">Setiap module punya halaman dan endpoint sendiri. Ringan dipakai, cepat berjalan, aman dari awal sampai akhir.</p>
   </div>
-  <div class="grid md:grid-cols-2 gap-5">
+
+  <!-- Stable modules (clickable) -->
+  <div class="grid md:grid-cols-2 gap-5 mb-5">
     <a href="/igdl/" class="reveal card rounded-xl p-7 group block">
       <div class="flex items-center justify-between mb-5">
         <span class="w-11 h-11 rounded-lg bg-pk/10 border border-pk/25 flex items-center justify-center"><svg class="w-5 h-5 text-pk" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg></span>
@@ -148,23 +153,38 @@ tailwind.config = {
         <span class="text-cy group-hover:translate-x-1 transition-transform">/igdl/ →</span>
       </div>
     </a>
+
+    <a href="/faceswap/" class="reveal card rounded-xl p-7 group block">
+      <div class="flex items-center justify-between mb-5">
+        <span class="w-11 h-11 rounded-lg bg-vi/10 border border-vi/25 flex items-center justify-center"><svg class="w-5 h-5 text-vi" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg></span>
+        <span class="font-mono text-[10px] text-lm border border-lm/25 bg-lm/5 rounded-full px-2.5 py-1">● STABLE</span>
+      </div>
+      <h3 class="font-display font-bold text-xl text-white mb-2 group-hover:text-cy transition-colors">AI FaceSwap</h3>
+      <p class="text-sm text-slate-400 leading-relaxed mb-6">Tukar wajah antar foto dengan neural face-swap engine. Via URL maupun upload langsung.</p>
+      <div class="flex items-center justify-between font-mono text-xs">
+        <span class="text-slate-500">POST /api/faceswap</span>
+        <span class="text-cy group-hover:translate-x-1 transition-transform">/faceswap/ →</span>
+      </div>
+    </a>
+  </div>
+
+  <!-- Coming soon modules -->
+  <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-5">
     <div class="reveal card card-soon rounded-xl p-7">
       <div class="flex items-center justify-between mb-5">
         <span class="w-11 h-11 rounded-lg bg-cy/10 border border-cy/25 flex items-center justify-center"><svg class="w-5 h-5 text-cy" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg></span>
         <span class="font-mono text-[10px] text-slate-500 border border-line rounded-full px-2.5 py-1">○ BETA — SOON</span>
       </div>
       <h3 class="font-display font-bold text-xl text-white mb-2">Captcha Solver</h3>
-      <p class="text-sm text-slate-400 leading-relaxed mb-6">Bypass Turnstile & reCAPTCHA otomatis via neural solver cluster milik sendiri.</p>
-      <p class="font-mono text-xs text-slate-600">POST /api/captcha-solver</p>
+      <p class="text-sm text-slate-400 leading-relaxed">Bypass Turnstile & reCAPTCHA otomatis via neural solver cluster.</p>
     </div>
     <div class="reveal card card-soon rounded-xl p-7">
       <div class="flex items-center justify-between mb-5">
-        <span class="w-11 h-11 rounded-lg bg-vi/10 border border-vi/25 flex items-center justify-center"><svg class="w-5 h-5 text-vi" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2z"/></svg></span>
+        <span class="w-11 h-11 rounded-lg bg-pk/10 border border-pk/25 flex items-center justify-center"><svg class="w-5 h-5 text-pk" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2z"/></svg></span>
         <span class="font-mono text-[10px] text-slate-500 border border-line rounded-full px-2.5 py-1">○ SOON</span>
       </div>
       <h3 class="font-display font-bold text-xl text-white mb-2">Music Tools</h3>
-      <p class="text-sm text-slate-400 leading-relaxed mb-6">Ekstraksi lirik, metadata, dan konversi format audio dengan fidelity terjaga.</p>
-      <p class="font-mono text-xs text-slate-600">POST /api/music</p>
+      <p class="text-sm text-slate-400 leading-relaxed">Ekstraksi lirik, metadata, dan konversi format audio fidelity terjaga.</p>
     </div>
     <div class="reveal card card-soon rounded-xl p-7">
       <div class="flex items-center justify-between mb-5">
@@ -172,8 +192,15 @@ tailwind.config = {
         <span class="font-mono text-[10px] text-slate-500 border border-line rounded-full px-2.5 py-1">○ SOON</span>
       </div>
       <h3 class="font-display font-bold text-xl text-white mb-2">AI Assistant</h3>
-      <p class="text-sm text-slate-400 leading-relaxed mb-6">Model bahasa yang dioptimalkan untuk coding, analisis, dan otomasi tugas.</p>
-      <p class="font-mono text-xs text-slate-600">POST /api/ai</p>
+      <p class="text-sm text-slate-400 leading-relaxed">Model bahasa untuk coding, analisis, dan otomasi tugas.</p>
+    </div>
+    <div class="reveal card card-soon rounded-xl p-7">
+      <div class="flex items-center justify-between mb-5">
+        <span class="w-11 h-11 rounded-lg bg-vi/10 border border-vi/25 flex items-center justify-center"><svg class="w-5 h-5 text-vi" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg></span>
+        <span class="font-mono text-[10px] text-slate-500 border border-line rounded-full px-2.5 py-1">○ SOON</span>
+      </div>
+      <h3 class="font-display font-bold text-xl text-white mb-2">Privacy Tools</h3>
+      <p class="text-sm text-slate-400 leading-relaxed">Zero-knowledge utilities untuk enkripsi dan anonymity.</p>
     </div>
   </div>
 </section>
@@ -191,6 +218,12 @@ tailwind.config = {
         <span class="font-mono text-[10px] font-semibold text-lm bg-lm/10 border border-lm/25 rounded px-2 py-1">POST</span>
         <span class="font-mono text-sm text-white flex-1 truncate">/api/ig-downloader</span>
         <span class="hidden sm:block text-xs text-slate-500">Ekstrak media Instagram</span>
+        <span class="font-mono text-[10px] text-lm">● LIVE</span>
+      </div>
+      <div class="card rounded-lg px-5 py-4 flex items-center gap-4">
+        <span class="font-mono text-[10px] font-semibold text-vi bg-vi/10 border border-vi/25 rounded px-2 py-1">POST</span>
+        <span class="font-mono text-sm text-white flex-1 truncate">/api/faceswap</span>
+        <span class="hidden sm:block text-xs text-slate-500">AI neural face swap</span>
         <span class="font-mono text-[10px] text-lm">● LIVE</span>
       </div>
       <div class="card rounded-lg px-5 py-4 flex items-center gap-4">
@@ -232,11 +265,37 @@ const json = await res.json();
   </div>
 </section>
 
+<!-- WORKFLOW -->
+<section id="workflow" class="py-24 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto border-t border-line">
+  <div class="reveal mb-14 text-center">
+    <p class="font-mono text-xs text-vi mb-3">// 03 — WORKFLOW</p>
+    <h2 class="font-display font-bold text-3xl sm:text-4xl text-white">Tiga Langkah Sederhana.</h2>
+    <p class="text-slate-400 mt-3 max-w-2xl mx-auto">Dari perintah pertama sampai hasil di tangan Anda — tanpa friksi, tanpa antrian.</p>
+  </div>
+  <div class="grid md:grid-cols-3 gap-5 reveal">
+    <div class="card rounded-xl p-7">
+      <p class="font-mono text-xs text-vi mb-4">STEP 01</p>
+      <h3 class="font-display font-bold text-lg text-white mb-2">Pilih Module</h3>
+      <p class="text-sm text-slate-400 leading-relaxed">Buka halaman module yang Anda butuhkan — dari Downloader sampai AI FaceSwap.</p>
+    </div>
+    <div class="card rounded-xl p-7">
+      <p class="font-mono text-xs text-vi mb-4">STEP 02</p>
+      <h3 class="font-display font-bold text-lg text-white mb-2">Kirim Perintah</h3>
+      <p class="text-sm text-slate-400 leading-relaxed">Masukkan input — link, gambar, atau teks. Sistem memvalidasi dan mengantre proses secara instan.</p>
+    </div>
+    <div class="card rounded-xl p-7">
+      <p class="font-mono text-xs text-vi mb-4">STEP 03</p>
+      <h3 class="font-display font-bold text-lg text-white mb-2">Terima Hasil</h3>
+      <p class="text-sm text-slate-400 leading-relaxed">Output dikirim dalam hitungan detik. Bersih, siap pakai, tanpa watermark tersembunyi.</p>
+    </div>
+  </div>
+</section>
+
 <!-- ABOUT -->
 <section id="about" class="py-24 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto border-t border-line">
   <div class="grid lg:grid-cols-2 gap-12 items-center">
     <div class="reveal">
-      <p class="font-mono text-xs text-vi mb-3">// 03 — ABOUT</p>
+      <p class="font-mono text-xs text-vi mb-3">// 04 — ABOUT</p>
       <h2 class="font-display font-bold text-3xl sm:text-4xl text-white mb-6">Dibangun Operator,<br>untuk Operator.</h2>
       <p class="text-slate-400 leading-relaxed mb-4">JH-Tools lahir dari kebutuhan harian: alat yang cepat, jujur soal privasi, dan tidak dibebani iklan atau paywall tersembunyi. Setiap module dirancang, diuji, dan dirawat oleh tim kecil yang memakai tool-nya sendiri setiap hari.</p>
       <p class="text-slate-400 leading-relaxed">Seluruh sistem berjalan di atas arsitektur edge yang ringan, dipantau 24/7, dan terus diperbarui berdasarkan masukan komunitas.</p>
@@ -254,8 +313,11 @@ const json = await res.json();
   <div class="reveal card rounded-2xl p-10 sm:p-14 text-center relative overflow-hidden">
     <div class="absolute inset-0 bg-gradient-to-br from-cy/10 via-transparent to-vi/10 pointer-events-none"></div>
     <h2 class="font-display font-bold text-3xl sm:text-4xl text-white mb-4 relative">Siap Masuk Sistem?</h2>
-    <p class="text-slate-400 mb-8 relative">Mulai dari module yang sudah stabil — Instagram Downloader.</p>
-    <a href="/igdl/" class="relative inline-block px-9 py-4 rounded-lg bg-gradient-to-r from-pk to-vi text-white font-semibold hover:shadow-[0_0_40px_rgba(236,72,153,.35)] transition-shadow">Buka /igdl/ →</a>
+    <p class="text-slate-400 mb-8 relative">Mulai dari module yang sudah stabil — Instagram Downloader atau AI FaceSwap.</p>
+    <div class="relative flex flex-col sm:flex-row gap-4 justify-center">
+      <a href="/igdl/" class="px-9 py-4 rounded-lg bg-gradient-to-r from-pk to-vi text-white font-semibold hover:shadow-[0_0_40px_rgba(236,72,153,.35)] transition-shadow">Buka /igdl/ →</a>
+      <a href="/faceswap/" class="px-9 py-4 rounded-lg bg-gradient-to-r from-vi to-cy text-white font-semibold hover:shadow-[0_0_40px_rgba(139,92,246,.35)] transition-shadow">Buka /faceswap/ →</a>
+    </div>
   </div>
 </section>
 
@@ -274,6 +336,7 @@ const json = await res.json();
       <div class="space-y-2 text-sm text-slate-400">
         <a href="#modules" class="block hover:text-cy transition-colors">Modules</a>
         <a href="#api" class="block hover:text-cy transition-colors">API Reference</a>
+        <a href="#workflow" class="block hover:text-cy transition-colors">Workflow</a>
         <a href="#about" class="block hover:text-cy transition-colors">About</a>
       </div>
     </div>
@@ -281,6 +344,7 @@ const json = await res.json();
       <h4 class="font-mono text-xs text-slate-500 tracking-widest mb-4">MODULES</h4>
       <div class="space-y-2 text-sm text-slate-400">
         <a href="/igdl/" class="block hover:text-pk transition-colors">Instagram Downloader</a>
+        <a href="/faceswap/" class="block hover:text-vi transition-colors">AI FaceSwap</a>
         <span class="block text-slate-600">Captcha Solver — soon</span>
         <span class="block text-slate-600">Music Tools — soon</span>
       </div>
