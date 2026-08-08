@@ -234,7 +234,11 @@ async function serveProxy(req, res) {
   }
 
   try {
-    const up = await axios.get(item.u, { responseType: 'stream', timeout: 60000, headers: { 'User-Agent': UA, 'Referer': 'https://www.instagram.com/', 'Accept': '*/*' } });
+    const hdrs = { 'User-Agent': UA, 'Referer': 'https://www.instagram.com/', 'Accept': '*/*' };
+    if (req.headers.range) hdrs.Range = req.headers.range;
+    const up = await axios.get(item.u, { responseType: 'stream', timeout: 60000, headers: hdrs });
+    if (req.headers.range) { res.status(206); if (up.headers['content-range']) res.setHeader('Content-Range', up.headers['content-range']); }
+    res.setHeader('Accept-Ranges', 'bytes');
     up.data.on('error', (e) => console.error('[STREAM]', e.message));
     res.setHeader('Content-Type', up.headers['content-type'] || (kind === 'vid' ? 'video/mp4' : 'image/jpeg'));
     if (up.headers['content-length']) res.setHeader('Content-Length', up.headers['content-length']);

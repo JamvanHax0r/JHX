@@ -31,6 +31,10 @@ tailwind.config = { theme: { extend: {
   .card{background:rgba(11,14,20,.7);border:1px solid rgba(255,255,255,.07);backdrop-filter:blur(14px)}
   .beat{display:inline-block;animation:beat 1.3s ease-in-out infinite}
   @keyframes beat{0%,100%{transform:scale(1)}12%{transform:scale(1.25)}24%{transform:scale(1)}36%{transform:scale(1.2)}48%{transform:scale(1)}}
+  .modal-bg{position:fixed;inset:0;background:rgba(3,6,10,.92);backdrop-filter:blur(12px);z-index:100;display:none;align-items:center;justify-content:center;padding:1rem}
+  .modal-bg.open{display:flex;animation:fadeIn .25s ease}
+  @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+  .modal-box{background:#0b0e14;border:1px solid rgba(255,255,255,.08);border-radius:1.25rem;max-width:860px;width:100%;max-height:92vh;overflow-y:auto;box-shadow:0 40px 80px rgba(0,0,0,.6)}
   ::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:#05060a}::-webkit-scrollbar-thumb{background:#334155;border-radius:3px}
   ::selection{background:#ec4899;color:#fff}
 </style>
@@ -49,7 +53,7 @@ tailwind.config = { theme: { extend: {
       </a>
     </div>
     <span class="flex items-center gap-2 font-mono text-[10px] text-lm border border-lm/25 bg-lm/5 rounded-full px-3 py-1">
-      <span class="w-1.5 h-1.5 rounded-full bg-lm animate-pulse"></span>STABLE · v2.3
+      <span class="w-1.5 h-1.5 rounded-full bg-lm animate-pulse"></span>STABLE · v2.4
     </span>
   </div>
 </nav>
@@ -57,7 +61,7 @@ tailwind.config = { theme: { extend: {
 <main class="max-w-5xl mx-auto px-4 sm:px-6 pt-28 pb-20">
   <p class="font-mono text-xs text-slate-600 mb-4">~/modules/<span class="text-pk">ig-downloader</span></p>
   <h1 class="font-display font-bold text-4xl sm:text-5xl text-white mb-4">Instagram <span class="tgrad">Downloader</span></h1>
-  <p class="text-slate-400 max-w-2xl leading-relaxed mb-10">Tempel link Reels, Post, atau Story. Sistem mengekstrak seluruh media — video, foto, sampai audio — tanpa watermark, dalam hitungan detik.</p>
+  <p class="text-slate-400 max-w-2xl leading-relaxed mb-10">Tempel link Reels, Post, atau Story. Sistem mengekstrak seluruh media — video, foto, sampai audio — tanpa watermark, dalam hitungan detik. Klik card untuk preview, atau langsung simpan.</p>
 
   <div class="card rounded-2xl p-6 sm:p-8 border-t-2 border-t-pk/60">
     <label class="font-mono text-[11px] text-slate-500 tracking-widest block mb-3">TARGET URL</label>
@@ -83,26 +87,8 @@ tailwind.config = { theme: { extend: {
     </div>
   </div>
 
-  <div class="grid lg:grid-cols-2 gap-5 mt-10">
-    <div class="card rounded-xl overflow-hidden">
-      <div class="px-5 py-3 border-b border-line font-mono text-xs text-slate-500">endpoint</div>
-      <div class="p-5 font-mono text-sm space-y-3">
-        <p><span class="text-lm bg-lm/10 border border-lm/25 rounded px-2 py-0.5 text-[10px] font-semibold">POST</span> <span class="text-white">/api/ig-downloader</span></p>
-        <p class="text-slate-500 text-xs">body: { "url": "&lt;instagram_url&gt;" }<br>response: json → data.media[]</p>
-      </div>
-    </div>
-    <div class="card rounded-xl overflow-hidden">
-      <div class="px-5 py-3 border-b border-line font-mono text-xs text-slate-500">catatan</div>
-      <ul class="p-5 text-sm text-slate-400 space-y-2.5">
-        <li><span class="text-pk">→</span> Support Reels, Post carousel, dan Story publik.</li>
-        <li><span class="text-pk">→</span> Hasil tanpa watermark, kualitas asli.</li>
-        <li><span class="text-pk">→</span> Link unduhan aktif selama ±2 jam.</li>
-      </ul>
-    </div>
-  </div>
-
-  <div class="mt-12 reveal">
-    <p class="font-mono text-xs text-cy mb-3">DEVELOPER REFERENCE</p>
+  <div class="mt-12">
+    <p class="font-mono text-xs text-pk mb-3">DEVELOPER REFERENCE</p>
     <h2 class="font-display font-bold text-2xl text-white mb-6">Pakai Lewat Kode.</h2>
     <div class="grid lg:grid-cols-2 gap-5">
       <div class="card rounded-xl overflow-hidden">
@@ -152,7 +138,42 @@ if (json.Status) {
     </div>
   </div>
 
+  <div class="grid lg:grid-cols-2 gap-5 mt-10">
+    <div class="card rounded-xl overflow-hidden">
+      <div class="px-5 py-3 border-b border-line font-mono text-xs text-slate-500">endpoints</div>
+      <div class="p-5 font-mono text-sm space-y-2.5">
+        <p><span class="text-lm bg-lm/10 border border-lm/25 rounded px-2 py-0.5 text-[10px] font-semibold">POST</span> <span class="text-white">/ig-downloader</span> <span class="text-slate-600 text-xs">— { url }</span></p>
+        <p><span class="text-cy bg-cy/10 border border-cy/25 rounded px-2 py-0.5 text-[10px] font-semibold">GET</span> <span class="text-white">/resimg/:code.jpg</span> <span class="text-slate-600 text-xs">— proxy image</span></p>
+        <p><span class="text-pk bg-pk/10 border border-pk/25 rounded px-2 py-0.5 text-[10px] font-semibold">GET</span> <span class="text-white">/resvid/:code.mp4</span> <span class="text-slate-600 text-xs">— proxy video (range supported)</span></p>
+      </div>
+    </div>
+    <div class="card rounded-xl overflow-hidden">
+      <div class="px-5 py-3 border-b border-line font-mono text-xs text-slate-500">catatan</div>
+      <ul class="p-5 text-sm text-slate-400 space-y-2.5">
+        <li><span class="text-pk">→</span> Support Reels, Post carousel, dan Story publik.</li>
+        <li><span class="text-pk">→</span> Klik card media untuk preview & putar video langsung.</li>
+        <li><span class="text-pk">→</span> Link unduhan aktif selama ±2 jam.</li>
+      </ul>
+    </div>
+  </div>
 </main>
+
+<div class="modal-bg" id="pmodal">
+  <div class="modal-box">
+    <div class="flex items-center justify-between px-5 py-4 border-b border-line">
+      <div class="flex items-center gap-3 min-w-0">
+        <span id="pm-type" class="font-mono text-[10px] uppercase tracking-wider text-pk bg-pk/10 border border-pk/25 rounded px-2 py-0.5">video</span>
+        <p id="pm-name" class="font-mono text-xs text-slate-300 truncate"></p>
+      </div>
+      <button onclick="closePreview()" class="w-9 h-9 rounded-lg border border-line hover:border-pk/50 hover:text-pk flex items-center justify-center transition-colors">✕</button>
+    </div>
+    <div id="pm-body" class="p-4 sm:p-6 flex items-center justify-center bg-black/60"></div>
+    <div class="px-5 py-4 border-t border-line flex items-center justify-between gap-3">
+      <p id="pm-size" class="font-mono text-[11px] text-slate-500"></p>
+      <a id="pm-dl" href="#" target="_blank" rel="noopener" class="font-mono text-xs bg-gradient-to-r from-pk to-vi text-white px-6 py-2.5 rounded-lg hover:shadow-[0_0_25px_rgba(236,72,153,.35)] transition-shadow">⤓ DOWNLOAD</a>
+    </div>
+  </div>
+</div>
 
 <footer class="border-t border-line bg-panel/60 py-9 px-4 text-center space-y-2.5">
   <p class="text-sm text-slate-400">Made with <span class="beat text-pk">❤</span> by <span class="tgrad font-display font-bold text-base">JamvanHax0r</span></p>
@@ -163,6 +184,7 @@ if (json.Status) {
 <script>
 document.getElementById('yr').textContent = new Date().getFullYear();
 const $ = id => document.getElementById(id);
+let lastMedia = [];
 
 async function pasteUrl(){ try { $('url').value = await navigator.clipboard.readText(); } catch(e){ $('url').focus(); } }
 
@@ -184,24 +206,71 @@ async function run(){
     $('status').textContent = '✓ selesai — ' + j.data.media.length + ' media siap diunduh';
     $('ruser').textContent = '@' + (j.data.username || 'unknown');
     if (j.data.profilePic) $('rpic').src = j.data.profilePic;
+    lastMedia = j.data.media;
 
-    $('rgrid').innerHTML = j.data.media.map((m) => `
+    $('rgrid').innerHTML = lastMedia.map((m, i) => `
       <div class="card rounded-xl overflow-hidden group">
-        <div class="relative h-40 bg-black/60">
-          ${m.thumbnail ? `<img src="${m.thumbnail}" onerror="this.style.display='none'" class="w-full h-full object-cover opacity-80 group-hover:opacity-100 group-hover:scale-105 transition-all duration-500" alt="">` : ''}
+        <div class="relative h-40 bg-black/60 cursor-pointer" onclick="openPreview(${i})">
+          ${m.thumbnail ? `<img src="${m.thumbnail}" onerror="this.style.display='none'" class="w-full h-full object-cover opacity-80 group-hover:opacity-100 group-hover:scale-105 transition-all duration-500" alt="">` : `<div class="w-full h-full flex items-center justify-center text-3xl">${m.type === 'audio' ? '🎵' : '🎬'}</div>`}
           <span class="absolute top-2.5 left-2.5 font-mono text-[10px] uppercase tracking-wider text-white bg-black/70 border border-line rounded px-2 py-1">${m.type}</span>
           ${m.sizeHuman ? `<span class="absolute top-2.5 right-2.5 font-mono text-[10px] text-white bg-black/70 border border-line rounded px-2 py-1">${m.sizeHuman}</span>` : ''}
+          <span class="absolute inset-0 items-center justify-center hidden group-hover:flex bg-black/40 backdrop-blur-[2px]">
+            <span class="w-11 h-11 rounded-full bg-white/15 border border-white/30 flex items-center justify-center text-white text-sm">${m.type === 'image' ? '🔍' : '▶'}</span>
+          </span>
         </div>
         <div class="p-4 space-y-3">
           <p class="font-mono text-[11px] text-slate-400 truncate">${m.filename}</p>
-          <a href="${m.url}" class="block w-full text-center font-mono text-xs bg-white/5 hover:bg-pk/20 border border-pk/40 text-white py-2.5 rounded-lg transition-all">⤓ DOWNLOAD</a>
+          <div class="flex gap-2">
+            <button onclick="openPreview(${i})" class="flex-1 font-mono text-xs bg-white/5 hover:bg-cy/20 border border-cy/40 text-white py-2.5 rounded-lg transition-all">◉ PREVIEW</button>
+            <a href="${m.url}" target="_blank" rel="noopener" class="flex-1 text-center font-mono text-xs bg-white/5 hover:bg-pk/20 border border-pk/40 text-white py-2.5 rounded-lg transition-all">⤓ SAVE</a>
+          </div>
         </div>
       </div>`).join('');
     $('res').classList.remove('hidden');
   } catch(e){ clearInterval(iv); $('status').classList.add('hidden'); showErr(e.message); }
   finally { $('btn').disabled = false; }
 }
-function showErr(msg){ $('err').textContent = '✗ ' + msg; $('err').classList.remove('hidden'); }
+
+function openPreview(i){
+  const m = lastMedia[i];
+  if (!m) return;
+  $('pm-type').textContent = m.type;
+  $('pm-name').textContent = m.filename;
+  $('pm-size').textContent = m.sizeHuman ? ('SIZE · ' + m.sizeHuman) : 'SIZE · —';
+  $('pm-dl').href = m.url;
+  const body = $('pm-body');
+  if (m.type === 'video') {
+    body.innerHTML = '<video controls playsinline preload="metadata" class="w-full max-h-[70vh] rounded-lg" src="' + m.url + '"></video>';
+  } else if (m.type === 'audio') {
+    body.innerHTML = '<audio controls class="w-full" src="' + m.url + '"></audio>';
+  } else {
+    body.innerHTML = '<img src="' + m.url + '" class="max-w-full max-h-[70vh] rounded-lg" alt="">';
+  }
+  $('pmodal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closePreview(){
+  $('pm-body').innerHTML = '';
+  $('pmodal').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+$('pmodal').addEventListener('click', e => { if (e.target.id === 'pmodal') closePreview(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closePreview(); });
+
+function showErr(msg){ if (!msg) { $('err').classList.add('hidden'); return; } $('err').textContent = '✗ ' + msg; $('err').classList.remove('hidden'); }
+
+function cp(id){
+  const el = document.getElementById(id);
+  if (!el) return;
+  navigator.clipboard.writeText(el.textContent).then(() => {
+    const btn = el.parentElement.querySelector('button');
+    const orig = btn.textContent;
+    btn.textContent = 'copied ✓';
+    setTimeout(() => btn.textContent = orig, 1500);
+  });
+}
 </script>
 </body>
 </html>
