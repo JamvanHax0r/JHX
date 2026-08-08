@@ -232,7 +232,8 @@ app.post('/tw-downloader', async (req, res) => {
     if (!token) throw new Error('Gagal mengambil token x2twitter');
 
     const { data: searchData } = await axios.post('https://x2twitter.com/api/ajaxSearch', new URLSearchParams({ q: url, lang: 'en', cftoken: token }).toString(), { headers: jantung, validateStatus: () => true });
-    const $ = cheerio.load((searchData && searchData.data) || '');
+    const html = (searchData && (searchData.data || searchData.html)) || (typeof searchData === 'string' ? searchData : '');
+    const $ = cheerio.load(html || '');
 
     const caption = $('.tw-middle .content h3').first().text().trim() || $('.tw-middle h3').first().text().trim() || '';
 
@@ -241,62 +242,85 @@ app.post('/tw-downloader', async (req, res) => {
       catch { return 0; }
     }
     function human(sz) { return sz > 0 ? (sz > 1048576 ? (sz / 1048576).toFixed(2) + ' MB' : (sz / 1024).toFixed(1) + ' KB') : null; }
+    function qualOf(txt) { const m = txt.match(/\(([^)]+)\)/); return m ? m[1] : (txt.match(/(\d+p)/i) || [])[1] || 'HD'; }
+    function regVid(target) {
+      const code = makeCode();
+      storeSet('resvid:' + code, { u: target, k: 'vid', ref: 'https://x2twitter.com/en' }, 3600);
+      return { url: 'https://api.jhx.my.id/resvid/' + code + '.mp4', filename: 'JHTW_vid_' + code + '.mp4' };
+    }
+    function regImg(target) {
+      const code = makeCode();
+      storeSet('resimg:' + code, { u: target, k: 'img', ref: 'https://x2twitter.com/en' }, 3600);
+      return { url: 'https://api.jhx.my.id/resimg/' + code + '.jpg', filename: 'JHTW_img_' + code + '.jpg' };
+    }
+    const isVidTxt = t => /download\s+(mp4|video)/i.test(t);
+    const isImgTxt = t => /download\s+(photo|image|jpg|png)/i.test(t);
 
-    const media = [];
-    $('.tw-video').each((_, el) => {
+    const rawItems = [];
+
+    $('.tw-video, .tw-image, .tw-photo, .tw-item, .media-item').each((_, el) => {
       const block = $(el);
-      const blockThumb = block.find('.thumbnail img').first().attr('src') || '';
-      const mp4Links = block.find('a:contains("Download MP4")');
-      if (mp4Links.length) {
-        const variantsRaw = [];
-        mp4Links.each((__, a) => {
-          const label = $(a).text().trim();
-          const href = $(a).attr('href');
-          const mq = label.match(/\(([^)]+)\)/);
-          if (href) variantsRaw.push({ quality: mq ? mq[1] : label, url: href });
-        });
-        variantsRaw.sort((a, b) => (parseInt(b.quality) || 0) - (parseInt(a.quality) || 0));
-        media.push({ type: 'video', thumbnail: blockThumb, variantsRaw });
-      } else {
-        const img = block.find('a:contains("Download Photo")').attr('href');
-        if (img) media.push({ type: 'image', thumbnail: blockThumb, downloadUrl: img });
+      const thumb = block.find('.thumbnail img, .image-tw img, img').first().attr('src') || '';
+      const vids = [];
+      block.find('a').each((__, a) => {
+        const txt = $(a).text().trim();
+        const href = $(a).attr('href') || '';
+        if (href && isVidTxt(txt)) vids.push({ quality: qualOf(txt), url: href });
+      });
+      if (vids.length) {
+        vids.sort((a, b) => (parseInt(b.quality) || 0) - (parseInt(a.quality) || 0));
+        rawItems.push({ type: 'video', thumbnail: thumb, vids });
+        return;
       }
+      block.find('a').each((__, a) => {
+        const txt = $(a).text().trim();
+        const href = $(a).attr('href') || '';
+        if (href && isImgTxt(txt)) rawItems.push({ type: 'image', thumbnail: thumb, dl: href });
+      });
     });
 
-    if (!media.length) return res.status(404).json({ Status: false, error: 'Media tidak ditemukan di tweet ini!' });
-
-    const sizeResults = await Promise.all(media.map(m => {
-      if (m.type === 'video') return Promise.all(m.variantsRaw.map(v => getSize(v.url)));
-      return getSize(m.downloadUrl);
-    }));
-
-    const finalMedia = media.map((m, idx) => {
-      let thumbMasked = '';
-      if (m.thumbnail) {
-        const tc = makeCode();
-        storeSet('resimg:' + tc, { u: m.thumbnail, k: 'img', ref: 'https://x2twitter.com/en' }, 3600);
-        thumbMasked = 'https://api.jhx.my.id/resimg/' + tc + '.jpg';
+    if (!rawItems.length) {
+      const vids = [];
+      const imgLinks = [];
+      $('a').each((_, a) => {
+        const txt = $(a).text().trim();
+        const href = $(a).attr('href') || '';
+        if (!href || href.startsWith('#')) return;
+        if (isVidTxt(txt)) vids.push({ quality: qualOf(txt), url: href });
+        else if (isImgTxt(txt) || href.includes('dl.snapcdn.app')) imgLinks.push(href);
+      });
+      if (vids.length) {
+        vids.sort((a, b) => (parseInt(b.quality) || 0) - (parseInt(a.quality) || 0));
+        rawItems.push({ type: 'video', thumbnail: $('img').first().attr('src') || '', vids });
       }
-      if (m.type === 'video') {
+      const thumbs = [];
+      $('.thumbnail img, .image-tw img').each((_, im) => { const s2 = $(im).attr('src'); if (s2) thumbs.push(s2); });
+      imgLinks.forEach((href, i) => rawItems.push({ type: 'image', thumbnail: thumbs[i] || href, dl: href }));
+    }
+
+    if (!rawItems.length) return res.status(404).json({ Status: false, error: 'Media tidak ditemukan di tweet ini!' });
+
+    const sizeResults = await Promise.all(rawItems.map(it => it.type === 'video' ? Promise.all(it.vids.map(v => getSize(v.url))) : getSize(it.dl)));
+
+    const media = rawItems.map((it, idx) => {
+      if (it.type === 'video') {
         return {
           type: 'video',
-          thumbnail: thumbMasked,
-          variants: m.variantsRaw.map((v, i) => {
+          thumbnail: it.thumbnail ? regImg(it.thumbnail).url : '',
+          variants: it.vids.map((v, i) => {
+            const reg = regVid(v.url);
             const sz = sizeResults[idx][i];
-            const code = makeCode();
-            storeSet('resvid:' + code, { u: v.url, k: 'vid', ref: 'https://x2twitter.com/en' }, 3600);
-            return { quality: v.quality, url: 'https://api.jhx.my.id/resvid/' + code + '.mp4', filename: 'JHTW_vid_' + code + '.mp4', size: sz, sizeHuman: human(sz) };
+            return { quality: v.quality, url: reg.url, filename: reg.filename, size: sz, sizeHuman: human(sz) };
           })
         };
       }
+      const reg = regImg(it.dl);
       const sz = sizeResults[idx];
-      const code = makeCode();
-      storeSet('resimg:' + code, { u: m.downloadUrl, k: 'img', ref: 'https://x2twitter.com/en' }, 3600);
       return {
         type: 'image',
-        thumbnail: thumbMasked || ('https://api.jhx.my.id/resimg/' + code + '.jpg'),
-        url: 'https://api.jhx.my.id/resimg/' + code + '.jpg',
-        filename: 'JHTW_img_' + code + '.jpg',
+        thumbnail: it.thumbnail ? regImg(it.thumbnail).url : reg.url,
+        url: reg.url,
+        filename: reg.filename,
         size: sz,
         sizeHuman: human(sz)
       };
@@ -304,7 +328,7 @@ app.post('/tw-downloader', async (req, res) => {
 
     res.json({
       Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: true,
-      data: { caption, media: finalMedia }
+      data: { caption, media }
     });
   } catch (e) { res.status(500).json({ Status: false, error: e.response?.data || e.message }); }
 });
