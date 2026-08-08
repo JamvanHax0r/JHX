@@ -280,7 +280,7 @@ async function dlTrack(i, btn){
   btn.disabled = true;
   btn.innerHTML = '<span class="spin">◌</span> MEMPROSES…';
   try {
-    const r = await fetch('https://api.jhx.my.id/sp-download', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ url: t.url }) });
+    const r = await fetch('https://api.jhx.my.id/sp-download', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ url: t.url, title: t.title, artist: t.artist }) });
     const j = await r.json();
     if (!j.Status) throw new Error(j.error || 'Gagal mengunduh.');
     openTrack(j.data, t);
