@@ -323,7 +323,7 @@ async function switchQuality(q, btn){
   btn.disabled = true;
   btn.innerHTML = '<span class="spin">◌</span> ' + q;
   try {
-    const r = await fetch('https://api.jhx.my.id/yt-download', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ url: currentMeta.data.youtube_url || currentMeta.meta.url, format: q }) });
+    const r = await fetch('https://api.jhx.my.id/yt-download', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ url: currentMedia.data.youtube_url || (currentMedia.meta && currentMedia.meta.url), format: q }) });
     const j = await r.json();
     if (!j.Status) throw new Error(j.error);
     currentMedia.data = j.data;

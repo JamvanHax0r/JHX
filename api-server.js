@@ -468,8 +468,8 @@ app.post('/yt-download', async (req, res) => {
         } else {
           const targetHeight = parseInt(format) || 720;
           const videoFormat = formats
-            .filter(f => f.vcodec && f.vcodec !== 'none' && f.height && f.height <= targetHeight + 10)
-            .sort((a, b) => (b.height || 0) - (a.height || 0))[0];
+            .filter(f => f.vcodec && f.vcodec !== 'none' && f.height)
+            .sort((a, b) => Math.abs((a.height || 0) - targetHeight) - Math.abs((b.height || 0) - targetHeight))[0];
           
           if (!videoFormat) return res.status(404).json({ Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: false, error: 'Format video ' + targetHeight + 'p tidak tersedia!' });
           
@@ -525,7 +525,8 @@ async function serveProxy(req, res) {
     if (req.headers.range) { res.status(206); if (up.headers['content-range']) res.setHeader('Content-Range', up.headers['content-range']); }
     res.setHeader('Accept-Ranges', 'bytes');
     up.data.on('error', (e) => console.error('[STREAM]', e.message));
-    res.setHeader('Content-Type', up.headers['content-type'] || (kind === 'vid' ? 'video/mp4' : kind === 'aud' ? 'audio/mpeg' : 'image/jpeg'));
+    const fallbackType = kind === 'vid' ? 'video/mp4' : kind === 'aud' ? 'audio/mpeg' : 'image/jpeg';
+    res.setHeader('Content-Type', up.headers['content-type'] || fallbackType);
     if (up.headers['content-length']) res.setHeader('Content-Length', up.headers['content-length']);
     res.setHeader('Content-Disposition', 'attachment; filename="' + baseName + '.' + ext + '"');
     res.setHeader('Cache-Control', 'public, max-age=86400');
