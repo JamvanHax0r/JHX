@@ -148,7 +148,7 @@ tailwind.config = {
     <h2 class="font-display font-bold text-3xl sm:text-4xl text-white">Pilih Module, Jalankan.</h2>
     <p class="text-slate-400 mt-3 max-w-2xl">Setiap module punya halaman dan endpoint sendiri. Ringan dipakai, cepat berjalan, aman dari awal sampai akhir.</p>
   </div>
-  <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-5 mb-5">
+  <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-5 mb-5">
     <a href="/igdl/" class="reveal card rounded-xl p-7 group block">
       <div class="flex items-center justify-between mb-5">
         <span class="w-11 h-11 rounded-lg bg-pk/10 border border-pk/25 flex items-center justify-center"><svg class="w-5 h-5 text-pk" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg></span>
@@ -183,6 +183,18 @@ tailwind.config = {
       <div class="flex items-center justify-between font-mono text-xs">
         <span class="text-slate-500">POST /api/tw-downloader</span>
         <span class="text-cy group-hover:translate-x-1 transition-transform">/twdl/ →</span>
+      </div>
+    </a>
+    <a href="/spdl/" class="reveal card rounded-xl p-7 group block">
+      <div class="flex items-center justify-between mb-5">
+        <span class="w-11 h-11 rounded-lg bg-lm/10 border border-lm/25 flex items-center justify-center"><svg class="w-5 h-5 text-lm" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.5 17.3c-.22.36-.68.47-1.04.25-2.86-1.75-6.46-2.14-10.7-1.17-.41.1-.82-.16-.91-.57-.1-.41.16-.82.57-.91 4.64-1.06 8.62-.6 11.83 1.36.36.22.47.68.25 1.04zm1.47-3.27c-.28.45-.87.6-1.32.32-3.28-2.01-8.28-2.6-12.17-1.42-.51.15-1.05-.13-1.2-.64-.15-.51.13-1.05.64-1.2 4.44-1.35 9.95-.69 13.73 1.62.45.28.6.87.32 1.32zm.13-3.4C15.18 8.28 8.67 8.06 4.91 9.2c-.61.19-1.26-.16-1.45-.77-.19-.61.16-1.26.77-1.45 4.31-1.31 11.5-1.05 16.08 1.67.55.33.73 1.04.4 1.59-.33.55-1.04.73-1.59.4z"/></svg></span>
+        <span class="font-mono text-[10px] text-lm border border-lm/25 bg-lm/5 rounded-full px-2.5 py-1">● STABLE</span>
+      </div>
+      <h3 class="font-display font-bold text-xl text-white mb-2 group-hover:text-lm transition-colors">Spotify Downloader</h3>
+      <p class="text-sm text-slate-400 leading-relaxed mb-6">Cari lagu atau tempel tautan track Spotify, unduh MP3 kualitas penuh dengan cover & metadata.</p>
+      <div class="flex items-center justify-between font-mono text-xs">
+        <span class="text-slate-500">POST /api/sp-search</span>
+        <span class="text-cy group-hover:translate-x-1 transition-transform">/spdl/ →</span>
       </div>
     </a>
   </div>
@@ -313,6 +325,7 @@ tailwind.config = {
         <a href="/igdl/" class="block hover:text-pk transition-colors">Instagram Downloader</a>
         <a href="/faceswap/" class="block hover:text-vi transition-colors">AI FaceSwap</a>
         <a href="/twdl/" class="block hover:text-cy transition-colors">Twitter / X Downloader</a>
+        <a href="/spdl/" class="block hover:text-lm transition-colors">Spotify Downloader</a>
         <span class="block text-slate-600">Captcha Solver — soon</span>
         <span class="block text-slate-600">Music Tools — soon</span>
       </div>
@@ -408,6 +421,20 @@ const ENDPOINTS = [
     body: { url: 'URL_HERE' },
     ok: { Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: true, data: { caption: 'Love. 🌹❤', thumbnail: 'https://api.jhx.my.id/resimg/T1A2.jpg', media: [ { type: 'video', variants: [ { quality: '1024p', url: 'https://api.jhx.my.id/resvid/W9X8.mp4', filename: 'JHTW_vid_W9X8.mp4', sizeHuman: '12.40 MB' }, { quality: '568p', url: 'https://api.jhx.my.id/resvid/Q3R7.mp4', filename: 'JHTW_vid_Q3R7.mp4', sizeHuman: '5.10 MB' } ] }, { type: 'image', url: 'https://api.jhx.my.id/resimg/B5N1.jpg', filename: 'JHTW_img_B5N1.jpg', sizeHuman: '812.3 KB' } ] } },
     err: { Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: false, error: 'URL Twitter/X tidak valid!' }
+  },
+  {
+    id: 'sps', method: 'POST', path: '/sp-search', title: 'Spotify Search', color: 'lm',
+    desc: 'Cari lagu di Spotify lewat kata kunci judul atau artis. Mengembalikan daftar hasil lengkap dengan cover, durasi, dan tautan track resmi untuk langsung diunduh.',
+    body: { q: 'Masa Mudaku Habis' },
+    ok: { Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: true, type: 'search', data: [ { title: 'Masa Mudaku Habis', artist: 'Ghea Indrawari', duration: '4:14', url: 'https://open.spotify.com/track/02awqZ2YBZXP2B2fHmCS5U', thumbnail: 'https://api.jhx.my.id/resimg/S1P9.jpg' } ] },
+    err: { Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: false, error: 'Lagu tidak ditemukan!' }
+  },
+  {
+    id: 'spd', method: 'POST', path: '/sp-download', title: 'Spotify Download', color: 'lm',
+    desc: 'Unduh track Spotify sebagai MP3 kualitas penuh. Link unduhan berumur pendek (±5 menit) sehingga harus segera disimpan setelah dibuat.',
+    body: { url: 'https://open.spotify.com/track/02awqZ2YBZXP2B2fHmCS5U' },
+    ok: { Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: true, type: 'download', data: { url: 'https://api.jhx.my.id/resvid/K8D3.mp3', filename: 'JHSP_aud_K8D3.mp3', spotify_url: 'https://open.spotify.com/track/02awqZ2YBZXP2B2fHmCS5U' } },
+    err: { Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: false, error: 'URL Spotify track tidak valid!' }
   },
   {
     id: 'up', method: 'POST', path: '/upload', title: 'Image Upload', color: 'cy',

@@ -334,6 +334,58 @@ app.post('/tw-downloader', async (req, res) => {
 });
 
 
+async function spotSession() {
+  const { data: taskData } = await axios.post('https://cap.jhx.my.id/api/createTask', { url: 'https://spotdown.org/', type: 'turnstile-min', sitekey: '0x4AAAAAACrWMhU5hqsstO80' });
+  const jobId = taskData && taskData.jobId;
+  if (!jobId) throw new Error('Gagal create task captcha spotdown');
+  let cfToken = null;
+  for (let i = 0; i < 20; i++) {
+    await sleep(3000);
+    const { data: pollData } = await axios.post('https://cap.jhx.my.id/api/getResult', { jobId });
+    if (pollData && pollData.status === 'ready' && pollData.solution && pollData.solution.token) { cfToken = pollData.solution.token; break; }
+  }
+  if (!cfToken) throw new Error('Timeout bypass Turnstile spotdown');
+  const { data: nonceData } = await axios.post('https://spotdown.org/apinew/issue-nonce', { cfToken });
+  const sessionToken = nonceData && nonceData.token;
+  if (!sessionToken) throw new Error('Gagal session token spotdown');
+  return sessionToken;
+}
+
+app.post('/sp-search', async (req, res) => {
+  try {
+    const q = (req.body && req.body.q) || '';
+    if (!q) return res.status(400).json({ Status: false, error: 'Kata kunci pencarian kosong!' });
+    const sessionToken = await spotSession();
+    const { data: searchData } = await axios.get('https://spotdown.org/apinew/song-details?url=' + encodeURIComponent(q), { headers: { 'Accept': 'application/json, text/plain, */*', 'X-Session-Token': sessionToken } });
+    const songs = (searchData && searchData.songs) || [];
+    if (!songs.length) return res.status(404).json({ Status: false, error: 'Lagu tidak ditemukan!' });
+    const results = songs.slice(0, 12).map(s => {
+      let thumb = '';
+      if (s.thumbnail) {
+        const c = makeCode();
+        storeSet('resimg:' + c, { u: s.thumbnail, k: 'img', ref: 'https://spotdown.org/' }, 7200);
+        thumb = 'https://api.jhx.my.id/resimg/' + c + '.jpg';
+      }
+      return { title: s.title || '', artist: s.artist || '', duration: s.duration || '', url: s.url || '', thumbnail: thumb };
+    });
+    res.json({ Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: true, type: 'search', data: results });
+  } catch (e) { res.status(500).json({ Status: false, error: e.response?.data || e.message }); }
+});
+
+app.post('/sp-download', async (req, res) => {
+  try {
+    const url = (req.body && req.body.url) || '';
+    if (!url || !/open\.spotify\.com\/track\//i.test(url)) return res.status(400).json({ Status: false, error: 'URL Spotify track tidak valid!' });
+    const sessionToken = await spotSession();
+    const { data: dlData } = await axios.post('https://spotdown.org/apinew/download', { url }, { headers: { 'Content-Type': 'application/json', 'Accept': 'application/json, text/plain, */*', 'X-Session-Token': sessionToken } });
+    if (!dlData || !dlData.success || !dlData.downloadUrl) throw new Error('Gagal mendapatkan link download spotdown');
+    const code = makeCode();
+    storeSet('resvid:' + code, { u: dlData.downloadUrl, k: 'aud', p: 'JHSP', ref: 'https://spotdown.org/' }, 240);
+    res.json({ Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: true, type: 'download', data: { url: 'https://api.jhx.my.id/resvid/' + code + '.mp3', filename: 'JHSP_aud_' + code + '.mp3', spotify_url: url } });
+  } catch (e) { res.status(500).json({ Status: false, error: e.response?.data || e.message }); }
+});
+
+
 /* ================= PROXY FILE ================= */
 async function serveProxy(req, res) {
   const route = req.path.startsWith('/resvid') ? 'resvid' : 'resimg';
@@ -360,7 +412,7 @@ async function serveProxy(req, res) {
     if (req.headers.range) { res.status(206); if (up.headers['content-range']) res.setHeader('Content-Range', up.headers['content-range']); }
     res.setHeader('Accept-Ranges', 'bytes');
     up.data.on('error', (e) => console.error('[STREAM]', e.message));
-    res.setHeader('Content-Type', up.headers['content-type'] || (kind === 'vid' ? 'video/mp4' : 'image/jpeg'));
+    res.setHeader('Content-Type', up.headers['content-type'] || (kind === 'vid' ? 'video/mp4' : kind === 'aud' ? 'audio/mpeg' : 'image/jpeg'));
     if (up.headers['content-length']) res.setHeader('Content-Length', up.headers['content-length']);
     res.setHeader('Content-Disposition', 'attachment; filename="' + prefix + '_' + code + '.' + ext + '"');
     res.setHeader('Cache-Control', 'public, max-age=86400');
