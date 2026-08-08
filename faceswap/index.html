@@ -13,7 +13,18 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.tailwindcss.com">
+function cp(id){
+  const el = document.getElementById(id);
+  if (!el) return;
+  navigator.clipboard.writeText(el.textContent).then(() => {
+    const btn = el.parentElement.querySelector('button');
+    const orig = btn.textContent;
+    btn.textContent = 'copied ✓';
+    setTimeout(() => btn.textContent = orig, 1500);
+  });
+}
+</script>
 <script>
 tailwind.config = { theme: { extend: {
   fontFamily: { sans:['Inter','sans-serif'], display:['Space Grotesk','sans-serif'], mono:['JetBrains Mono','monospace'] },
@@ -150,7 +161,61 @@ tailwind.config = { theme: { extend: {
     </div>
   </div>
 
-  <!-- DOCS -->
+  
+  <div class="mt-12 reveal">
+    <p class="font-mono text-xs text-vi mb-3">DEVELOPER REFERENCE</p>
+    <h2 class="font-display font-bold text-2xl text-white mb-6">Pakai Lewat Kode.</h2>
+    <div class="grid lg:grid-cols-2 gap-5">
+      <div class="card rounded-xl overflow-hidden">
+        <div class="px-5 py-3 border-b border-line flex items-center justify-between">
+          <div class="flex items-center gap-2"><span class="font-mono text-[10px] font-bold text-vi bg-vi/10 border border-vi/25 rounded px-2 py-0.5">POST</span><span class="font-mono text-xs text-white">/faceswap</span></div>
+          <button class="font-mono text-[10px] text-cy hover:text-white" onclick="cp('fs-req')">copy</button>
+        </div>
+        <pre id="fs-req" class="p-4 font-mono text-[11.5px] leading-relaxed text-slate-300 overflow-x-auto">curl -X POST https://api.jhx.my.id/faceswap \
+  -H "Content-Type: application/json" \
+  -d '{
+    "target": "https://i.top4top.io/p_3871i11ls0.jpg",
+    "swap": "https://j.top4top.io/p_3871f5uoh0.jpg"
+  }'</pre>
+      </div>
+      <div class="card rounded-xl overflow-hidden">
+        <div class="px-5 py-3 border-b border-line flex items-center justify-between">
+          <span class="font-mono text-[10px] text-slate-500">RESPONSE · 200 OK</span>
+          <button class="font-mono text-[10px] text-cy hover:text-white" onclick="cp('fs-res')">copy</button>
+        </div>
+        <pre id="fs-res" class="p-4 font-mono text-[11.5px] leading-relaxed text-slate-300 overflow-x-auto">{
+  "author_skrep": "JH a.k.a Dhika",
+  "status": true,
+  "data": {
+    "url": "https://api.jhx.my.id/resimg/J7K2.jpg",
+    "filename": "JHSwap_J7K2.jpg"
+  }
+}</pre>
+      </div>
+    </div>
+    <div class="mt-4 card rounded-xl overflow-hidden">
+      <div class="px-5 py-3 border-b border-line flex items-center justify-between">
+        <span class="font-mono text-[10px] text-slate-500">PYTHON EXAMPLE</span>
+        <button class="font-mono text-[10px] text-cy hover:text-white" onclick="cp('fs-py')">copy</button>
+      </div>
+      <pre id="fs-py" class="p-4 font-mono text-[11.5px] leading-relaxed text-slate-300 overflow-x-auto">import requests
+
+res = requests.post(
+    'https://api.jhx.my.id/faceswap',
+    json={
+        'target': 'https://i.top4top.io/p_3871i11ls0.jpg',
+        'swap': 'https://j.top4top.io/p_3871f5uoh0.jpg'
+    }
+)
+print(res.json())</pre>
+    </div>
+    <div class="mt-4 grid sm:grid-cols-2 gap-3 font-mono text-[11px] text-slate-500">
+      <p class="border border-line rounded-lg p-3">PROCESS TIME<br><span class="text-slate-300">~30-60 detik</span></p>
+      <p class="border border-line rounded-lg p-3">URL FORMAT<br><span class="text-slate-300">Harus berakhiran .jpg/.png</span></p>
+    </div>
+  </div>
+
+<!-- DOCS -->
   <div class="grid lg:grid-cols-2 gap-5 mt-10">
     <div class="card rounded-xl overflow-hidden">
       <div class="px-5 py-3 border-b border-line font-mono text-xs text-slate-500">endpoints</div>

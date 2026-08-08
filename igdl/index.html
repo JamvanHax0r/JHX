@@ -100,6 +100,58 @@ tailwind.config = { theme: { extend: {
       </ul>
     </div>
   </div>
+
+  <div class="mt-12 reveal">
+    <p class="font-mono text-xs text-cy mb-3">DEVELOPER REFERENCE</p>
+    <h2 class="font-display font-bold text-2xl text-white mb-6">Pakai Lewat Kode.</h2>
+    <div class="grid lg:grid-cols-2 gap-5">
+      <div class="card rounded-xl overflow-hidden">
+        <div class="px-5 py-3 border-b border-line flex items-center justify-between">
+          <div class="flex items-center gap-2"><span class="font-mono text-[10px] font-bold text-lm bg-lm/10 border border-lm/25 rounded px-2 py-0.5">POST</span><span class="font-mono text-xs text-white">/ig-downloader</span></div>
+          <button class="font-mono text-[10px] text-cy hover:text-white" onclick="cp('ig-req')">copy</button>
+        </div>
+        <pre id="ig-req" class="p-4 font-mono text-[11.5px] leading-relaxed text-slate-300 overflow-x-auto">curl -X POST https://api.jhx.my.id/ig-downloader \
+  -H "Content-Type: application/json" \
+  -d '{"url":"https://www.instagram.com/reel/..."}'</pre>
+      </div>
+      <div class="card rounded-xl overflow-hidden">
+        <div class="px-5 py-3 border-b border-line flex items-center justify-between">
+          <span class="font-mono text-[10px] text-slate-500">RESPONSE · 200 OK</span>
+          <button class="font-mono text-[10px] text-cy hover:text-white" onclick="cp('ig-res')">copy</button>
+        </div>
+        <pre id="ig-res" class="p-4 font-mono text-[11.5px] leading-relaxed text-slate-300 overflow-x-auto">{
+  "Status": true,
+  "data": {
+    "username": "jkt48.fiony",
+    "media": [
+      {
+        "type": "video",
+        "url": "https://api.jhx.my.id/resvid/0Z35.mp4",
+        "filename": "JHIG_vid_0Z35.mp4",
+        "sizeHuman": "9.90 MB"
+      }
+    ]
+  }
+}</pre>
+      </div>
+    </div>
+    <div class="mt-4 card rounded-xl overflow-hidden">
+      <div class="px-5 py-3 border-b border-line flex items-center justify-between">
+        <span class="font-mono text-[10px] text-slate-500">NODE.JS EXAMPLE</span>
+        <button class="font-mono text-[10px] text-cy hover:text-white" onclick="cp('ig-node')">copy</button>
+      </div>
+      <pre id="ig-node" class="p-4 font-mono text-[11.5px] leading-relaxed text-slate-300 overflow-x-auto">const res = await fetch('https://api.jhx.my.id/ig-downloader', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({ url: 'https://www.instagram.com/reel/...' })
+});
+const json = await res.json();
+if (json.Status) {
+  json.data.media.forEach(m => console.log(m.url));
+}</pre>
+    </div>
+  </div>
+
 </main>
 
 <footer class="border-t border-line bg-panel/60 py-9 px-4 text-center space-y-2.5">

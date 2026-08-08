@@ -45,21 +45,7 @@ tailwind.config = {
   @keyframes blink{50%{opacity:0}}
   .beat{display:inline-block;animation:beat 1.3s ease-in-out infinite;transform-origin:center}
   @keyframes beat{0%,100%{transform:scale(1)}12%{transform:scale(1.25)}24%{transform:scale(1)}36%{transform:scale(1.2)}48%{transform:scale(1)}}
-  .ep-card{cursor:pointer}
-  .ep-card:hover{border-color:rgba(139,92,246,.55);transform:translateY(-2px)}
-  .modal-bg{position:fixed;inset:0;background:rgba(3,6,10,.85);backdrop-filter:blur(12px);z-index:100;display:none;align-items:center;justify-content:center;padding:1rem}
-  .modal-bg.open{display:flex;animation:fadeIn .25s ease}
-  @keyframes fadeIn{from{opacity:0}to{opacity:1}}
-  .modal-box{background:#0b0e14;border:1px solid rgba(255,255,255,.08);border-radius:1.25rem;max-width:900px;width:100%;max-height:90vh;overflow-y:auto;box-shadow:0 40px 80px rgba(0,0,0,.6)}
-  .codeblk{background:#05060a;border:1px solid rgba(255,255,255,.06);border-radius:.75rem;overflow:hidden;position:relative}
-  .codeblk pre{padding:1rem;overflow-x:auto;font-size:12.5px;line-height:1.65;margin:0}
-  .codeblk .cp{position:absolute;top:.6rem;right:.6rem;font-size:10px;padding:.35rem .7rem;border-radius:.4rem;background:rgba(34,211,238,.1);color:#22d3ee;border:1px solid rgba(34,211,238,.25);cursor:pointer;transition:all .2s;font-family:ui-monospace,monospace}
-  .codeblk .cp:hover{background:rgba(34,211,238,.2)}
-  .codeblk .cp.ok{background:rgba(163,230,53,.15);color:#a3e635;border-color:rgba(163,230,53,.3)}
-  .tab-btn{padding:.5rem .9rem;border-radius:.5rem;font-size:11px;font-family:ui-monospace,monospace;color:#94a3b8;border:1px solid transparent;transition:all .2s;cursor:pointer}
-  .tab-btn.active{color:#22d3ee;background:rgba(34,211,238,.08);border-color:rgba(34,211,238,.3)}
-  .tab-btn:hover:not(.active){color:#e6e8ee;background:rgba(255,255,255,.03)}
-  ::-webkit-scrollbar{width:6px;height:6px}::-webkit-scrollbar-track{background:#05060a}::-webkit-scrollbar-thumb{background:#334155;border-radius:3px}::-webkit-scrollbar-thumb:hover{background:#22d3ee}
+  ::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:#05060a}::-webkit-scrollbar-thumb{background:#334155;border-radius:3px}::-webkit-scrollbar-thumb:hover{background:#22d3ee}
   ::selection{background:#8b5cf6;color:#fff}
 </style>
 </head>
@@ -69,6 +55,7 @@ tailwind.config = {
 <div class="orb orb-2"></div>
 <canvas id="particles"></canvas>
 
+<!-- NAVBAR -->
 <nav class="fixed w-full top-0 z-50 bg-night/75 backdrop-blur-xl border-b border-line">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
     <a href="/" class="flex items-center gap-3 group">
@@ -94,10 +81,11 @@ tailwind.config = {
   </div>
 </nav>
 
+<!-- HERO -->
 <header class="relative pt-32 pb-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
   <div class="grid lg:grid-cols-2 gap-14 items-center">
     <div class="reveal on">
-      <p class="font-mono text-xs text-vi mb-5">premium digital infrastructure — v2.0</p>
+      <p class="font-mono text-xs text-vi mb-5">// premium digital infrastructure — v2.0</p>
       <h1 class="font-display font-bold text-4xl sm:text-5xl lg:text-6xl leading-[1.08] text-white mb-6">
         Satu Platform.<br><span class="tgrad">Semua Digital Tools.</span>
       </h1>
@@ -108,7 +96,7 @@ tailwind.config = {
         <a href="#modules" class="px-7 py-3.5 rounded-lg bg-gradient-to-r from-cy to-vi text-night font-semibold text-center hover:shadow-[0_0_35px_rgba(34,211,238,.35)] transition-shadow">Jelajahi Modules</a>
         <a href="#api" class="px-7 py-3.5 rounded-lg border border-line font-mono text-sm text-slate-300 hover:border-vi/60 hover:text-white transition-colors text-center">curl -X POST /api →</a>
       </div>
-      <p class="font-mono text-[11px] text-slate-600 mt-7">100% gratis • tanpa kartu kredit • tanpa paywall</p>
+      <p class="font-mono text-[11px] text-slate-600 mt-7">// 100% gratis • tanpa kartu kredit • tanpa paywall</p>
     </div>
 
     <div class="reveal on card rounded-xl overflow-hidden shadow-2xl shadow-vi/10">
@@ -122,9 +110,9 @@ tailwind.config = {
           <p class="text-slate-500 pl-4">-H "content-type: application/json" \</p>
           <p class="text-slate-500 pl-4">-d '{ "url": "https://www.instagram.com/p/…" }'</p>
           <p class="text-slate-400 mt-3">{</p>
-          <p class="pl-4"><span class="text-cy">"Developer"</span>: <span class="text-lm">"JH a.k.a Dhika"</span>,</p>
+          <p class="pl-4"><span class="text-cy">"Skrep_by"</span>: <span class="text-lm">"JH a.k.a Dhika"</span>,</p>
           <p class="pl-4"><span class="text-cy">"Status"</span>: <span class="text-vi">true</span>,</p>
-          <p class="pl-4"><span class="text-cy">"media"</span>: [ { <span class="text-cy">"type"</span>: <span class="text-lm">"video"</span> } ]</p>
+          <p class="pl-4"><span class="text-cy">"media"</span>: [ { <span class="text-cy">"type"</span>: <span class="text-lm">"video"</span>, <span class="text-cy">"url"</span>: <span class="text-lm">"…/video.mp4"</span> } ]</p>
           <p class="text-slate-400">}</p>
           <p class="text-slate-300 mt-3"><span class="text-lm">➜</span> <span class="text-cy">~</span> <span class="text-lm">200 OK</span> · 47ms</p>
         </div>
@@ -133,6 +121,7 @@ tailwind.config = {
   </div>
 </header>
 
+<!-- STATS STRIP -->
 <section class="border-y border-line bg-panel/40">
   <div class="max-w-7xl mx-auto px-4 grid grid-cols-2 md:grid-cols-4 divide-x divide-line">
     <div class="py-6 px-4 text-center"><p class="font-mono text-xl text-cy">99.9%</p><p class="font-mono text-[10px] text-slate-500 tracking-widest mt-1">UPTIME SLA</p></div>
@@ -142,12 +131,15 @@ tailwind.config = {
   </div>
 </section>
 
+<!-- MODULES -->
 <section id="modules" class="py-24 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
   <div class="reveal mb-14">
-    <p class="font-mono text-xs text-vi mb-3">01 — MODULES</p>
+    <p class="font-mono text-xs text-vi mb-3">// 01 — MODULES</p>
     <h2 class="font-display font-bold text-3xl sm:text-4xl text-white">Pilih Module, Jalankan.</h2>
     <p class="text-slate-400 mt-3 max-w-2xl">Setiap module punya halaman dan endpoint sendiri. Ringan dipakai, cepat berjalan, aman dari awal sampai akhir.</p>
   </div>
+
+  <!-- Stable modules (clickable) -->
   <div class="grid md:grid-cols-2 gap-5 mb-5">
     <a href="/igdl/" class="reveal card rounded-xl p-7 group block">
       <div class="flex items-center justify-between mb-5">
@@ -161,6 +153,7 @@ tailwind.config = {
         <span class="text-cy group-hover:translate-x-1 transition-transform">/igdl/ →</span>
       </div>
     </a>
+
     <a href="/faceswap/" class="reveal card rounded-xl p-7 group block">
       <div class="flex items-center justify-between mb-5">
         <span class="w-11 h-11 rounded-lg bg-vi/10 border border-vi/25 flex items-center justify-center"><svg class="w-5 h-5 text-vi" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg></span>
@@ -174,11 +167,13 @@ tailwind.config = {
       </div>
     </a>
   </div>
+
+  <!-- Coming soon modules -->
   <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-5">
     <div class="reveal card card-soon rounded-xl p-7">
       <div class="flex items-center justify-between mb-5">
         <span class="w-11 h-11 rounded-lg bg-cy/10 border border-cy/25 flex items-center justify-center"><svg class="w-5 h-5 text-cy" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg></span>
-        <span class="font-mono text-[10px] text-slate-500 border border-line rounded-full px-2.5 py-1">○ SOON</span>
+        <span class="font-mono text-[10px] text-slate-500 border border-line rounded-full px-2.5 py-1">○ BETA — SOON</span>
       </div>
       <h3 class="font-display font-bold text-xl text-white mb-2">Captcha Solver</h3>
       <p class="text-sm text-slate-400 leading-relaxed">Bypass Turnstile & reCAPTCHA otomatis via neural solver cluster.</p>
@@ -210,23 +205,70 @@ tailwind.config = {
   </div>
 </section>
 
+<!-- API REFERENCE -->
 <section id="api" class="py-24 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto border-t border-line">
   <div class="reveal mb-14">
-    <p class="font-mono text-xs text-vi mb-3">02 — API REFERENCE</p>
+    <p class="font-mono text-xs text-vi mb-3">// 02 — API REFERENCE</p>
     <h2 class="font-display font-bold text-3xl sm:text-4xl text-white">REST API yang Rapi.</h2>
-    <p class="text-slate-400 mt-3 max-w-2xl">Semua endpoint terekspos sebagai JSON. Tanpa SDK wajib, tanpa auth ribet. Klik endpoint mana saja untuk melihat contoh kode dan respons.</p>
+    <p class="text-slate-400 mt-3 max-w-2xl">Semua module terekspos sebagai endpoint JSON. Tanpa SDK wajib, tanpa auth ribet — public beta.</p>
   </div>
-  <div class="grid md:grid-cols-2 gap-4 reveal" id="ep-grid"></div>
-  <div class="reveal pt-6 grid sm:grid-cols-3 gap-3 font-mono text-[11px] text-slate-500">
-    <p class="border border-line rounded-lg p-3">FORMAT<br><span class="text-slate-300">application/json</span></p>
-    <p class="border border-line rounded-lg p-3">RATE LIMIT<br><span class="text-slate-300">30 req / menit</span></p>
-    <p class="border border-line rounded-lg p-3">BASE URL<br><span class="text-slate-300">https://api.jhx.my.id</span></p>
+  <div class="grid lg:grid-cols-5 gap-6">
+    <div class="lg:col-span-3 space-y-3 reveal">
+      <div class="card rounded-lg px-5 py-4 flex items-center gap-4">
+        <span class="font-mono text-[10px] font-semibold text-lm bg-lm/10 border border-lm/25 rounded px-2 py-1">POST</span>
+        <span class="font-mono text-sm text-white flex-1 truncate">/api/ig-downloader</span>
+        <span class="hidden sm:block text-xs text-slate-500">Ekstrak media Instagram</span>
+        <span class="font-mono text-[10px] text-lm">● LIVE</span>
+      </div>
+      <div class="card rounded-lg px-5 py-4 flex items-center gap-4">
+        <span class="font-mono text-[10px] font-semibold text-vi bg-vi/10 border border-vi/25 rounded px-2 py-1">POST</span>
+        <span class="font-mono text-sm text-white flex-1 truncate">/api/faceswap</span>
+        <span class="hidden sm:block text-xs text-slate-500">AI neural face swap</span>
+        <span class="font-mono text-[10px] text-lm">● LIVE</span>
+      </div>
+      <div class="card rounded-lg px-5 py-4 flex items-center gap-4">
+        <span class="font-mono text-[10px] font-semibold text-cy bg-cy/10 border border-cy/25 rounded px-2 py-1">GET</span>
+        <span class="font-mono text-sm text-white flex-1 truncate">/api/health</span>
+        <span class="hidden sm:block text-xs text-slate-500">Health check & uptime</span>
+        <span class="font-mono text-[10px] text-lm">● LIVE</span>
+      </div>
+      <div class="card card-soon rounded-lg px-5 py-4 flex items-center gap-4">
+        <span class="font-mono text-[10px] font-semibold text-slate-400 bg-white/5 border border-line rounded px-2 py-1">POST</span>
+        <span class="font-mono text-sm text-slate-300 flex-1 truncate">/api/captcha-solver</span>
+        <span class="hidden sm:block text-xs text-slate-600">Solve challenge otomatis</span>
+        <span class="font-mono text-[10px] text-slate-600">○ SOON</span>
+      </div>
+      <div class="pt-4 grid sm:grid-cols-3 gap-3 font-mono text-[11px] text-slate-500">
+        <p class="border border-line rounded-lg p-3">FORMAT<br><span class="text-slate-300">application/json</span></p>
+        <p class="border border-line rounded-lg p-3">RATE LIMIT<br><span class="text-slate-300">30 req / menit</span></p>
+        <p class="border border-line rounded-lg p-3">AUTH<br><span class="text-slate-300">tidak diperlukan</span></p>
+      </div>
+    </div>
+    <div class="lg:col-span-2 reveal">
+      <div class="card rounded-xl overflow-hidden">
+        <div class="flex items-center justify-between px-4 py-2.5 border-b border-line">
+          <span class="font-mono text-xs text-slate-500">quickstart.js</span>
+          <button onclick="copyCode()" class="font-mono text-[10px] text-cy hover:text-white transition-colors" id="copybtn">[ copy ]</button>
+        </div>
+        <pre id="codeblock" class="p-4 font-mono text-[11.5px] leading-relaxed text-slate-300 overflow-x-auto">const res = await fetch(
+  "https://jhx.my.id/api/ig-downloader",
+  {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ url: IG_URL })
+  }
+);
+const json = await res.json();
+// json.data.media[] → downloadUrl</pre>
+      </div>
+    </div>
   </div>
 </section>
 
+<!-- WORKFLOW -->
 <section id="workflow" class="py-24 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto border-t border-line">
   <div class="reveal mb-14 text-center">
-    <p class="font-mono text-xs text-vi mb-3">03 — WORKFLOW</p>
+    <p class="font-mono text-xs text-vi mb-3">// 03 — WORKFLOW</p>
     <h2 class="font-display font-bold text-3xl sm:text-4xl text-white">Tiga Langkah Sederhana.</h2>
     <p class="text-slate-400 mt-3 max-w-2xl mx-auto">Dari perintah pertama sampai hasil di tangan Anda — tanpa friksi, tanpa antrian.</p>
   </div>
@@ -249,10 +291,11 @@ tailwind.config = {
   </div>
 </section>
 
+<!-- ABOUT -->
 <section id="about" class="py-24 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto border-t border-line">
   <div class="grid lg:grid-cols-2 gap-12 items-center">
     <div class="reveal">
-      <p class="font-mono text-xs text-vi mb-3">04 — ABOUT</p>
+      <p class="font-mono text-xs text-vi mb-3">// 04 — ABOUT</p>
       <h2 class="font-display font-bold text-3xl sm:text-4xl text-white mb-6">Dibangun Operator,<br>untuk Operator.</h2>
       <p class="text-slate-400 leading-relaxed mb-4">JH-Tools lahir dari kebutuhan harian: alat yang cepat, jujur soal privasi, dan tidak dibebani iklan atau paywall tersembunyi. Setiap module dirancang, diuji, dan dirawat oleh tim kecil yang memakai tool-nya sendiri setiap hari.</p>
       <p class="text-slate-400 leading-relaxed">Seluruh sistem berjalan di atas arsitektur edge yang ringan, dipantau 24/7, dan terus diperbarui berdasarkan masukan komunitas.</p>
@@ -265,6 +308,7 @@ tailwind.config = {
   </div>
 </section>
 
+<!-- CTA -->
 <section class="px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto pb-24">
   <div class="reveal card rounded-2xl p-10 sm:p-14 text-center relative overflow-hidden">
     <div class="absolute inset-0 bg-gradient-to-br from-cy/10 via-transparent to-vi/10 pointer-events-none"></div>
@@ -277,6 +321,7 @@ tailwind.config = {
   </div>
 </section>
 
+<!-- FOOTER -->
 <footer class="border-t border-line bg-panel/60 pt-14 pb-8 px-4 sm:px-6 lg:px-8">
   <div class="max-w-7xl mx-auto grid md:grid-cols-3 gap-10 mb-12">
     <div>
@@ -312,40 +357,6 @@ tailwind.config = {
   </div>
 </footer>
 
-<div class="modal-bg" id="modal">
-  <div class="modal-box">
-    <div class="flex items-center justify-between px-6 py-5 border-b border-line sticky top-0 bg-[#0b0e14] z-10">
-      <div>
-        <div class="flex items-center gap-3 mb-1">
-          <span id="md-method" class="font-mono text-[10px] font-bold bg-lm/15 text-lm border border-lm/30 rounded px-2 py-0.5">POST</span>
-          <h3 id="md-title" class="font-display font-bold text-lg text-white">Endpoint</h3>
-        </div>
-        <p id="md-path" class="font-mono text-sm text-cy">/api/...</p>
-      </div>
-      <button onclick="closeModal()" class="w-9 h-9 rounded-lg border border-line hover:border-pk/50 hover:text-pk flex items-center justify-center transition-colors">✕</button>
-    </div>
-    <div class="p-6 space-y-6">
-      <p id="md-desc" class="text-sm text-slate-400 leading-relaxed"></p>
-
-      <div>
-        <p class="font-mono text-[11px] tracking-widest text-slate-500 mb-3">REQUEST</p>
-        <div id="md-req-body" class="mb-3"></div>
-        <div class="flex flex-wrap gap-2 mb-3" id="md-lang-tabs"></div>
-        <div id="md-code-box"></div>
-      </div>
-
-      <div>
-        <p class="font-mono text-[11px] tracking-widest text-slate-500 mb-3">RESPONSE</p>
-        <div class="flex gap-2 mb-3">
-          <button class="tab-btn active" data-resp="ok" onclick="switchResp('ok', this)">✓ SUCCESS · 200</button>
-          <button class="tab-btn" data-resp="err" onclick="switchResp('err', this)">✗ ERROR · 4xx/5xx</button>
-        </div>
-        <div id="md-resp-box"></div>
-      </div>
-    </div>
-  </div>
-</div>
-
 <script>
 document.getElementById('yr').textContent = new Date().getFullYear();
 document.getElementById('mnav').onclick = () => document.getElementById('mmenu').classList.toggle('hidden');
@@ -353,9 +364,11 @@ document.getElementById('mnav').onclick = () => document.getElementById('mmenu')
 const io = new IntersectionObserver(es => es.forEach(e => e.isIntersecting && e.target.classList.add('on')), { threshold: .12 });
 document.querySelectorAll('.reveal').forEach(el => io.observe(el));
 
-const cmd = 'curl -X POST https://api.jhx.my.id/ig-downloader \\';
+const cmd = 'curl -X POST https://jhx.my.id/api/ig-downloader \\';
 let i = 0;
 (function type(){ if (i <= cmd.length) { document.getElementById('typed').textContent = cmd.slice(0, i++); setTimeout(type, 28); } else { document.getElementById('termout').style.opacity = 1; } })();
+
+function copyCode(){ navigator.clipboard.writeText(document.getElementById('codeblock').innerText); const b = document.getElementById('copybtn'); b.textContent = '[ copied ✓ ]'; setTimeout(() => b.textContent = '[ copy ]', 1500); }
 
 const cv = document.getElementById('particles'), cx = cv.getContext('2d'); let P = [];
 function rs(){ cv.width = innerWidth; cv.height = innerHeight; } addEventListener('resize', rs); rs();
@@ -367,151 +380,6 @@ for (let n = 0; n < Math.min(innerWidth / 22, 70); n++) P.push({ x: Math.random(
   for (let a=0;a<P.length;a++) for (let b=a+1;b<P.length;b++) { const dx=P[a].x-P[b].x, dy=P[a].y-P[b].y, d=dx*dx+dy*dy;
     if (d < 12000) { cx.strokeStyle = 'rgba(139,92,246,'+(0.08 - d/150000)+')'; cx.beginPath(); cx.moveTo(P[a].x,P[a].y); cx.lineTo(P[b].x,P[b].y); cx.stroke(); } }
   requestAnimationFrame(loop); })();
-
-const BASE = 'https://api.jhx.my.id';
-const ENDPOINTS = [
-  {
-    id: 'ig', method: 'POST', path: '/ig-downloader', title: 'Instagram Downloader', color: 'pk',
-    desc: 'Ekstrak semua media (video, foto, audio) dari URL Reels, Post, atau Story Instagram. Tanpa watermark, metadata user disertakan.',
-    body: { url: 'https://www.instagram.com/reel/DXwWz4Gx1lB/' },
-    ok: {
-      Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: true,
-      data: { username: 'jkt48.fiony', profilePic: 'https://api.jhx.my.id/resimg/K9TQ.jpg',
-        media: [{ type: 'video', thumbnail: 'https://api.jhx.my.id/resimg/M2XB.jpg', url: 'https://api.jhx.my.id/resvid/0Z35.mp4', filename: 'JHIG_vid_0Z35.mp4', size: 10383552, sizeHuman: '9.90 MB' }]
-      }
-    },
-    err: { Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: false, error: 'URL Instagram tidak valid!' }
-  },
-  {
-    id: 'fs', method: 'POST', path: '/faceswap', title: 'AI FaceSwap', color: 'vi',
-    desc: 'Tukar wajah antar foto menggunakan neural face-swap engine. Kirim URL foto target (foto tujuan) dan URL foto source (wajah pengganti). Proses memakan waktu ±30-60 detik.',
-    body: { target: 'URL_TARGET_HERE', swap: 'URL_FACE_HERE' },
-    ok: { Developer: 'JH a.k.a Dhika', kesayangan: 'Fiony Alveria♡', status: true, data: { url: 'https://api.jhx.my.id/resimg/J7K2.jpg', filename: 'JHSwap_J7K2.jpg' } },
-    err: { status: false, error: 'Deteksi wajah gagal! Pastikan foto jelas & wajah terlihat.' }
-  },
-  {
-    id: 'up', method: 'POST', path: '/upload', title: 'Image Upload', color: 'cy',
-    desc: 'Upload gambar sebagai base64 untuk mendapatkan URL publik (jhx.my.id). Digunakan internal untuk FaceSwap saat user memilih mode upload, bisa juga dipakai untuk keperluan custom.',
-    body: { b64: '/9j/4AAQ...(base64 gambar)', ct: 'image/jpeg' },
-    ok: { status: true, url: 'https://api.jhx.my.id/resimg/WFY7.jpg' },
-    err: { status: false, error: 'File kosong!' }
-  },
-  {
-    id: 'hl', method: 'GET', path: '/health', title: 'Health Check', color: 'lm',
-    desc: 'Cek status API dan uptime server. Tidak perlu body request. Berguna untuk monitoring dan integrasi watchdog.',
-    body: null,
-    ok: { service: 'JH-Tools API', status: 'operational', uptime: 12847.42, version: '2.0.0', region: 'vps' },
-    err: { error: 'service unavailable' }
-  }
-];
-
-function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-function colorize(json){
-  return esc(JSON.stringify(json, null, 2))
-    .replace(/&quot;([^&]+?)&quot;(\s*:)/g, '<span style="color:#22d3ee">"$1"</span>$2')
-    .replace(/:\s*&quot;([^&]*?)&quot;/g, ': <span style="color:#a3e635">"$1"</span>')
-    .replace(/:\s*(true|false|null)/g, ': <span style="color:#8b5cf6">$1</span>')
-    .replace(/:\s*(\d+\.?\d*)/g, ': <span style="color:#ec4899">$1</span>');
-}
-
-function buildCodes(ep){
-  const bodyStr = ep.body ? JSON.stringify(ep.body, null, 2) : null;
-  const bodyLine = ep.body ? JSON.stringify(ep.body) : null;
-  return {
-    curl: ep.method === 'GET'
-      ? `curl -X GET ${BASE}${ep.path}`
-      : `curl -X POST ${BASE}${ep.path} \\\n  -H "Content-Type: application/json" \\\n  -d '${bodyLine}'`,
-    node: ep.method === 'GET'
-      ? `const res = await fetch('${BASE}${ep.path}');\nconst data = await res.json();\nconsole.log(data);`
-      : `const res = await fetch('${BASE}${ep.path}', {\n  method: 'POST',\n  headers: { 'Content-Type': 'application/json' },\n  body: JSON.stringify(${bodyStr})\n});\nconst data = await res.json();\nconsole.log(data);`,
-    python: ep.method === 'GET'
-      ? `import requests\n\nres = requests.get('${BASE}${ep.path}')\nprint(res.json())`
-      : `import requests\n\nres = requests.post(\n    '${BASE}${ep.path}',\n    json=${bodyStr}\n)\nprint(res.json())`,
-    php: ep.method === 'GET'
-      ? `$ch = curl_init('${BASE}${ep.path}');\ncurl_setopt($ch, CURLOPT_RETURNTRANSFER, true);\n$res = curl_exec($ch);\ncurl_close($ch);\necho $res;`
-      : `$ch = curl_init('${BASE}${ep.path}');\ncurl_setopt($ch, CURLOPT_POST, true);\ncurl_setopt($ch, CURLOPT_POSTFIELDS, json_encode(${bodyLine}));\ncurl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);\ncurl_setopt($ch, CURLOPT_RETURNTRANSFER, true);\n$res = curl_exec($ch);\ncurl_close($ch);\necho $res;`
-  };
-}
-
-const grid = document.getElementById('ep-grid');
-ENDPOINTS.forEach(ep => {
-  const el = document.createElement('div');
-  el.className = 'card ep-card rounded-xl p-5 flex items-center gap-4';
-  el.onclick = () => openModal(ep.id);
-  el.innerHTML = `
-    <span class="font-mono text-[10px] font-bold bg-${ep.color}/10 border border-${ep.color}/25 text-${ep.color} rounded px-2.5 py-1">${ep.method}</span>
-    <div class="flex-1 min-w-0">
-      <p class="font-mono text-sm text-white truncate">${ep.path}</p>
-      <p class="text-xs text-slate-500 mt-0.5">${ep.title}</p>
-    </div>
-    <span class="text-cy text-lg">›</span>
-  `;
-  grid.appendChild(el);
-});
-
-let current = null;
-function openModal(id){
-  current = ENDPOINTS.find(e => e.id === id);
-  document.getElementById('md-method').textContent = current.method;
-  document.getElementById('md-method').className = `font-mono text-[10px] font-bold border rounded px-2 py-0.5 bg-${current.color}/10 text-${current.color} border-${current.color}/30`;
-  document.getElementById('md-title').textContent = current.title;
-  document.getElementById('md-path').textContent = BASE + current.path;
-  document.getElementById('md-desc').textContent = current.desc;
-
-  const reqBox = document.getElementById('md-req-body');
-  if (current.body){
-    reqBox.innerHTML = `<div class="codeblk"><button class="cp" onclick="cp('req')">copy</button><pre id="req">${colorize(current.body)}</pre></div>`;
-  } else {
-    reqBox.innerHTML = `<p class="text-xs text-slate-500 italic">Tidak memerlukan body (GET request).</p>`;
-  }
-
-  const tabs = document.getElementById('md-lang-tabs');
-  tabs.innerHTML = '';
-  ['curl','node','python','php'].forEach((lang, i) => {
-    const btn = document.createElement('button');
-    btn.className = 'tab-btn' + (i === 0 ? ' active' : '');
-    btn.textContent = { curl: 'cURL', node: 'Node.js', python: 'Python', php: 'PHP' }[lang];
-    btn.onclick = () => switchLang(lang, btn);
-    tabs.appendChild(btn);
-  });
-  switchLang('curl', tabs.firstChild);
-  switchResp('ok', document.querySelector('[data-resp="ok"]'));
-
-  document.getElementById('modal').classList.add('open');
-  document.body.style.overflow = 'hidden';
-}
-
-function closeModal(){
-  document.getElementById('modal').classList.remove('open');
-  document.body.style.overflow = '';
-}
-document.getElementById('modal').addEventListener('click', e => { if (e.target.id === 'modal') closeModal(); });
-document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
-
-function switchLang(lang, btn){
-  const codes = buildCodes(current);
-  document.querySelectorAll('#md-lang-tabs .tab-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  document.getElementById('md-code-box').innerHTML = `<div class="codeblk"><button class="cp" onclick="cp('code')">copy</button><pre id="code">${esc(codes[lang])}</pre></div>`;
-}
-
-function switchResp(kind, btn){
-  document.querySelectorAll('[data-resp]').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  const data = kind === 'ok' ? current.ok : current.err;
-  document.getElementById('md-resp-box').innerHTML = `<div class="codeblk"><button class="cp" onclick="cp('resp')">copy</button><pre id="resp">${colorize(data)}</pre></div>`;
-}
-
-function cp(which){
-  const el = document.getElementById(which);
-  if (!el) return;
-  navigator.clipboard.writeText(el.textContent).then(() => {
-    const btn = el.parentElement.querySelector('.cp');
-    btn.textContent = 'copied ✓';
-    btn.classList.add('ok');
-    setTimeout(() => { btn.textContent = 'copy'; btn.classList.remove('ok'); }, 1500);
-  });
-}
 </script>
 </body>
 </html>
