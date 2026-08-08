@@ -4,27 +4,16 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>AI FaceSwap — JH-Tools</title>
-<meta name="description" content="Tukar wajah di foto secara instan dengan neural face-swap engine. Via URL atau upload. Gratis & privat.">
+<meta name="description" content="Ekstrak video, foto & audio Instagram tanpa watermark. Cepat, privat, gratis.">
 <meta property="og:title" content="AI FaceSwap — JH-Tools">
-<meta property="og:description" content="Neural face-swap engine. Cepat, privat, gratis.">
+<meta property="og:description" content="Ekstrak media dari Reels, Post, dan Story. Tanpa watermark.">
 <meta property="og:image" content="https://jhax0r.my.id/logo.jpeg">
 <meta name="theme-color" content="#05060a">
 <link rel="icon" href="https://jhax0r.my.id/logo.jpeg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-<script src="https://cdn.tailwindcss.com">
-function cp(id){
-  const el = document.getElementById(id);
-  if (!el) return;
-  navigator.clipboard.writeText(el.textContent).then(() => {
-    const btn = el.parentElement.querySelector('button');
-    const orig = btn.textContent;
-    btn.textContent = 'copied ✓';
-    setTimeout(() => btn.textContent = orig, 1500);
-  });
-}
-</script>
+<script src="https://cdn.tailwindcss.com"></script>
 <script>
 tailwind.config = { theme: { extend: {
   fontFamily: { sans:['Inter','sans-serif'], display:['Space Grotesk','sans-serif'], mono:['JetBrains Mono','monospace'] },
@@ -35,8 +24,8 @@ tailwind.config = { theme: { extend: {
   body{background:#05060a;color:#e6e8ee;overflow-x:hidden}
   .grid-bg{position:fixed;inset:0;z-index:-2;background-image:linear-gradient(rgba(255,255,255,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.035) 1px,transparent 1px);background-size:56px 56px;mask-image:radial-gradient(ellipse 80% 60% at 50% 0%,black 40%,transparent 100%)}
   .orb{position:fixed;border-radius:9999px;filter:blur(110px);z-index:-1}
-  .orb-1{width:420px;height:420px;background:#6d28d9;top:-140px;left:-120px;opacity:.22}
-  .orb-2{width:380px;height:380px;background:#0e7490;bottom:-120px;right:-120px;opacity:.18}
+  .orb-1{width:420px;height:420px;background:#9d174d;top:-140px;right:-120px;opacity:.22}
+  .orb-2{width:380px;height:380px;background:#0e7490;bottom:-120px;left:-120px;opacity:.18}
   .tgrad{background:linear-gradient(90deg,#22d3ee,#8b5cf6,#ec4899,#22d3ee);background-size:300% 100%;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;animation:flow 7s linear infinite}
   @keyframes flow{0%{background-position:0% 50%}100%{background-position:300% 50%}}
   .card{background:rgba(11,14,20,.7);border:1px solid rgba(255,255,255,.07);backdrop-filter:blur(14px)}
@@ -55,7 +44,7 @@ tailwind.config = { theme: { extend: {
 <div class="grid-bg"></div><div class="orb orb-1"></div><div class="orb orb-2"></div>
 
 <nav class="fixed w-full top-0 z-50 bg-night/75 backdrop-blur-xl border-b border-line">
-  <div class="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+  <div class="max-w-5xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
     <div class="flex items-center gap-4">
       <a href="/" class="font-mono text-xs text-slate-400 hover:text-cy transition-colors">← /</a>
       <span class="w-px h-4 bg-line"></span>
@@ -70,14 +59,12 @@ tailwind.config = { theme: { extend: {
   </div>
 </nav>
 
-<main class="max-w-6xl mx-auto px-4 sm:px-6 pt-28 pb-20">
+<main class="max-w-5xl mx-auto px-4 sm:px-6 pt-28 pb-20">
   <p class="font-mono text-xs text-slate-600 mb-4">~/modules/<span class="text-vi">face-swap</span></p>
   <h1 class="font-display font-bold text-4xl sm:text-5xl text-white mb-4">AI Face<span class="tgrad">Swap</span></h1>
   <p class="text-slate-400 max-w-2xl leading-relaxed mb-10">Tempatkan wajah dari satu foto ke foto lain dengan neural face-swap engine. Masukkan via URL atau upload langsung — hasil tanpa watermark, diproses privat.</p>
 
-  <!-- INPUT PANELS -->
   <div class="grid lg:grid-cols-2 gap-5 mb-6">
-    <!-- TARGET -->
     <div class="card rounded-2xl p-6 border-t-2 border-t-cy/60">
       <div class="flex items-center justify-between mb-4">
         <p class="font-mono text-[11px] tracking-widest text-slate-400">A · TARGET <span class="text-slate-600">— foto tujuan</span></p>
@@ -87,7 +74,7 @@ tailwind.config = { theme: { extend: {
         </div>
       </div>
       <div id="t-url-box">
-        <input id="t-url" type="text" oninput="state.target=this.value.trim()||null;document.getElementById('t-img').src=this.value;mark('t')" placeholder="https://…/foto-target.jpg" class="w-full bg-black/50 border border-line rounded-lg px-4 py-3.5 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-cy/60 font-mono">
+        <input id="t-url" type="text" oninput="state.target=this.value.trim()||null;mark('t')" placeholder="https://…/foto-target.jpg" class="w-full bg-black/50 border border-line rounded-lg px-4 py-3.5 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-cy/60 font-mono">
       </div>
       <div id="t-up-box" class="hidden">
         <div id="t-drop" class="drop rounded-xl h-28 flex flex-col items-center justify-center gap-1.5 cursor-pointer text-center px-4" onclick="document.getElementById('t-file').click()">
@@ -103,7 +90,6 @@ tailwind.config = { theme: { extend: {
       </div>
     </div>
 
-    <!-- SOURCE -->
     <div class="card rounded-2xl p-6 border-t-2 border-t-pk/60">
       <div class="flex items-center justify-between mb-4">
         <p class="font-mono text-[11px] tracking-widest text-slate-400">B · SOURCE <span class="text-slate-600">— wajah pengganti</span></p>
@@ -113,7 +99,7 @@ tailwind.config = { theme: { extend: {
         </div>
       </div>
       <div id="s-url-box">
-        <input id="s-url" type="text" oninput="state.swap=this.value.trim()||null;document.getElementById('s-img').src=this.value;mark('s')" placeholder="https://…/foto-wajah.jpg" class="w-full bg-black/50 border border-line rounded-lg px-4 py-3.5 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-pk/60 font-mono">
+        <input id="s-url" type="text" oninput="state.swap=this.value.trim()||null;mark('s')" placeholder="https://…/foto-wajah.jpg" class="w-full bg-black/50 border border-line rounded-lg px-4 py-3.5 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-pk/60 font-mono">
       </div>
       <div id="s-up-box" class="hidden">
         <div id="s-drop" class="drop rounded-xl h-28 flex flex-col items-center justify-center gap-1.5 cursor-pointer text-center px-4" onclick="document.getElementById('s-file').click()">
@@ -130,14 +116,12 @@ tailwind.config = { theme: { extend: {
     </div>
   </div>
 
-  <!-- ACTION -->
   <div class="flex flex-col items-center gap-4 mb-8">
     <button id="btn" onclick="run()" class="w-full sm:w-auto px-12 py-4 rounded-xl bg-gradient-to-r from-cy via-vi to-pk text-white font-display font-bold text-lg hover:shadow-[0_0_45px_rgba(139,92,246,.45)] transition-all disabled:opacity-40 disabled:cursor-not-allowed">⚡ SWAP FACES</button>
     <p id="status" class="hidden font-mono text-[11px] text-cy"></p>
     <div id="err" class="hidden w-full max-w-2xl p-4 rounded-lg bg-red-500/10 border border-red-500/30 text-red-400 text-sm text-center"></div>
   </div>
 
-  <!-- RESULT -->
   <div id="res" class="hidden card rounded-2xl p-6 sm:p-8 border-t-2 border-t-lm/60">
     <div class="flex items-center justify-between mb-6">
       <p class="font-mono text-[11px] tracking-widest text-slate-400">HASIL <span class="text-lm">· NEURAL RENDER SELESAI</span></p>
@@ -160,61 +144,6 @@ tailwind.config = { theme: { extend: {
       </div>
     </div>
   </div>
-
-  
-  <div class="mt-12 reveal">
-    <p class="font-mono text-xs text-vi mb-3">DEVELOPER REFERENCE</p>
-    <h2 class="font-display font-bold text-2xl text-white mb-6">Pakai Lewat Kode.</h2>
-    <div class="grid lg:grid-cols-2 gap-5">
-      <div class="card rounded-xl overflow-hidden">
-        <div class="px-5 py-3 border-b border-line flex items-center justify-between">
-          <div class="flex items-center gap-2"><span class="font-mono text-[10px] font-bold text-vi bg-vi/10 border border-vi/25 rounded px-2 py-0.5">POST</span><span class="font-mono text-xs text-white">/faceswap</span></div>
-          <button class="font-mono text-[10px] text-cy hover:text-white" onclick="cp('fs-req')">copy</button>
-        </div>
-        <pre id="fs-req" class="p-4 font-mono text-[11.5px] leading-relaxed text-slate-300 overflow-x-auto">curl -X POST https://api.jhx.my.id/faceswap \
-  -H "Content-Type: application/json" \
-  -d '{
-    "target": "https://i.top4top.io/p_3871i11ls0.jpg",
-    "swap": "https://j.top4top.io/p_3871f5uoh0.jpg"
-  }'</pre>
-      </div>
-      <div class="card rounded-xl overflow-hidden">
-        <div class="px-5 py-3 border-b border-line flex items-center justify-between">
-          <span class="font-mono text-[10px] text-slate-500">RESPONSE · 200 OK</span>
-          <button class="font-mono text-[10px] text-cy hover:text-white" onclick="cp('fs-res')">copy</button>
-        </div>
-        <pre id="fs-res" class="p-4 font-mono text-[11.5px] leading-relaxed text-slate-300 overflow-x-auto">{
-  "author_skrep": "JH a.k.a Dhika",
-  "status": true,
-  "data": {
-    "url": "https://api.jhx.my.id/resimg/J7K2.jpg",
-    "filename": "JHSwap_J7K2.jpg"
-  }
-}</pre>
-      </div>
-    </div>
-    <div class="mt-4 card rounded-xl overflow-hidden">
-      <div class="px-5 py-3 border-b border-line flex items-center justify-between">
-        <span class="font-mono text-[10px] text-slate-500">PYTHON EXAMPLE</span>
-        <button class="font-mono text-[10px] text-cy hover:text-white" onclick="cp('fs-py')">copy</button>
-      </div>
-      <pre id="fs-py" class="p-4 font-mono text-[11.5px] leading-relaxed text-slate-300 overflow-x-auto">import requests
-
-res = requests.post(
-    'https://api.jhx.my.id/faceswap',
-    json={
-        'target': 'https://i.top4top.io/p_3871i11ls0.jpg',
-        'swap': 'https://j.top4top.io/p_3871f5uoh0.jpg'
-    }
-)
-print(res.json())</pre>
-    </div>
-    <div class="mt-4 grid sm:grid-cols-2 gap-3 font-mono text-[11px] text-slate-500">
-      <p class="border border-line rounded-lg p-3">PROCESS TIME<br><span class="text-slate-300">~30-60 detik</span></p>
-      <p class="border border-line rounded-lg p-3">URL FORMAT<br><span class="text-slate-300">Harus berakhiran .jpg/.png</span></p>
-    </div>
-  </div>
-
 
   <div class="mt-12 reveal">
     <p class="font-mono text-xs text-vi mb-3">DEVELOPER REFERENCE</p>
@@ -249,19 +178,21 @@ print(res.json())</pre>
     </div>
     <div class="mt-4 card rounded-xl overflow-hidden">
       <div class="px-5 py-3 border-b border-line flex items-center justify-between">
-        <span class="font-mono text-[10px] text-slate-500">PYTHON EXAMPLE</span>
-        <button class="font-mono text-[10px] text-cy hover:text-white" onclick="cp('fs-py')">copy</button>
+        <span class="font-mono text-[10px] text-slate-500">NODE.JS EXAMPLE</span>
+        <button class="font-mono text-[10px] text-cy hover:text-white" onclick="cp('fs-node')">copy</button>
       </div>
-      <pre id="fs-py" class="p-4 font-mono text-[11.5px] leading-relaxed text-slate-300 overflow-x-auto">import requests
-
-res = requests.post(
-    'https://api.jhx.my.id/faceswap',
-    json={
-        'target': 'URL_TARGET_HERE',
-        'swap': 'URL_FACE_HERE'
-    }
-)
-print(res.json())</pre>
+      <pre id="fs-node" class="p-4 font-mono text-[11.5px] leading-relaxed text-slate-300 overflow-x-auto">const res = await fetch('https://api.jhx.my.id/faceswap', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    target: 'URL_TARGET_HERE',
+    swap: 'URL_FACE_HERE'
+  })
+});
+const data = await res.json();
+if (data.status) {
+  console.log('Hasil:', data.data.url);
+}</pre>
     </div>
     <div class="mt-4 grid sm:grid-cols-2 gap-3 font-mono text-[11px] text-slate-500">
       <p class="border border-line rounded-lg p-3">PROCESS TIME<br><span class="text-slate-300">~30-60 detik</span></p>
@@ -269,7 +200,6 @@ print(res.json())</pre>
     </div>
   </div>
 
-<!-- DOCS -->
   <div class="grid lg:grid-cols-2 gap-5 mt-10">
     <div class="card rounded-xl overflow-hidden">
       <div class="px-5 py-3 border-b border-line font-mono text-xs text-slate-500">endpoints</div>
@@ -367,6 +297,17 @@ function resetAll() {
 }
 
 function showErr(msg) { if (!msg) { $('err').classList.add('hidden'); return; } $('err').textContent = '✗ ' + msg; $('err').classList.remove('hidden'); }
+
+function cp(id){
+  const el = document.getElementById(id);
+  if (!el) return;
+  navigator.clipboard.writeText(el.textContent).then(() => {
+    const btn = el.parentElement.querySelector('button');
+    const orig = btn.textContent;
+    btn.textContent = 'copied ✓';
+    setTimeout(() => btn.textContent = orig, 1500);
+  });
+}
 </script>
 </body>
 </html>
