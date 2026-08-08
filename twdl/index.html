@@ -230,7 +230,7 @@ async function run(){
         return `
         <div class="card rounded-xl overflow-hidden group sm:col-span-2">
           <div class="relative h-56 bg-black/60 cursor-pointer" onclick="openPreview(${i})">
-            ${j.data.thumbnail ? `<img src="${j.data.thumbnail}" onerror="this.style.display='none'" class="w-full h-full object-cover opacity-80 group-hover:opacity-100 group-hover:scale-105 transition-all duration-500" alt="">` : ''}
+            ${m.thumbnail ? `<img src="${m.thumbnail}" onerror="this.style.display='none'" class="w-full h-full object-cover opacity-80 group-hover:opacity-100 group-hover:scale-105 transition-all duration-500" alt="">` : ''}
             <span class="absolute top-2.5 left-2.5 font-mono text-[10px] uppercase tracking-wider text-white bg-black/70 border border-line rounded px-2 py-1">video · ${m.variants.length} kualitas</span>
             <span class="absolute inset-0 items-center justify-center hidden group-hover:flex bg-black/40 backdrop-blur-[2px]">
               <span class="w-12 h-12 rounded-full bg-white/15 border border-white/30 flex items-center justify-center text-white">▶</span>
@@ -251,7 +251,7 @@ async function run(){
       return `
       <div class="card rounded-xl overflow-hidden group">
         <div class="relative h-40 bg-black/60 cursor-pointer" onclick="openPreview(${i})">
-          <div class="w-full h-full flex items-center justify-center text-3xl">🖼️</div>
+          <img src="${m.thumbnail}" onerror="this.style.display='none'" class="w-full h-full object-cover opacity-80 group-hover:opacity-100 group-hover:scale-105 transition-all duration-500" alt="">
           <span class="absolute top-2.5 left-2.5 font-mono text-[10px] uppercase tracking-wider text-white bg-black/70 border border-line rounded px-2 py-1">image</span>
           ${m.sizeHuman ? `<span class="absolute top-2.5 right-2.5 font-mono text-[10px] text-white bg-black/70 border border-line rounded px-2 py-1">${m.sizeHuman}</span>` : ''}
           <span class="absolute inset-0 items-center justify-center hidden group-hover:flex bg-black/40 backdrop-blur-[2px]">
