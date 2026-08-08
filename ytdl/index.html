@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>YouTube Downloader — JH-Tools</title>
+<meta name="description" content="Cari video YouTube atau tempel tautan, unduh MP4 berbagai kualitas atau MP3 audio. Cepat, privat, gratis.">
+<meta property="og:title" content="YouTube Downloader — JH-Tools">
+<meta property="og:description" content="Search & download video YouTube multi-kualitas atau ekstrak audio MP3.">
+<meta property="og:image" content="https://jhax0r.my.id/logo.jpeg">
+<meta name="theme-color" content="#05060a">
+<link rel="icon" href="https://jhax0r.my.id/logo.jpeg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+tailwind.config = { theme: { extend: {
+  fontFamily: { sans:['Inter','sans-serif'], display:['Space Grotesk','sans-serif'], mono:['JetBrains Mono','monospace'] },
+  colors: { night:'#05060a', panel:'#0b0e14', line:'rgba(255,255,255,0.07)', cy:'#22d3ee', vi:'#8b5cf6', pk:'#ec4899', lm:'#a3e635', yt:'#FF0000' }
+}}}
+</script>
+<style>
+  body{background:#05060a;color:#e6e8ee;overflow-x:hidden}
+  .grid-bg{position:fixed;inset:0;z-index:-2;background-image:linear-gradient(rgba(255,255,255,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.035) 1px,transparent 1px);background-size:56px 56px;mask-image:radial-gradient(ellipse 80% 60% at 50% 0%,black 40%,transparent 100%)}
+  .orb{position:fixed;border-radius:9999px;filter:blur(110px);z-index:-1}
+  .orb-1{width:420px;height:420px;background:#dc2626;top:-140px;right:-120px;opacity:.2}
+  .orb-2{width:380px;height:380px;background:#0e7490;bottom:-120px;left:-120px;opacity:.18}
+  .tgrad{background:linear-gradient(90deg,#FF0000,#22d3ee,#FF0000);background-size:300% 100%;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;animation:flow 7s linear infinite}
+  @keyframes flow{0%{background-position:0% 50%}100%{background-position:300% 50%}}
+  .card{background:rgba(11,14,20,.7);border:1px solid rgba(255,255,255,.07);backdrop-filter:blur(14px)}
+  .beat{display:inline-block;animation:beat 1.3s ease-in-out infinite}
+  @keyframes beat{0%,100%{transform:scale(1)}12%{transform:scale(1.25)}24%{transform:scale(1)}36%{transform:scale(1.2)}48%{transform:scale(1)}}
+  .spin{display:inline-block;animation:spin 1s linear infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .qpill{padding:.4rem .8rem;border-radius:9999px;border:1px solid rgba(255,255,255,.07);color:#94a3b8;font-size:10px;transition:all .2s;cursor:pointer}
+  .qpill:hover{color:#e6e8ee}
+  .qpill.on{background:rgba(255,0,0,.15);color:#FF0000;border-color:rgba(255,0,0,.4)}
+  .modal-bg{position:fixed;inset:0;background:rgba(3,6,10,.92);backdrop-filter:blur(12px);z-index:100;display:none;align-items:center;justify-content:center;padding:1rem}
+  .modal-bg.open{display:flex;animation:fadeIn .25s ease}
+  @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+  .modal-box{background:#0b0e14;border:1px solid rgba(255,255,255,.08);border-radius:1.25rem;max-width:860px;width:100%;max-height:92vh;overflow-y:auto;box-shadow:0 40px 80px rgba(0,0,0,.6)}
+  ::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:#05060a}::-webkit-scrollbar-thumb{background:#334155;border-radius:3px}
+  ::selection{background:#FF0000;color:#fff}
+</style>
+</head>
+<body class="font-sans antialiased">
+<div class="grid-bg"></div><div class="orb orb-1"></div><div class="orb orb-2"></div>
+
+<nav class="fixed w-full top-0 z-50 bg-night/75 backdrop-blur-xl border-b border-line">
+  <div class="max-w-5xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+    <div class="flex items-center gap-4">
+      <a href="/" class="font-mono text-xs text-slate-400 hover:text-yt transition-colors">← /</a>
+      <span class="w-px h-4 bg-line"></span>
+      <a href="/" class="flex items-center gap-2.5">
+        <img src="https://jhax0r.my.id/logo.jpeg" class="h-8 w-8 rounded-lg border border-line" alt="JH-Tools">
+        <span class="font-display font-bold text-white">JH-<span class="tgrad">TOOLS</span></span>
+      </a>
+    </div>
+    <span class="flex items-center gap-2 font-mono text-[10px] text-lm border border-lm/25 bg-lm/5 rounded-full px-3 py-1">
+      <span class="w-1.5 h-1.5 rounded-full bg-lm animate-pulse"></span>VIDEO MODULE · v1.0
+    </span>
+  </div>
+</nav>
+
+<main class="max-w-5xl mx-auto px-4 sm:px-6 pt-28 pb-20">
+  <p class="font-mono text-xs text-slate-600 mb-4">~/modules/<span class="text-yt">yt-downloader</span></p>
+  <h1 class="font-display font-bold text-4xl sm:text-5xl text-white mb-4">YouTube <span class="tgrad">Downloader</span></h1>
+  <p class="text-slate-400 max-w-2xl leading-relaxed mb-10">Cari video YouTube atau tempel tautan langsung. Pilih kualitas video (360p/720p/1080p) atau ekstrak audio MP3 — semua tanpa watermark.</p>
+
+  <div class="card rounded-2xl p-6 sm:p-8 border-t-2 border-t-yt/60">
+    <label class="font-mono text-[11px] text-slate-500 tracking-widest block mb-3">CARI VIDEO / URL YOUTUBE</label>
+    <div class="flex flex-col sm:flex-row gap-3">
+      <input id="q" type="text" placeholder="Rick Astley Never Gonna Give You Up — atau — https://youtube.com/watch?v=…" class="flex-1 bg-black/50 border border-line rounded-lg px-5 py-4 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-yt/60 focus:ring-1 focus:ring-yt/40 transition-all font-mono">
+      <div class="flex gap-3">
+        <button onclick="pasteQ()" class="px-5 py-4 rounded-lg border border-line font-mono text-xs text-slate-300 hover:border-yt/50 hover:text-yt transition-colors">PASTE</button>
+        <button id="btn" onclick="run()" class="px-8 py-4 rounded-lg bg-gradient-to-r from-yt to-cy text-white font-semibold text-sm hover:shadow-[0_0_30px_rgba(255,0,0,.4)] transition-shadow disabled:opacity-40 disabled:cursor-not-allowed whitespace-nowrap">CARI / UNDUH ⏎</button>
+      </div>
+    </div>
+    <p id="status" class="hidden font-mono text-[11px] text-yt mt-4"></p>
+    <div id="err" class="hidden mt-5 p-4 rounded-lg bg-red-500/10 border border-red-500/30 text-red-400 text-sm"></div>
+
+    <div id="res" class="hidden mt-8 border-t border-line pt-7">
+      <p id="rtitle" class="font-mono text-[11px] tracking-widest text-slate-400 mb-6">HASIL PENCARIAN</p>
+      <div id="rgrid" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4"></div>
+    </div>
+  </div>
+
+  <div class="mt-12">
+    <p class="font-mono text-xs text-yt mb-3">DEVELOPER REFERENCE</p>
+    <h2 class="font-display font-bold text-2xl text-white mb-6">Pakai Lewat Kode.</h2>
+    <div class="grid lg:grid-cols-2 gap-5">
+      <div class="card rounded-xl overflow-hidden">
+        <div class="px-5 py-3 border-b border-line flex items-center justify-between">
+          <div class="flex items-center gap-2"><span class="font-mono text-[10px] font-bold text-lm bg-lm/10 border border-lm/25 rounded px-2 py-0.5">POST</span><span class="font-mono text-xs text-white">/yt-search</span></div>
+          <button class="font-mono text-[10px] text-cy hover:text-white" onclick="cp('yt-req')">copy</button>
+        </div>
+        <pre id="yt-req" class="p-4 font-mono text-[11.5px] leading-relaxed text-slate-300 overflow-x-auto">curl -X POST https://api.jhx.my.id/yt-search \
+  -H "Content-Type: application/json" \
+  -d '{"q":"QUERY_HERE"}'</pre>
+      </div>
+      <div class="card rounded-xl overflow-hidden">
+        <div class="px-5 py-3 border-b border-line flex items-center justify-between">
+          <div class="flex items-center gap-2"><span class="font-mono text-[10px] font-bold text-lm bg-lm/10 border border-lm/25 rounded px-2 py-0.5">POST</span><span class="font-mono text-xs text-white">/yt-download</span></div>
+          <button class="font-mono text-[10px] text-cy hover:text-white" onclick="cp('yt-req2')">copy</button>
+        </div>
+        <pre id="yt-req2" class="p-4 font-mono text-[11.5px] leading-relaxed text-slate-300 overflow-x-auto">curl -X POST https://api.jhx.my.id/yt-download \
+  -H "Content-Type: application/json" \
+  -d '{"url":"URL_YT_HERE","format":"720"}'</pre>
+      </div>
+    </div>
+    <div class="mt-4 grid lg:grid-cols-2 gap-5">
+      <div class="card rounded-xl overflow-hidden">
+        <div class="px-5 py-3 border-b border-line flex items-center justify-between">
+          <span class="font-mono text-[10px] text-slate-500">RESPONSE SEARCH · 200 OK</span>
+          <button class="font-mono text-[10px] text-cy hover:text-white" onclick="cp('yt-res')">copy</button>
+        </div>
+        <pre id="yt-res" class="p-4 font-mono text-[11.5px] leading-relaxed text-slate-300 overflow-x-auto">{
+  "Status": true,
+  "type": "search",
+  "data": [
+    {
+      "title": "Never Gonna Give You Up",
+      "artist": "Rick Astley",
+      "duration": "3:33",
+      "url": "https://youtube.com/watch?v=dQw4w9WgXcQ",
+      "thumbnail": "https://api.jhx.my.id/resimg/YT01.jpg"
+    }
+  ]
+}</pre>
+      </div>
+      <div class="card rounded-xl overflow-hidden">
+        <div class="px-5 py-3 border-b border-line flex items-center justify-between">
+          <span class="font-mono text-[10px] text-slate-500">RESPONSE DOWNLOAD · 200 OK</span>
+          <button class="font-mono text-[10px] text-cy hover:text-white" onclick="cp('yt-res2')">copy</button>
+        </div>
+        <pre id="yt-res2" class="p-4 font-mono text-[11.5px] leading-relaxed text-slate-300 overflow-x-auto">{
+  "Status": true,
+  "type": "download",
+  "data": {
+    "url": "https://api.jhx.my.id/resvid/VD01.mp4",
+    "filename": "JHYT_Never_Gonna_Give_You_Up.mp4",
+    "format": "720p"
+  }
+}</pre>
+      </div>
+    </div>
+    <div class="mt-4 card rounded-xl overflow-hidden">
+      <div class="px-5 py-3 border-b border-line flex items-center justify-between">
+        <span class="font-mono text-[10px] text-slate-500">NODE.JS EXAMPLE</span>
+        <button class="font-mono text-[10px] text-cy hover:text-white" onclick="cp('yt-node')">copy</button>
+      </div>
+      <pre id="yt-node" class="p-4 font-mono text-[11.5px] leading-relaxed text-slate-300 overflow-x-auto">const search = await fetch('https://api.jhx.my.id/yt-search', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({ q: 'QUERY_HERE' })
+}).then(r => r.json());
+
+const dl = await fetch('https://api.jhx.my.id/yt-download', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({ url: search.data[0].url, format: '720' })
+}).then(r => r.json());
+
+console.log(dl.data.url);</pre>
+    </div>
+  </div>
+
+  <div class="grid lg:grid-cols-2 gap-5 mt-10">
+    <div class="card rounded-xl overflow-hidden">
+      <div class="px-5 py-3 border-b border-line font-mono text-xs text-slate-500">endpoints</div>
+      <div class="p-5 font-mono text-sm space-y-2.5">
+        <p><span class="text-lm bg-lm/10 border border-lm/25 rounded px-2 py-0.5 text-[10px] font-semibold">POST</span> <span class="text-white">/yt-search</span> <span class="text-slate-600 text-xs">— { q }</span></p>
+        <p><span class="text-lm bg-lm/10 border border-lm/25 rounded px-2 py-0.5 text-[10px] font-semibold">POST</span> <span class="text-white">/yt-download</span> <span class="text-slate-600 text-xs">— { url, format }</span></p>
+        <p><span class="text-yt bg-yt/10 border border-yt/25 rounded px-2 py-0.5 text-[10px] font-semibold">GET</span> <span class="text-white">/resvid/:code.mp4</span> <span class="text-slate-600 text-xs">— proxy video</span></p>
+        <p><span class="text-lm bg-lm/10 border border-lm/25 rounded px-2 py-0.5 text-[10px] font-semibold">GET</span> <span class="text-white">/resaud/:code.m4a</span> <span class="text-slate-600 text-xs">— proxy audio</span></p>
+      </div>
+    </div>
+    <div class="card rounded-xl overflow-hidden">
+      <div class="px-5 py-3 border-b border-line font-mono text-xs text-slate-500">catatan</div>
+      <ul class="p-5 text-sm text-slate-400 space-y-2.5">
+        <li><span class="text-yt">→</span> Support video YouTube, Shorts, dan playlist.</li>
+        <li><span class="text-yt">→</span> Format: "360", "720", "1080" untuk video, "audio" untuk MP3.</li>
+        <li><span class="text-yt">→</span> Link unduhan aktif ±1 jam — segera simpan.</li>
+      </ul>
+    </div>
+  </div>
+</main>
+
+<div class="modal-bg" id="pmodal">
+  <div class="modal-box">
+    <div class="flex items-center justify-between px-5 py-4 border-b border-line">
+      <div class="flex items-center gap-3 min-w-0">
+        <span class="font-mono text-[10px] uppercase tracking-wider text-yt bg-yt/10 border border-yt/25 rounded px-2 py-0.5">video</span>
+        <p id="pm-name" class="font-mono text-xs text-slate-300 truncate"></p>
+      </div>
+      <button onclick="closeTrack()" class="w-9 h-9 rounded-lg border border-line hover:border-yt/50 hover:text-yt flex items-center justify-center transition-colors">✕</button>
+    </div>
+    <div class="p-6 space-y-5">
+      <div id="pm-meta" class="flex items-center gap-4">
+        <img id="pm-cover" src="" class="w-24 h-24 rounded-lg object-cover border border-line" alt="">
+        <div class="min-w-0 flex-1">
+          <p id="pm-title" class="font-display font-bold text-white truncate"></p>
+          <p id="pm-artist" class="font-mono text-xs text-slate-500 truncate mt-1"></p>
+          <p id="pm-dur" class="font-mono text-[10px] text-slate-600 mt-1"></p>
+        </div>
+      </div>
+      <div id="pm-quality" class="space-y-2">
+        <p class="font-mono text-[10px] text-slate-500">PILIH KUALITAS</p>
+        <div class="flex flex-wrap gap-2" id="pm-pills"></div>
+      </div>
+      <video id="pm-video" controls class="w-full max-h-[50vh] rounded-lg bg-black" style="display:none"></video>
+      <audio id="pm-audio" controls class="w-full" style="display:none"></audio>
+      <p class="font-mono text-[10px] text-amber-400">⏳ link aktif ±1 jam — putar atau simpan segera.</p>
+    </div>
+    <div class="px-6 py-4 border-t border-line flex justify-end gap-3">
+      <button onclick="playMedia()" class="font-mono text-xs bg-white/5 border border-line text-white px-5 py-2.5 rounded-lg hover:bg-white/10 transition-all">▶ PREVIEW</button>
+      <a id="pm-dl" href="#" target="_blank" rel="noopener" class="font-mono text-xs bg-gradient-to-r from-yt to-cy text-white font-bold px-6 py-2.5 rounded-lg hover:shadow-[0_0_25px_rgba(255,0,0,.4)] transition-shadow">⤓ DOWNLOAD</a>
+    </div>
+  </div>
+</div>
+
+<footer class="border-t border-line bg-panel/60 py-9 px-4 text-center space-y-2.5">
+  <p class="text-sm text-slate-400">Made with <span class="beat text-pk">❤</span> by <span class="tgrad font-display font-bold text-base">JamvanHax0r</span></p>
+  <p class="text-sm text-slate-500">Supported by: <span class="text-cy font-medium">BCCTeam</span> <span class="text-slate-700">—</span> <span class="text-vi font-medium">FLMGroup</span> <span class="text-slate-700">—</span> <span class="text-pk font-medium">Fiony Bot</span></p>
+  <p class="font-mono text-xs text-slate-600">© <span id="yr"></span> — All Rights Reserved</p>
+</footer>
+
+<script>
+document.getElementById('yr').textContent = new Date().getFullYear();
+const $ = id => document.getElementById(id);
+let lastResults = [];
+let currentMedia = null;
+
+function escT(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+async function pasteQ(){ try { $('q').value = await navigator.clipboard.readText(); } catch(e){ $('q').focus(); } }
+
+const steps = ['[1/3] mencari video…','[2/3] mengambil metadata…','[3/3] menyiapkan download…'];
+async function run(){
+  const val = $('q').value.trim();
+  $('err').classList.add('hidden'); $('res').classList.add('hidden');
+  if (!val) { showErr('Isi kata kunci atau URL YouTube.'); return; }
+  const isUrl = /youtube\.com|youtu\.be/i.test(val);
+
+  $('btn').disabled = true; $('status').classList.remove('hidden');
+  let s = 0; $('status').textContent = steps[0];
+  const iv = setInterval(() => { s = Math.min(s+1, 2); $('status').textContent = steps[s]; }, 5000);
+
+  try {
+    if (isUrl) {
+      const r = await fetch('https://api.jhx.my.id/yt-download', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ url: val, format: '720' }) });
+      const j = await r.json();
+      clearInterval(iv);
+      if (!j.Status) throw new Error(j.error || 'Gagal mengunduh.');
+      $('status').textContent = '✓ selesai — video siap diputar';
+      openTrack(j.data, null, j.data.available_qualities || ['720p']);
+    } else {
+      const r = await fetch('https://api.jhx.my.id/yt-search', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ q: val }) });
+      const j = await r.json();
+      clearInterval(iv);
+      if (!j.Status) throw new Error(j.error || 'Gagal mencari.');
+      lastResults = j.data;
+      $('status').textContent = '✓ ' + j.data.length + ' video ditemukan — pilih untuk mengunduh';
+      $('rtitle').textContent = 'HASIL PENCARIAN · "' + val.toUpperCase() + '"';
+      $('rgrid').innerHTML = lastResults.map((v, i) => `
+        <div class="card rounded-xl overflow-hidden group cursor-pointer" onclick="dlTrack(${i}, this)">
+          <div class="relative">
+            <img src="${v.thumbnail}" onerror="this.style.display='none'" class="w-full aspect-video object-cover group-hover:scale-105 transition-transform duration-500" alt="">
+            <span class="absolute bottom-2 right-2 font-mono text-[10px] bg-black/70 text-white border border-line rounded px-2 py-0.5">${escT(v.duration)}</span>
+            <span class="absolute inset-0 items-center justify-center hidden group-hover:flex bg-black/40 backdrop-blur-[2px]">
+              <span class="w-12 h-12 rounded-full bg-white/15 border border-white/30 flex items-center justify-center text-white">▶</span>
+            </span>
+          </div>
+          <div class="p-3.5 space-y-2">
+            <p class="font-semibold text-sm text-white line-clamp-2 leading-tight">${escT(v.title)}</p>
+            <p class="font-mono text-[10px] text-slate-500 truncate">${escT(v.artist)}</p>
+          </div>
+        </div>`).join('');
+      $('res').classList.remove('hidden');
+    }
+  } catch(e){ clearInterval(iv); $('status').classList.add('hidden'); showErr(e.message); }
+  finally { $('btn').disabled = false; }
+}
+
+async function dlTrack(i, el){
+  const v = lastResults[i];
+  el.style.opacity = '0.5';
+  el.style.pointerEvents = 'none';
+  try {
+    const r = await fetch('https://api.jhx.my.id/yt-download', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ url: v.url, format: '720' }) });
+    const j = await r.json();
+    if (!j.Status) throw new Error(j.error || 'Gagal mengunduh.');
+    openTrack(j.data, v, j.data.available_qualities || ['720p']);
+  } catch(e){ showErr(e.message); }
+  finally { el.style.opacity = '1'; el.style.pointerEvents = 'auto'; }
+}
+
+function openTrack(data, meta, qualities){
+  currentMedia = { data, meta, qualities, selectedFormat: qualities[0] };
+  $('pm-name').textContent = data.filename;
+  $('pm-dl').href = data.url;
+  if (meta) {
+    $('pm-meta').style.display = 'flex';
+    $('pm-cover').src = meta.thumbnail;
+    $('pm-title').textContent = meta.title;
+    $('pm-artist').textContent = meta.artist;
+    $('pm-dur').textContent = meta.duration;
+  } else {
+    $('pm-meta').style.display = 'none';
+  }
+  $('pm-pills').innerHTML = qualities.map((q, i) => `<button onclick="switchQuality('${q}', this)" class="qpill font-mono ${i===0?'on':''}">${q}</button>`).join('') + `<button onclick="switchQuality('audio', this)" class="qpill font-mono">AUDIO</button>`;
+  $('pm-video').style.display = 'none';
+  $('pm-audio').style.display = 'none';
+  $('pmodal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+async function switchQuality(q, btn){
+  document.querySelectorAll('.qpill').forEach(b => b.classList.remove('on'));
+  btn.classList.add('on');
+  currentMedia.selectedFormat = q;
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spin">◌</span> ' + q;
+  try {
+    const r = await fetch('https://api.jhx.my.id/yt-download', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ url: currentMeta.data.youtube_url || currentMeta.meta.url, format: q }) });
+    const j = await r.json();
+    if (!j.Status) throw new Error(j.error);
+    currentMedia.data = j.data;
+    $('pm-name').textContent = j.data.filename;
+    $('pm-dl').href = j.data.url;
+  } catch(e){ showErr('Gagal ganti kualitas: ' + e.message); }
+  finally { btn.disabled = false; btn.textContent = q; }
+}
+
+function playMedia(){
+  const isAudio = currentMedia.selectedFormat === 'audio' || currentMedia.data.url.includes('.m4a');
+  $('pm-video').style.display = isAudio ? 'none' : 'block';
+  $('pm-audio').style.display = isAudio ? 'block' : 'none';
+  if (isAudio) {
+    $('pm-audio').src = currentMedia.data.url;
+    $('pm-audio').play();
+  } else {
+    $('pm-video').src = currentMedia.data.url;
+    $('pm-video').play();
+  }
+}
+
+function closeTrack(){
+  $('pm-video').pause();
+  $('pm-video').src = '';
+  $('pm-audio').pause();
+  $('pm-audio').src = '';
+  $('pmodal').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+$('pmodal').addEventListener('click', e => { if (e.target.id === 'pmodal') closeTrack(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeTrack(); });
+
+function showErr(msg){ if (!msg) { $('err').classList.add('hidden'); return; } $('err').textContent = '✗ ' + msg; $('err').classList.remove('hidden'); }
+
+function cp(id){
+  const el = document.getElementById(id);
+  if (!el) return;
+  navigator.clipboard.writeText(el.textContent).then(() => {
+    const btn = el.parentElement.querySelector('button');
+    const orig = btn.textContent;
+    btn.textContent = 'copied ✓';
+    setTimeout(() => btn.textContent = orig, 1500);
+  });
+}
+</script>
+</body>
+</html>

@@ -197,6 +197,18 @@ tailwind.config = {
         <span class="text-cy group-hover:translate-x-1 transition-transform">/spdl/ →</span>
       </div>
     </a>
+    <a href="/ytdl/" class="reveal card rounded-xl p-7 group block">
+      <div class="flex items-center justify-between mb-5">
+        <span class="w-11 h-11 rounded-lg bg-yt/10 border border-yt/25 flex items-center justify-center"><svg class="w-5 h-5 text-yt" viewBox="0 0 24 24" fill="currentColor"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg></span>
+        <span class="font-mono text-[10px] text-lm border border-lm/25 bg-lm/5 rounded-full px-2.5 py-1">● STABLE</span>
+      </div>
+      <h3 class="font-display font-bold text-xl text-white mb-2 group-hover:text-yt transition-colors">YouTube Downloader</h3>
+      <p class="text-sm text-slate-400 leading-relaxed mb-6">Cari video YouTube atau tempel tautan, unduh MP4 multi-kualitas atau ekstrak audio MP3.</p>
+      <div class="flex items-center justify-between font-mono text-xs">
+        <span class="text-slate-500">POST /api/yt-search</span>
+        <span class="text-cy group-hover:translate-x-1 transition-transform">/ytdl/ →</span>
+      </div>
+    </a>
   </div>
   <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-5">
     <div class="reveal card card-soon rounded-xl p-7">
@@ -326,6 +338,7 @@ tailwind.config = {
         <a href="/faceswap/" class="block hover:text-vi transition-colors">AI FaceSwap</a>
         <a href="/twdl/" class="block hover:text-cy transition-colors">Twitter / X Downloader</a>
         <a href="/spdl/" class="block hover:text-lm transition-colors">Spotify Downloader</a>
+        <a href="/ytdl/" class="block hover:text-yt transition-colors">YouTube Downloader</a>
         <span class="block text-slate-600">Captcha Solver — soon</span>
         <span class="block text-slate-600">Music Tools — soon</span>
       </div>
@@ -428,6 +441,20 @@ const ENDPOINTS = [
     body: { q: 'Masa Mudaku Habis' },
     ok: { Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: true, type: 'search', data: [ { title: 'Masa Mudaku Habis', artist: 'Ghea Indrawari', duration: '4:14', url: 'https://open.spotify.com/track/02awqZ2YBZXP2B2fHmCS5U', thumbnail: 'https://api.jhx.my.id/resimg/S1P9.jpg' } ] },
     err: { Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: false, error: 'Lagu tidak ditemukan!' }
+  },
+  {
+    id: 'yts', method: 'POST', path: '/yt-search', title: 'YouTube Search', color: 'yt',
+    desc: 'Cari video di YouTube lewat kata kunci. Mengembalikan daftar hasil lengkap dengan thumbnail, durasi, dan tautan resmi untuk langsung diunduh.',
+    body: { q: 'Rick Astley Never Gonna Give You Up' },
+    ok: { Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: true, type: 'search', data: [ { id: 'dQw4w9WgXcQ', title: 'Never Gonna Give You Up', artist: 'Rick Astley', duration: '3:33', url: 'https://youtube.com/watch?v=dQw4w9WgXcQ', thumbnail: 'https://api.jhx.my.id/resimg/YT01.jpg' } ] },
+    err: { Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: false, error: 'Kata kunci pencarian kosong!' }
+  },
+  {
+    id: 'ytd', method: 'POST', path: '/yt-download', title: 'YouTube Download', color: 'yt',
+    desc: 'Unduh video YouTube dalam berbagai kualitas (360p/720p/1080p) atau ekstrak audio MP3. Link unduhan berumur pendek (±1 jam).',
+    body: { url: 'https://youtube.com/watch?v=dQw4w9WgXcQ', format: '720' },
+    ok: { Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: true, type: 'download', data: { url: 'https://api.jhx.my.id/resvid/VD01.mp4', filename: 'JHYT_Never_Gonna_Give_You_Up.mp4', format: '720p', available_qualities: ['360p', '720p', '1080p'] } },
+    err: { Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: false, error: 'URL YouTube tidak valid!' }
   },
   {
     id: 'spd', method: 'POST', path: '/sp-download', title: 'Spotify Download', color: 'lm',
