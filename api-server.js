@@ -214,6 +214,92 @@ app.post('/faceswap', async (req, res) => {
   } catch (e) { res.status(500).json({ status: false, error: e.message }); }
 });
 
+app.post('/tw-downloader', async (req, res) => {
+  try {
+    const url = (req.body && req.body.url) || '';
+    if (!url || !/(twitter\.com|x\.com)/.test(url)) return res.status(400).json({ Status: false, error: 'URL Twitter/X tidak valid!' });
+
+    const jantung = {
+      'content-type': 'application/x-www-form-urlencoded; charset=UTF-8',
+      'x-requested-with': 'XMLHttpRequest',
+      'accept': '*/*',
+      'Referer': 'https://x2twitter.com/en',
+      'User-Agent': UA
+    };
+
+    const { data: verifyData } = await axios.post('https://x2twitter.com/api/userverify', new URLSearchParams({ url }).toString(), { headers: jantung, validateStatus: () => true });
+    const token = verifyData && verifyData.token;
+    if (!token) throw new Error('Gagal mengambil token x2twitter');
+
+    const { data: searchData } = await axios.post('https://x2twitter.com/api/ajaxSearch', new URLSearchParams({ q: url, lang: 'en', cftoken: token }).toString(), { headers: jantung, validateStatus: () => true });
+    const $ = cheerio.load((searchData && searchData.data) || '');
+
+    const caption = $('.tw-middle .content h3').first().text().trim() || $('.tw-middle h3').first().text().trim() || '';
+    const thumbRaw = $('.thumbnail img').first().attr('src') || '';
+
+    const videos = [];
+    const images = [];
+    $('.tw-video').each((_, el) => {
+      const block = $(el);
+      const mp4Links = block.find('a:contains("Download MP4")');
+      if (mp4Links.length) {
+        mp4Links.each((__, a) => {
+          const label = $(a).text().trim();
+          const href = $(a).attr('href');
+          const mq = label.match(/\(([^)]+)\)/);
+          if (href) videos.push({ quality: mq ? mq[1] : label, url: href });
+        });
+      } else {
+        const img = block.find('a:contains("Download Photo")').attr('href');
+        if (img) images.push(img);
+      }
+    });
+
+    if (!videos.length && !images.length) return res.status(404).json({ Status: false, error: 'Media tidak ditemukan di tweet ini!' });
+
+    videos.sort((a, b) => (parseInt(b.quality) || 0) - (parseInt(a.quality) || 0));
+
+    async function getSize(u) {
+      try { const r = await axios.head(u, { timeout: 8000, headers: { 'User-Agent': UA } }); return parseInt(r.headers['content-length'] || '0') || 0; }
+      catch { return 0; }
+    }
+    function human(sz) { return sz > 0 ? (sz > 1048576 ? (sz / 1048576).toFixed(2) + ' MB' : (sz / 1024).toFixed(1) + ' KB') : null; }
+
+    const allUrls = videos.map(v => v.url).concat(images);
+    const sizes = await Promise.all(allUrls.map(getSize));
+
+    const media = [];
+    if (videos.length) {
+      media.push({
+        type: 'video',
+        variants: videos.map((v, i) => {
+          const code = makeCode();
+          storeSet('resvid:' + code, { u: v.url, k: 'vid', ref: 'https://x2twitter.com/en' }, 3600);
+          return { quality: v.quality, url: 'https://api.jhx.my.id/resvid/' + code + '.mp4', filename: 'JHTW_vid_' + code + '.mp4', size: sizes[i], sizeHuman: human(sizes[i]) };
+        })
+      });
+    }
+    images.forEach((img, i) => {
+      const code = makeCode();
+      storeSet('resimg:' + code, { u: img, k: 'img', ref: 'https://x2twitter.com/en' }, 3600);
+      const sz = sizes[videos.length + i];
+      media.push({ type: 'image', url: 'https://api.jhx.my.id/resimg/' + code + '.jpg', filename: 'JHTW_img_' + code + '.jpg', size: sz, sizeHuman: human(sz) });
+    });
+
+    let thumbnail = '';
+    if (thumbRaw) {
+      const tc = makeCode();
+      storeSet('resimg:' + tc, { u: thumbRaw, k: 'img', ref: 'https://x2twitter.com/en' }, 3600);
+      thumbnail = 'https://api.jhx.my.id/resimg/' + tc + '.jpg';
+    }
+
+    res.json({
+      Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: true,
+      data: { caption, thumbnail, media }
+    });
+  } catch (e) { res.status(500).json({ Status: false, error: e.response?.data || e.message }); }
+});
+
 /* ================= PROXY FILE ================= */
 async function serveProxy(req, res) {
   const route = req.path.startsWith('/resvid') ? 'resvid' : 'resimg';
@@ -234,7 +320,7 @@ async function serveProxy(req, res) {
   }
 
   try {
-    const hdrs = { 'User-Agent': UA, 'Referer': 'https://www.instagram.com/', 'Accept': '*/*' };
+    const hdrs = { 'User-Agent': UA, 'Referer': item.ref || 'https://www.instagram.com/', 'Accept': '*/*' };
     if (req.headers.range) hdrs.Range = req.headers.range;
     const up = await axios.get(item.u, { responseType: 'stream', timeout: 60000, headers: hdrs });
     if (req.headers.range) { res.status(206); if (up.headers['content-range']) res.setHeader('Content-Range', up.headers['content-range']); }

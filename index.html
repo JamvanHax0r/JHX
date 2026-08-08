@@ -148,7 +148,7 @@ tailwind.config = {
     <h2 class="font-display font-bold text-3xl sm:text-4xl text-white">Pilih Module, Jalankan.</h2>
     <p class="text-slate-400 mt-3 max-w-2xl">Setiap module punya halaman dan endpoint sendiri. Ringan dipakai, cepat berjalan, aman dari awal sampai akhir.</p>
   </div>
-  <div class="grid md:grid-cols-2 gap-5 mb-5">
+  <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-5 mb-5">
     <a href="/igdl/" class="reveal card rounded-xl p-7 group block">
       <div class="flex items-center justify-between mb-5">
         <span class="w-11 h-11 rounded-lg bg-pk/10 border border-pk/25 flex items-center justify-center"><svg class="w-5 h-5 text-pk" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg></span>
@@ -171,6 +171,18 @@ tailwind.config = {
       <div class="flex items-center justify-between font-mono text-xs">
         <span class="text-slate-500">POST /api/faceswap</span>
         <span class="text-cy group-hover:translate-x-1 transition-transform">/faceswap/ →</span>
+      </div>
+    </a>
+    <a href="/twdl/" class="reveal card rounded-xl p-7 group block">
+      <div class="flex items-center justify-between mb-5">
+        <span class="w-11 h-11 rounded-lg bg-cy/10 border border-cy/25 flex items-center justify-center"><svg class="w-5 h-5 text-cy" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M23 3a10.9 10.9 0 01-3.14 1.53 4.48 4.48 0 00-7.86 3v1A10.66 10.66 0 013 4s-4 9 5 13a11.64 11.64 0 01-7 2c9 5 20 0 20-11.5a4.5 4.5 0 00-.08-.83A7.72 7.72 0 0023 3z"/></svg></span>
+        <span class="font-mono text-[10px] text-lm border border-lm/25 bg-lm/5 rounded-full px-2.5 py-1">● STABLE</span>
+      </div>
+      <h3 class="font-display font-bold text-xl text-white mb-2 group-hover:text-cy transition-colors">Twitter / X Downloader</h3>
+      <p class="text-sm text-slate-400 leading-relaxed mb-6">Ekstrak video multi-kualitas & foto dari tweet, lengkap dengan caption. Tanpa watermark.</p>
+      <div class="flex items-center justify-between font-mono text-xs">
+        <span class="text-slate-500">POST /api/tw-downloader</span>
+        <span class="text-cy group-hover:translate-x-1 transition-transform">/twdl/ →</span>
       </div>
     </a>
   </div>
@@ -300,6 +312,7 @@ tailwind.config = {
       <div class="space-y-2 text-sm text-slate-400">
         <a href="/igdl/" class="block hover:text-pk transition-colors">Instagram Downloader</a>
         <a href="/faceswap/" class="block hover:text-vi transition-colors">AI FaceSwap</a>
+        <a href="/twdl/" class="block hover:text-cy transition-colors">Twitter / X Downloader</a>
         <span class="block text-slate-600">Captcha Solver — soon</span>
         <span class="block text-slate-600">Music Tools — soon</span>
       </div>
@@ -388,6 +401,13 @@ const ENDPOINTS = [
     body: { target: 'URL_TARGET_HERE', swap: 'URL_FACE_HERE' },
     ok: { Developer: 'JH a.k.a Dhika', kesayangan: 'Fiony Alveria♡', status: true, data: { url: 'https://api.jhx.my.id/resimg/J7K2.jpg', filename: 'JHSwap_J7K2.jpg' } },
     err: { status: false, error: 'Deteksi wajah gagal! Pastikan foto jelas & wajah terlihat.' }
+  },
+  {
+    id: 'tw', method: 'POST', path: '/tw-downloader', title: 'Twitter / X Downloader', color: 'cy',
+    desc: 'Ekstrak video dalam semua kualitas dan foto dari tweet atau status X, lengkap dengan caption. User bisa memilih kualitas video sesuai kebutuhan.',
+    body: { url: 'URL_HERE' },
+    ok: { Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: true, data: { caption: 'Love. 🌹❤', thumbnail: 'https://api.jhx.my.id/resimg/T1A2.jpg', media: [ { type: 'video', variants: [ { quality: '1024p', url: 'https://api.jhx.my.id/resvid/W9X8.mp4', filename: 'JHTW_vid_W9X8.mp4', sizeHuman: '12.40 MB' }, { quality: '568p', url: 'https://api.jhx.my.id/resvid/Q3R7.mp4', filename: 'JHTW_vid_Q3R7.mp4', sizeHuman: '5.10 MB' } ] }, { type: 'image', url: 'https://api.jhx.my.id/resimg/B5N1.jpg', filename: 'JHTW_img_B5N1.jpg', sizeHuman: '812.3 KB' } ] } },
+    err: { Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: false, error: 'URL Twitter/X tidak valid!' }
   },
   {
     id: 'up', method: 'POST', path: '/upload', title: 'Image Upload', color: 'cy',
