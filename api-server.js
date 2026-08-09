@@ -521,6 +521,101 @@ app.post('/yt-download', async (req, res) => {
     res.status(500).json({ Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: false, error: e.message });
   }
 });
+app.post('/tk-downloader', async (req, res) => {
+  try {
+    const url = (req.body && req.body.url) || '';
+    if (!url || !/(tiktok\.com|vt\.tiktok\.com)/i.test(url)) return res.status(400).json({ Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: false, error: 'URL TikTok tidak valid!' });
+
+    const crypto = require('crypto');
+    const TK_UA = 'Mozilla/5.0 (Linux; Android 13; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.7871.181 Mobile Safari/537.36';
+
+    async function getXVerify() {
+      const { data: tokenData } = await axios.post('https://snaptik.app/api/token', {}, { headers: { 'X-Requested-With': 'XMLHttpRequest', 'Content-Type': 'application/json', 'User-Agent': TK_UA } });
+      const tokenId = tokenData && tokenData.id;
+      const pValue = tokenData && tokenData.p;
+      if (!tokenId || !pValue) throw new Error('Gagal dapetin ID token dari SnapTik');
+      const key = crypto.createHash('sha256').update('sn4pt1k_v3r1fy2026:' + tokenId).digest();
+      const buf = Buffer.from(pValue, 'base64');
+      const iv = buf.slice(0, 16);
+      const encrypted = buf.slice(16);
+      const decipher = crypto.createDecipheriv('aes-256-cbc', key, iv);
+      let decrypted = decipher.update(encrypted, undefined, 'utf8');
+      decrypted += decipher.final('utf8');
+      const parsedData = JSON.parse(decrypted);
+      let solved = 0;
+      switch (parsedData.t) {
+        case 'b': solved = ((parsedData.a ^ parsedData.b) >> parsedData.s) & 255; break;
+        case 'r': solved = parsedData.n.reduce((h, f) => h + f, 0) * 2 + 1; break;
+        case 'c': solved = parsedData.w.charCodeAt(parsedData.i) * parsedData.m; break;
+        case 'm': solved = ((parsedData.a + parsedData.b) % 100) * parsedData.c; break;
+        case 'n': solved = parsedData.a * parsedData.b + parsedData.b * parsedData.c + parsedData.c * parsedData.a - parsedData.a; break;
+        default: throw new Error('Unknown challenge');
+      }
+      return tokenId + ':' + solved + ':' + parsedData._e + ':' + parsedData._h;
+    }
+
+    const xVerify = await getXVerify();
+    const { data: extractData } = await axios.get('https://snaptik.app/api/extract?url=' + encodeURIComponent(url), { headers: { 'X-Requested-With': 'XMLHttpRequest', 'X-Verify': xVerify, 'User-Agent': TK_UA, 'Referer': 'https://snaptik.app/' } });
+    const result = extractData.data;
+    if (!result) throw new Error('Gagal ekstraksi data TikTok');
+
+    if (result.hdDownloadUrl) {
+      const hdApiUrl = result.hdDownloadUrl.startsWith('/') ? 'https://snaptik.app' + result.hdDownloadUrl : result.hdDownloadUrl;
+      try {
+        const xVerifyHD = await getXVerify();
+        const { data: hdData } = await axios.get(hdApiUrl, { headers: { 'X-Requested-With': 'XMLHttpRequest', 'X-Verify': xVerifyHD, 'User-Agent': TK_UA, 'Referer': 'https://snaptik.app/' } });
+        if (!hdData.error && hdData.url) result.hdDownloadUrl = hdData.url;
+      } catch (err) {}
+    }
+
+    function reg(route, target, kind) {
+      const code = makeCode();
+      storeSet(route + ':' + code, { u: target, k: kind, ref: 'https://snaptik.app/' }, 3600);
+      return 'https://api.jhx.my.id/' + route + '/' + code + (kind === 'vid' ? '.mp4' : '.jpg');
+    }
+    function fmt(n) {
+      n = n || 0;
+      if (n >= 1000000) return (n / 1000000).toFixed(1) + 'M';
+      if (n >= 1000) return (n / 1000).toFixed(1) + 'K';
+      return String(n);
+    }
+    function dur(s) { return Math.floor((s || 0) / 60) + ':' + String((s || 0) % 60).padStart(2, '0'); }
+
+    const data = {
+      id: result.id || '',
+      type: result.type || 'video',
+      title: result.title || '',
+      thumbnail: result.thumbnail ? reg('resimg', result.thumbnail, 'img') : '',
+      videoDuration: dur(result.videoDuration),
+      author: {
+        name: (result.author && result.author.name) || '',
+        username: (result.author && result.author.username) || '',
+        avatar: result.author && result.author.avatar ? reg('resimg', result.author.avatar, 'img') : ''
+      },
+      stats: {
+        playCount: fmt(result.stats && result.stats.playCount),
+        commentCount: fmt(result.stats && result.stats.commentCount),
+        shareCount: fmt(result.stats && result.stats.shareCount)
+      }
+    };
+
+    if (result.type === 'carousel') {
+      data.video = { url: reg('resvid', result.downloadUrl, 'vid'), filename: 'JHTK_slide_' + (result.id || makeCode()) + '.mp4' };
+      data.images = (result.images || []).map((im, i) => ({
+        url: reg('resimg', im.downloadUrl || im.url, 'img'),
+        filename: 'JHTK_img_' + (result.id || makeCode()) + '_' + (i + 1) + '.jpg'
+      }));
+    } else {
+      data.variants = [];
+      if (result.downloadUrl) data.variants.push({ quality: 'Normal', url: reg('resvid', result.downloadUrl, 'vid'), filename: 'JHTK_vid_' + (result.id || makeCode()) + '.mp4' });
+      if (result.hdDownloadUrl) data.variants.push({ quality: 'HD', url: reg('resvid', result.hdDownloadUrl, 'vid'), filename: 'JHTK_vid_HD_' + (result.id || makeCode()) + '.mp4' });
+    }
+
+    res.json({ Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: true, data });
+  } catch (e) { res.status(500).json({ Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: false, error: e.response?.data || e.message }); }
+});
+
+
 async function serveProxy(req, res) {
   const route = req.path.startsWith('/resvid') ? 'resvid' : req.path.startsWith('/resaud') ? 'resaud' : 'resimg';
   const code = String(req.params.code).split('.')[0];
