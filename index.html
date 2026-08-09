@@ -454,25 +454,34 @@ const ENDPOINTS = [
     id: 'ig', method: 'POST', path: '/ig-downloader', title: 'Instagram Downloader', color: 'pk',
     desc: 'Ekstrak semua media (video, foto, audio) dari URL Reels, Post, atau Story Instagram. Tanpa watermark, metadata user disertakan.',
     body: { url: 'https://www.instagram.com/reel/DXwWz4Gx1lB/' },
-    ok: {
-      Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: true,
-      data: { username: 'jkt48.fiony', profilePic: 'https://api.jhx.my.id/resimg/K9TQ.jpg',
-        media: [{ type: 'video', thumbnail: 'https://api.jhx.my.id/resimg/M2XB.jpg', url: 'https://api.jhx.my.id/resvid/0Z35.mp4', filename: 'JHIG_vid_0Z35.mp4', size: 10383552, sizeHuman: '9.90 MB' }]
-      }
-    },
+    ok: { Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: true, data: { username: 'jkt48.fiony', profilePic: 'https://api.jhx.my.id/resimg/K9TQ.jpg', media: [ { type: 'video', thumbnail: 'https://api.jhx.my.id/resimg/M2XB.jpg', url: 'https://api.jhx.my.id/resvid/0Z35.mp4', filename: 'JHIG_vid_0Z35.mp4', size: 10383552, sizeHuman: '9.90 MB' } ] } },
     err: { Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: false, error: 'URL Instagram tidak valid!' }
   },
   {
     id: 'fs', method: 'POST', path: '/faceswap', title: 'AI FaceSwap', color: 'vi',
-    desc: 'Tukar wajah antar foto menggunakan neural face-swap engine. Kirim URL foto target (foto tujuan) dan URL foto source (wajah pengganti). Proses memakan waktu ±30-60 detik.',
-    body: { target: 'URL_TARGET_HERE', swap: 'URL_FACE_HERE' },
-    ok: { Developer: 'JH a.k.a Dhika', kesayangan: 'Fiony Alveria♡', status: true, data: { url: 'https://api.jhx.my.id/resimg/J7K2.jpg', filename: 'JHSwap_J7K2.jpg' } },
-    err: { status: false, error: 'Deteksi wajah gagal! Pastikan foto jelas & wajah terlihat.' }
+    desc: 'Tukar wajah antar foto menggunakan neural face-swap engine. Kirim URL foto target dan URL foto source. Proses memakan waktu ±30-60 detik.',
+    body: { target: 'https://i.top4top.io/p_3871i11ls0.jpg', swap: 'https://j.top4top.io/p_3871f5uoh0.jpg' },
+    ok: { Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', status: true, data: { url: 'https://api.jhx.my.id/resimg/J7K2.jpg', filename: 'JHSwap_J7K2.jpg' } },
+    err: { Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', status: false, error: 'Deteksi wajah gagal! Pastikan foto jelas & wajah terlihat.' }
+  },
+  {
+    id: 'up', method: 'POST', path: '/upload', title: 'Image Upload', color: 'cy',
+    desc: 'Upload gambar sebagai base64 untuk mendapatkan URL proxy publik. Dipakai internal FaceSwap mode upload, bisa juga untuk keperluan custom.',
+    body: { b64: '/9j/4AAQ...(base64 gambar)', ct: 'image/jpeg' },
+    ok: { status: true, url: 'https://api.jhx.my.id/resimg/WFY7.jpg' },
+    err: { status: false, error: 'File kosong!' }
+  },
+  {
+    id: 'hl', method: 'GET', path: '/health', title: 'Health Check', color: 'lm',
+    desc: 'Cek status API dan uptime server. Tidak perlu body request. Berguna untuk monitoring dan integrasi watchdog.',
+    body: null,
+    ok: { service: 'JH-Tools API', status: 'operational', uptime: 12847.42, version: '2.0.0', region: 'vps' },
+    err: { error: 'service unavailable' }
   },
   {
     id: 'tw', method: 'POST', path: '/tw-downloader', title: 'Twitter / X Downloader', color: 'cy',
     desc: 'Ekstrak video dalam semua kualitas dan foto dari tweet atau status X, lengkap dengan caption. User bisa memilih kualitas video sesuai kebutuhan.',
-    body: { url: 'URL_HERE' },
+    body: { url: 'https://x.com/i/status/1860885605619830923' },
     ok: { Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: true, data: { caption: 'Love. 🌹❤', thumbnail: 'https://api.jhx.my.id/resimg/T1A2.jpg', media: [ { type: 'video', variants: [ { quality: '1024p', url: 'https://api.jhx.my.id/resvid/W9X8.mp4', filename: 'JHTW_vid_W9X8.mp4', sizeHuman: '12.40 MB' }, { quality: '568p', url: 'https://api.jhx.my.id/resvid/Q3R7.mp4', filename: 'JHTW_vid_Q3R7.mp4', sizeHuman: '5.10 MB' } ] }, { type: 'image', url: 'https://api.jhx.my.id/resimg/B5N1.jpg', filename: 'JHTW_img_B5N1.jpg', sizeHuman: '812.3 KB' } ] } },
     err: { Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: false, error: 'URL Twitter/X tidak valid!' }
   },
@@ -484,6 +493,20 @@ const ENDPOINTS = [
     err: { Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: false, error: 'Lagu tidak ditemukan!' }
   },
   {
+    id: 'spd', method: 'POST', path: '/sp-download', title: 'Spotify Download', color: 'lm',
+    desc: 'Unduh track Spotify sebagai MP3 kualitas penuh dengan filename profesional (Artis_-_Judul). Link unduhan berumur pendek (±5 menit).',
+    body: { url: 'https://open.spotify.com/track/02awqZ2YBZXP2B2fHmCS5U', title: 'Masa Mudaku Habis', artist: 'Ghea Indrawari' },
+    ok: { Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: true, type: 'download', data: { url: 'https://api.jhx.my.id/resaud/K8D3.mp3', filename: 'JHSP_Ghea_Indrawari_-_Masa_Mudaku_Habis.mp3', spotify_url: 'https://open.spotify.com/track/02awqZ2YBZXP2B2fHmCS5U' } },
+    err: { Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: false, error: 'URL Spotify track tidak valid!' }
+  },
+  {
+    id: 'tk', method: 'POST', path: '/tk-downloader', title: 'TikTok Downloader', color: 'tk',
+    desc: 'Ekstrak video TikTok tanpa watermark dalam kualitas Normal & HD, slide foto, hingga video konversi slide — lengkap dengan metadata author dan statistik.',
+    body: { url: 'https://vt.tiktok.com/ZS4sUf7WN/' },
+    ok: { Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: true, data: { id: '7656746710433041671', type: 'video', title: '#fypシ゚ #xybca', author: { name: 'flora0ne', username: 'flora0ne', avatar: 'https://api.jhx.my.id/resimg/TK01.jpg' }, stats: { playCount: '652.0K', commentCount: '191', shareCount: '32.9K' }, thumbnail: 'https://api.jhx.my.id/resimg/TK02.jpg', variants: [ { quality: 'Normal', url: 'https://api.jhx.my.id/resvid/TK03.mp4', filename: 'JHTK_vid_7656746710433041671.mp4' }, { quality: 'HD', url: 'https://api.jhx.my.id/resvid/TK04.mp4', filename: 'JHTK_vid_HD_7656746710433041671.mp4' } ] } },
+    err: { Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: false, error: 'URL TikTok tidak valid!' }
+  },
+  {
     id: 'yts', method: 'POST', path: '/yt-search', title: 'YouTube Search', color: 'yt',
     desc: 'Cari video di YouTube lewat kata kunci. Mengembalikan daftar hasil lengkap dengan thumbnail, durasi, dan tautan resmi untuk langsung diunduh.',
     body: { q: 'Rick Astley Never Gonna Give You Up' },
@@ -492,31 +515,10 @@ const ENDPOINTS = [
   },
   {
     id: 'ytd', method: 'POST', path: '/yt-download', title: 'YouTube Download', color: 'yt',
-    desc: 'Unduh video YouTube dalam berbagai kualitas (360p/720p/1080p) atau ekstrak audio MP3. Link unduhan berumur pendek (±1 jam).',
+    desc: 'Unduh video YouTube dalam berbagai kualitas (360p/720p/1080p) atau ekstrak audio MP3. Video di-merge dengan audio, file di-serve dari server.',
     body: { url: 'https://youtube.com/watch?v=dQw4w9WgXcQ', format: '720' },
-    ok: { Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: true, type: 'download', data: { url: 'https://api.jhx.my.id/resvid/VD01.mp4', filename: 'JHYT_Never_Gonna_Give_You_Up.mp4', format: '720p', available_qualities: ['360p', '720p', '1080p'] } },
+    ok: { Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: true, type: 'download', data: { url: 'https://api.jhx.my.id/resvid/VD01.mp4', filename: 'JHYT_Never_Gonna_Give_You_Up.mp4', format: '720p', available_qualities: ['1080p', '720p', '480p', '360p'] } },
     err: { Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: false, error: 'URL YouTube tidak valid!' }
-  },
-  {
-    id: 'spd', method: 'POST', path: '/sp-download', title: 'Spotify Download', color: 'lm',
-    desc: 'Unduh track Spotify sebagai MP3 kualitas penuh. Link unduhan berumur pendek (±5 menit) sehingga harus segera disimpan setelah dibuat.',
-    body: { url: 'https://open.spotify.com/track/02awqZ2YBZXP2B2fHmCS5U', title: 'Masa Mudaku Habis', artist: 'Ghea Indrawari' },
-    ok: { Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: true, type: 'download', data: { url: 'https://api.jhx.my.id/resaud/K8D3.mp3', filename: 'JHSP_Ghea_Indrawari_-_Masa_Mudaku_Habis.mp3', spotify_url: 'https://open.spotify.com/track/02awqZ2YBZXP2B2fHmCS5U' } },
-    err: { Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: false, error: 'URL Spotify track tidak valid!' }
-  },
-  {
-    id: 'up', method: 'POST', path: '/upload', title: 'Image Upload', color: 'cy',
-    desc: 'Upload gambar sebagai base64 untuk mendapatkan URL publik (jhx.my.id). Digunakan internal untuk FaceSwap saat user memilih mode upload, bisa juga dipakai untuk keperluan custom.',
-    body: { b64: '/9j/4AAQ...(base64 gambar)', ct: 'image/jpeg' },
-    ok: { status: true, url: 'https://api.jhx.my.id/resimg/WFY7.jpg' },
-    err: { status: false, error: 'File kosong!' }
-  },
-  {
-    id: 'hl', method: 'GET', path: '/health', title: 'Health Check', color: 'lm',
-    desc: 'Cek status API dan uptime server. Tidak perlu body request. Berguna untuk monitoring dan integrasi watchdog.',
-    body: null,
-    ok: { service: 'JH-Tools API', status: 'operational', uptime: 12847.42, version: '2.0.0', region: 'vps' },
-    err: { error: 'service unavailable' }
   }
 ];
 
@@ -548,14 +550,7 @@ function buildCodes(ep){
   };
 }
 
-{
-    id: 'tk', method: 'POST', path: '/tk-downloader', title: 'TikTok Downloader', color: 'tk',
-    desc: 'Ekstrak video TikTok tanpa watermark dalam kualitas Normal & HD, slide foto, hingga video konversi slide — lengkap dengan metadata author dan statistik.',
-    body: { url: 'https://vt.tiktok.com/ZS4sUf7WN/' },
-    ok: { Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: true, data: { id: '7656746710433041671', type: 'video', title: '#fypシ゚ #xybca', author: { name: 'flora0ne', username: 'flora0ne', avatar: 'https://api.jhx.my.id/resimg/TK01.jpg' }, stats: { playCount: '652.0K', commentCount: '191', shareCount: '32.9K' }, thumbnail: 'https://api.jhx.my.id/resimg/TK02.jpg', variants: [ { quality: 'Normal', url: 'https://api.jhx.my.id/resvid/TK03.mp4', filename: 'JHTK_vid_7656746710433041671.mp4' }, { quality: 'HD', url: 'https://api.jhx.my.id/resvid/TK04.mp4', filename: 'JHTK_vid_HD_7656746710433041671.mp4' } ] } },
-    err: { Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: false, error: 'URL TikTok tidak valid!' }
-  },
-  ENDPOINTS.sort((a, b) => a.path.localeCompare(b.path));
+ENDPOINTS.sort((a, b) => a.path.localeCompare(b.path));
 const grid = document.getElementById('ep-grid');
 ENDPOINTS.forEach(ep => {
   const el = document.createElement('div');
