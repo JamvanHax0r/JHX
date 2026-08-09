@@ -208,7 +208,7 @@ async function run(){
     clearInterval(iv);
     if (!j.Status) throw new Error(j.error || 'Gagal mengambil data.');
     lastData = j.data;
-    selVariant = lastData.variants ? lastData.variants.length - 1 : 0;
+    selVariant = 0;
     $('status').textContent = '✓ selesai — media siap diunduh';
     $('r-avatar').src = j.data.author.avatar || '';
     $('r-name').textContent = '@' + j.data.author.username + ' · ' + j.data.author.name;

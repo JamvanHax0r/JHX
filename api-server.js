@@ -606,9 +606,15 @@ app.post('/tk-downloader', async (req, res) => {
         filename: 'JHTK_img_' + (result.id || makeCode()) + '_' + (i + 1) + '.jpg'
       }));
     } else {
+      let vNormal = result.downloadUrl || '';
+      let vHd = result.hdDownloadUrl || '';
+      if (vNormal && vHd) {
+        const sz = await Promise.all([getSize(vNormal), getSize(vHd)]);
+        if (sz[0] > 0 && sz[1] > 0 && sz[1] < sz[0]) { const tmp = vNormal; vNormal = vHd; vHd = tmp; }
+      }
       data.variants = [];
-      if (result.downloadUrl) data.variants.push({ quality: 'Normal', url: reg('resvid', result.downloadUrl, 'vid'), filename: 'JHTK_vid_' + (result.id || makeCode()) + '.mp4' });
-      if (result.hdDownloadUrl) data.variants.push({ quality: 'HD', url: reg('resvid', result.hdDownloadUrl, 'vid'), filename: 'JHTK_vid_HD_' + (result.id || makeCode()) + '.mp4' });
+      if (vHd) data.variants.push({ quality: 'HD', url: reg('resvid', vHd, 'vid'), filename: 'JHTK_vid_HD_' + (result.id || makeCode()) + '.mp4' });
+      if (vNormal) data.variants.push({ quality: 'Normal', url: reg('resvid', vNormal, 'vid'), filename: 'JHTK_vid_' + (result.id || makeCode()) + '.mp4' });
     }
 
     res.json({ Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: true, data });
