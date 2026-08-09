@@ -21,7 +21,7 @@
 tailwind.config = {
   theme: { extend: {
     fontFamily: { sans:['Inter','sans-serif'], display:['Space Grotesk','sans-serif'], mono:['JetBrains Mono','monospace'] },
-    colors: { night:'#05060a', panel:'#0b0e14', line:'rgba(255,255,255,0.07)', cy:'#22d3ee', vi:'#8b5cf6', pk:'#ec4899', lm:'#a3e635', yt:'#FF0000', tk:'#FE2C55', tkc:'#25F4EE' }
+    colors: { night:'#05060a', panel:'#0b0e14', line:'rgba(255,255,255,0.07)', cy:'#22d3ee', vi:'#8b5cf6', pk:'#ec4899', lm:'#a3e635', yt:'#FF0000', tk:'#FE2C55', tkc:'#25F4EE', hd:'#F59E0B' }
   }}
 }
 </script>
@@ -148,8 +148,8 @@ tailwind.config = {
     <h2 class="font-display font-bold text-3xl sm:text-4xl text-white">Pilih Module, Jalankan.</h2>
     <p class="text-slate-400 mt-3 max-w-2xl">Setiap module punya halaman dan endpoint sendiri. Ringan dipakai, cepat berjalan, aman dari awal sampai akhir.</p>
   </div>
-  <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-5 mb-5">
-    <a href="/igdl/" class="reveal card rounded-xl p-7 group block order-2">
+  <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-5 mb-5">
+    <a href="/igdl/" class="reveal card rounded-xl p-7 group block order-3">
       <div class="flex items-center justify-between mb-5">
         <span class="w-11 h-11 rounded-lg bg-pk/10 border border-pk/25 flex items-center justify-center"><svg class="w-5 h-5 text-pk" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg></span>
         <span class="font-mono text-[10px] text-lm border border-lm/25 bg-lm/5 rounded-full px-2.5 py-1">● STABLE</span>
@@ -173,7 +173,19 @@ tailwind.config = {
         <span class="text-cy group-hover:translate-x-1 transition-transform">/faceswap/ →</span>
       </div>
     </a>
-    <a href="/twdl/" class="reveal card rounded-xl p-7 group block order-5">
+    <a href="/hdimg/" class="reveal card rounded-xl p-7 group block order-2">
+      <div class="flex items-center justify-between mb-5">
+        <span class="w-11 h-11 rounded-lg bg-hd/10 border border-hd/25 flex items-center justify-center"><svg class="w-5 h-5 text-hd" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg></span>
+        <span class="font-mono text-[10px] text-lm border border-lm/25 bg-lm/5 rounded-full px-2.5 py-1">● STABLE</span>
+      </div>
+      <h3 class="font-display font-bold text-xl text-white mb-2 group-hover:text-hd transition-colors">HD Image Upscaler</h3>
+      <p class="text-sm text-slate-400 leading-relaxed mb-6">Perbesar resolusi gambar ×2 dengan neural upscaler. Hasil tajam, privat, tanpa watermark.</p>
+      <div class="flex items-center justify-between font-mono text-xs">
+        <span class="text-slate-500">POST /api/hd-image</span>
+        <span class="text-cy group-hover:translate-x-1 transition-transform">/hdimg/ →</span>
+      </div>
+    </a>
+    <a href="/twdl/" class="reveal card rounded-xl p-7 group block order-6">
       <div class="flex items-center justify-between mb-5">
         <span class="w-11 h-11 rounded-lg bg-cy/10 border border-cy/25 flex items-center justify-center"><svg class="w-5 h-5 text-cy" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M23 3a10.9 10.9 0 01-3.14 1.53 4.48 4.48 0 00-7.86 3v1A10.66 10.66 0 013 4s-4 9 5 13a11.64 11.64 0 01-7 2c9 5 20 0 20-11.5a4.5 4.5 0 00-.08-.83A7.72 7.72 0 0023 3z"/></svg></span>
         <span class="font-mono text-[10px] text-lm border border-lm/25 bg-lm/5 rounded-full px-2.5 py-1">● STABLE</span>
@@ -185,7 +197,7 @@ tailwind.config = {
         <span class="text-cy group-hover:translate-x-1 transition-transform">/twdl/ →</span>
       </div>
     </a>
-    <a href="/spdl/" class="reveal card rounded-xl p-7 group block order-3">
+    <a href="/spdl/" class="reveal card rounded-xl p-7 group block order-4">
       <div class="flex items-center justify-between mb-5">
         <span class="w-11 h-11 rounded-lg bg-lm/10 border border-lm/25 flex items-center justify-center"><svg class="w-5 h-5 text-lm" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.5 17.3c-.22.36-.68.47-1.04.25-2.86-1.75-6.46-2.14-10.7-1.17-.41.1-.82-.16-.91-.57-.1-.41.16-.82.57-.91 4.64-1.06 8.62-.6 11.83 1.36.36.22.47.68.25 1.04zm1.47-3.27c-.28.45-.87.6-1.32.32-3.28-2.01-8.28-2.6-12.17-1.42-.51.15-1.05-.13-1.2-.64-.15-.51.13-1.05.64-1.2 4.44-1.35 9.95-.69 13.73 1.62.45.28.6.87.32 1.32zm.13-3.4C15.18 8.28 8.67 8.06 4.91 9.2c-.61.19-1.26-.16-1.45-.77-.19-.61.16-1.26.77-1.45 4.31-1.31 11.5-1.05 16.08 1.67.55.33.73 1.04.4 1.59-.33.55-1.04.73-1.59.4z"/></svg></span>
         <span class="font-mono text-[10px] text-lm border border-lm/25 bg-lm/5 rounded-full px-2.5 py-1">● STABLE</span>
@@ -197,7 +209,7 @@ tailwind.config = {
         <span class="text-cy group-hover:translate-x-1 transition-transform">/spdl/ →</span>
       </div>
     </a>
-    <a href="/tkdl/" class="reveal card rounded-xl p-7 group block order-4">
+    <a href="/tkdl/" class="reveal card rounded-xl p-7 group block order-5">
       <div class="flex items-center justify-between mb-5">
         <span class="w-11 h-11 rounded-lg bg-tk/10 border border-tk/25 flex items-center justify-center"><svg class="w-5 h-5 text-tk" viewBox="0 0 24 24" fill="currentColor"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z"/></svg></span>
         <span class="font-mono text-[10px] text-lm border border-lm/25 bg-lm/5 rounded-full px-2.5 py-1">● STABLE</span>
@@ -209,7 +221,7 @@ tailwind.config = {
         <span class="text-cy group-hover:translate-x-1 transition-transform">/tkdl/ →</span>
       </div>
     </a>
-    <a href="/ytdl/" class="reveal card rounded-xl p-7 group block order-6">
+    <a href="/ytdl/" class="reveal card rounded-xl p-7 group block order-7">
       <div class="flex items-center justify-between mb-5">
         <span class="w-11 h-11 rounded-lg bg-yt/10 border border-yt/25 flex items-center justify-center"><svg class="w-5 h-5 text-yt" viewBox="0 0 24 24" fill="currentColor"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg></span>
         <span class="font-mono text-[10px] text-lm border border-lm/25 bg-lm/5 rounded-full px-2.5 py-1">● STABLE</span>
@@ -319,11 +331,16 @@ tailwind.config = {
     <h2 class="font-display font-bold text-3xl sm:text-4xl text-white">Semua Module, Satu Ketukan.</h2>
     <p class="text-slate-400 mt-3 max-w-2xl mx-auto">Pilih module favoritmu dan mulai dalam hitungan detik — tanpa daftar, tanpa bayar, tanpa batas.</p>
   </div>
-  <div class="reveal grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+  <div class="reveal grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4">
     <a href="/faceswap/" class="card rounded-xl p-5 text-center group hover:border-vi/50 hover:-translate-y-1 transition-all">
       <span class="mx-auto mb-3 w-11 h-11 rounded-lg bg-vi/10 border border-vi/25 flex items-center justify-center"><svg class="w-5 h-5 text-vi" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg></span>
       <p class="font-display font-bold text-sm text-white group-hover:text-vi transition-colors">AI FaceSwap</p>
       <p class="font-mono text-[10px] text-slate-500 mt-1.5 group-hover:text-vi">BUKA →</p>
+    </a>
+    <a href="/hdimg/" class="card rounded-xl p-5 text-center group hover:border-hd/50 hover:-translate-y-1 transition-all">
+      <span class="mx-auto mb-3 w-11 h-11 rounded-lg bg-hd/10 border border-hd/25 flex items-center justify-center"><svg class="w-5 h-5 text-hd" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg></span>
+      <p class="font-display font-bold text-sm text-white group-hover:text-hd transition-colors">HD Image</p>
+      <p class="font-mono text-[10px] text-slate-500 mt-1.5 group-hover:text-hd">BUKA →</p>
     </a>
     <a href="/igdl/" class="card rounded-xl p-5 text-center group hover:border-pk/50 hover:-translate-y-1 transition-all">
       <span class="mx-auto mb-3 w-11 h-11 rounded-lg bg-pk/10 border border-pk/25 flex items-center justify-center"><svg class="w-5 h-5 text-pk" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg></span>
@@ -376,6 +393,7 @@ tailwind.config = {
       <div class="space-y-2 text-sm text-slate-400">
         <a href="/igdl/" class="block hover:text-pk transition-colors">Instagram Downloader</a>
         <a href="/faceswap/" class="block hover:text-vi transition-colors">AI FaceSwap</a>
+        <a href="/hdimg/" class="block hover:text-hd transition-colors">HD Image Upscaler</a>
         <a href="/tkdl/" class="block hover:text-tk transition-colors">TikTok Downloader</a>
         <a href="/twdl/" class="block hover:text-cy transition-colors">Twitter / X Downloader</a>
         <a href="/spdl/" class="block hover:text-lm transition-colors">Spotify Downloader</a>
@@ -451,13 +469,6 @@ for (let n = 0; n < Math.min(innerWidth / 22, 70); n++) P.push({ x: Math.random(
 const BASE = 'https://api.jhx.my.id';
 const ENDPOINTS = [
   {
-    id: 'ig', method: 'POST', path: '/ig-downloader', title: 'Instagram Downloader', color: 'pk',
-    desc: 'Ekstrak semua media (video, foto, audio) dari URL Reels, Post, atau Story Instagram. Tanpa watermark, metadata user disertakan.',
-    body: { url: 'https://www.instagram.com/reel/DXwWz4Gx1lB/' },
-    ok: { Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: true, data: { username: 'jkt48.fiony', profilePic: 'https://api.jhx.my.id/resimg/K9TQ.jpg', media: [ { type: 'video', thumbnail: 'https://api.jhx.my.id/resimg/M2XB.jpg', url: 'https://api.jhx.my.id/resvid/0Z35.mp4', filename: 'JHIG_vid_0Z35.mp4', size: 10383552, sizeHuman: '9.90 MB' } ] } },
-    err: { Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: false, error: 'URL Instagram tidak valid!' }
-  },
-  {
     id: 'fs', method: 'POST', path: '/faceswap', title: 'AI FaceSwap', color: 'vi',
     desc: 'Tukar wajah antar foto menggunakan neural face-swap engine. Kirim URL foto target dan URL foto source. Proses memakan waktu ±30-60 detik.',
     body: { target: 'https://i.top4top.io/p_3871i11ls0.jpg', swap: 'https://j.top4top.io/p_3871f5uoh0.jpg' },
@@ -465,29 +476,22 @@ const ENDPOINTS = [
     err: { Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', status: false, error: 'Deteksi wajah gagal! Pastikan foto jelas & wajah terlihat.' }
   },
   {
-    id: 'up', method: 'POST', path: '/upload', title: 'Image Upload', color: 'cy',
-    desc: 'Upload gambar sebagai base64 untuk mendapatkan URL proxy publik. Dipakai internal FaceSwap mode upload, bisa juga untuk keperluan custom.',
+    id: 'hd', method: 'POST', path: '/hd-image', title: 'HD Image Upscaler', color: 'hd',
+    desc: 'Perbesar resolusi gambar hingga 2x dengan neural upscaler. Kirim base64 gambar, terima hasil HD siap unduh dengan filename branded.',
     body: { b64: '/9j/4AAQ...(base64 gambar)', ct: 'image/jpeg' },
-    ok: { status: true, url: 'https://api.jhx.my.id/resimg/WFY7.jpg' },
-    err: { status: false, error: 'File kosong!' }
+    ok: { Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: true, data: { url: 'https://api.jhx.my.id/resimg/HD01.jpg', filename: 'JHHD_x2_HD01.jpg', size: 1515777, sizeHuman: '1.45 MB', scale: 'x2' } },
+    err: { Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: false, error: 'Gambar kosong!' }
   },
   {
-    id: 'hl', method: 'GET', path: '/health', title: 'Health Check', color: 'lm',
-    desc: 'Cek status API dan uptime server. Tidak perlu body request. Berguna untuk monitoring dan integrasi watchdog.',
-    body: null,
-    ok: { service: 'JH-Tools API', status: 'operational', uptime: 12847.42, version: '2.0.0', region: 'vps' },
-    err: { error: 'service unavailable' }
-  },
-  {
-    id: 'tw', method: 'POST', path: '/tw-downloader', title: 'Twitter / X Downloader', color: 'cy',
-    desc: 'Ekstrak video dalam semua kualitas dan foto dari tweet atau status X, lengkap dengan caption. User bisa memilih kualitas video sesuai kebutuhan.',
-    body: { url: 'https://x.com/i/status/1860885605619830923' },
-    ok: { Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: true, data: { caption: 'Love. 🌹❤', thumbnail: 'https://api.jhx.my.id/resimg/T1A2.jpg', media: [ { type: 'video', variants: [ { quality: '1024p', url: 'https://api.jhx.my.id/resvid/W9X8.mp4', filename: 'JHTW_vid_W9X8.mp4', sizeHuman: '12.40 MB' }, { quality: '568p', url: 'https://api.jhx.my.id/resvid/Q3R7.mp4', filename: 'JHTW_vid_Q3R7.mp4', sizeHuman: '5.10 MB' } ] }, { type: 'image', url: 'https://api.jhx.my.id/resimg/B5N1.jpg', filename: 'JHTW_img_B5N1.jpg', sizeHuman: '812.3 KB' } ] } },
-    err: { Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: false, error: 'URL Twitter/X tidak valid!' }
+    id: 'ig', method: 'POST', path: '/ig-downloader', title: 'Instagram Downloader', color: 'pk',
+    desc: 'Ekstrak semua media (video, foto, audio) dari URL Reels, Post, atau Story Instagram. Tanpa watermark, metadata user disertakan.',
+    body: { url: 'https://www.instagram.com/reel/DXwWz4Gx1lB/' },
+    ok: { Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: true, data: { username: 'jkt48.fiony', profilePic: 'https://api.jhx.my.id/resimg/K9TQ.jpg', media: [ { type: 'video', thumbnail: 'https://api.jhx.my.id/resimg/M2XB.jpg', url: 'https://api.jhx.my.id/resvid/0Z35.mp4', filename: 'JHIG_vid_0Z35.mp4', size: 10383552, sizeHuman: '9.90 MB' } ] } },
+    err: { Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: false, error: 'URL Instagram tidak valid!' }
   },
   {
     id: 'sps', method: 'POST', path: '/sp-search', title: 'Spotify Search', color: 'lm',
-    desc: 'Cari lagu di Spotify lewat kata kunci judul atau artis. Mengembalikan daftar hasil lengkap dengan cover, durasi, dan tautan track resmi untuk langsung diunduh.',
+    desc: 'Cari lagu di Spotify lewat kata kunci judul atau artis. Mengembalikan daftar hasil lengkap dengan cover, durasi, dan tautan track resmi.',
     body: { q: 'Masa Mudaku Habis' },
     ok: { Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: true, type: 'search', data: [ { title: 'Masa Mudaku Habis', artist: 'Ghea Indrawari', duration: '4:14', url: 'https://open.spotify.com/track/02awqZ2YBZXP2B2fHmCS5U', thumbnail: 'https://api.jhx.my.id/resimg/S1P9.jpg' } ] },
     err: { Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: false, error: 'Lagu tidak ditemukan!' }
@@ -503,8 +507,29 @@ const ENDPOINTS = [
     id: 'tk', method: 'POST', path: '/tk-downloader', title: 'TikTok Downloader', color: 'tk',
     desc: 'Ekstrak video TikTok tanpa watermark dalam kualitas Normal & HD, slide foto, hingga video konversi slide — lengkap dengan metadata author dan statistik.',
     body: { url: 'https://vt.tiktok.com/ZS4sUf7WN/' },
-    ok: { Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: true, data: { id: '7656746710433041671', type: 'video', title: '#fypシ゚ #xybca', author: { name: 'flora0ne', username: 'flora0ne', avatar: 'https://api.jhx.my.id/resimg/TK01.jpg' }, stats: { playCount: '652.0K', commentCount: '191', shareCount: '32.9K' }, thumbnail: 'https://api.jhx.my.id/resimg/TK02.jpg', variants: [ { quality: 'Normal', url: 'https://api.jhx.my.id/resvid/TK03.mp4', filename: 'JHTK_vid_7656746710433041671.mp4' }, { quality: 'HD', url: 'https://api.jhx.my.id/resvid/TK04.mp4', filename: 'JHTK_vid_HD_7656746710433041671.mp4' } ] } },
+    ok: { Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: true, data: { id: '7656746710433041671', type: 'video', title: '#fypシ゚ #xybca', author: { name: 'flora0ne', username: 'flora0ne', avatar: 'https://api.jhx.my.id/resimg/TK01.jpg' }, stats: { playCount: '652.0K', commentCount: '191', shareCount: '32.9K' }, thumbnail: 'https://api.jhx.my.id/resimg/TK02.jpg', variants: [ { quality: 'HD', url: 'https://api.jhx.my.id/resvid/TK04.mp4', filename: 'JHTK_vid_HD_7656746710433041671.mp4' }, { quality: 'Normal', url: 'https://api.jhx.my.id/resvid/TK03.mp4', filename: 'JHTK_vid_7656746710433041671.mp4' } ] } },
     err: { Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: false, error: 'URL TikTok tidak valid!' }
+  },
+  {
+    id: 'tw', method: 'POST', path: '/tw-downloader', title: 'Twitter / X Downloader', color: 'cy',
+    desc: 'Ekstrak video dalam semua kualitas dan foto dari tweet atau status X, lengkap dengan caption. User bisa memilih kualitas video sesuai kebutuhan.',
+    body: { url: 'https://x.com/i/status/1860885605619830923' },
+    ok: { Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: true, data: { caption: 'Love. 🌹❤', thumbnail: 'https://api.jhx.my.id/resimg/T1A2.jpg', media: [ { type: 'video', variants: [ { quality: '1024p', url: 'https://api.jhx.my.id/resvid/W9X8.mp4', filename: 'JHTW_vid_W9X8.mp4', sizeHuman: '12.40 MB' }, { quality: '568p', url: 'https://api.jhx.my.id/resvid/Q3R7.mp4', filename: 'JHTW_vid_Q3R7.mp4', sizeHuman: '5.10 MB' } ] }, { type: 'image', url: 'https://api.jhx.my.id/resimg/B5N1.jpg', filename: 'JHTW_img_B5N1.jpg', sizeHuman: '812.3 KB' } ] } },
+    err: { Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: false, error: 'URL Twitter/X tidak valid!' }
+  },
+  {
+    id: 'up', method: 'POST', path: '/upload', title: 'Image Upload', color: 'cy',
+    desc: 'Upload gambar sebagai base64 untuk mendapatkan URL proxy publik. Dipakai internal FaceSwap mode upload, bisa juga untuk keperluan custom.',
+    body: { b64: '/9j/4AAQ...(base64 gambar)', ct: 'image/jpeg' },
+    ok: { status: true, url: 'https://api.jhx.my.id/resimg/WFY7.jpg' },
+    err: { status: false, error: 'File kosong!' }
+  },
+  {
+    id: 'hl', method: 'GET', path: '/health', title: 'Health Check', color: 'lm',
+    desc: 'Cek status API dan uptime server. Tidak perlu body request. Berguna untuk monitoring dan integrasi watchdog.',
+    body: null,
+    ok: { service: 'JH-Tools API', status: 'operational', uptime: 12847.42, version: '2.0.0', region: 'vps' },
+    err: { error: 'service unavailable' }
   },
   {
     id: 'yts', method: 'POST', path: '/yt-search', title: 'YouTube Search', color: 'yt',

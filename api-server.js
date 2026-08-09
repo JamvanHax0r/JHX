@@ -7,7 +7,7 @@ const cheerio = require('cheerio');
 const { exec } = require('child_process');
 
 const app = express();
-app.use(express.json({ limit: '10mb' }));
+app.use(express.json({ limit: '20mb' }));
 
 app.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -619,6 +619,60 @@ app.post('/tk-downloader', async (req, res) => {
 
     res.json({ Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: true, data });
   } catch (e) { res.status(500).json({ Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: false, error: e.response?.data || e.message }); }
+});
+
+
+app.post('/hd-image', async (req, res) => {
+  try {
+    const { b64, ct } = req.body || {};
+    if (!b64) return res.status(400).json({ Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: false, error: 'Gambar kosong!' });
+    const mime = ct || 'image/png';
+    if (!/^image\//i.test(mime)) return res.status(400).json({ Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: false, error: 'File harus berupa gambar!' });
+    const imgBuf = Buffer.from(b64, 'base64');
+    if (imgBuf.length > 8 * 1024 * 1024) return res.status(400).json({ Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: false, error: 'Ukuran maksimal 8MB!' });
+
+    const jantung = {
+      'accept': '*/*',
+      'accept-language': 'id-ID,id;q=0.9,en-US;q=0.8,en;q=0.7',
+      'origin': 'https://www.photiu.ai',
+      'referer': 'https://www.photiu.ai/id/image-upscaler',
+      'user-agent': 'Mozilla/5.0 (Linux; Android 13) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Mobile Safari/537.36'
+    };
+
+    const ext = (mime.split('/')[1] || 'png').replace('jpeg', 'jpg');
+    const boundary = '----jhform' + makeCode() + makeCode() + Date.now();
+    const body = Buffer.concat([
+      Buffer.from('--' + boundary + '\r\nContent-Disposition: form-data; name="upfile"; filename="input.' + ext + '"\r\nContent-Type: ' + mime + '\r\n\r\n'),
+      imgBuf,
+      Buffer.from('\r\n--' + boundary + '\r\nContent-Disposition: form-data; name="factor"\r\n\r\n2\r\n--' + boundary + '--\r\n')
+    ]);
+
+    const up = await axios.post('https://www.photiu.ai/api/upscale', body, {
+      headers: { ...jantung, 'Content-Type': 'multipart/form-data; boundary=' + boundary },
+      responseType: 'arraybuffer',
+      maxBodyLength: Infinity,
+      maxContentLength: Infinity,
+      timeout: 120000,
+      validateStatus: () => true
+    });
+
+    const outCt = up.headers['content-type'] || '';
+    if (!/^image\//i.test(outCt)) {
+      let errBody = '';
+      try { errBody = Buffer.from(up.data).toString('utf8', 0, 300); } catch (e) {}
+      return res.status(500).json({ Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: false, error: 'Upscale gagal: ' + errBody });
+    }
+
+    const outBuf = Buffer.from(up.data);
+    const code = makeCode();
+    const prettyName = 'JHHD_x2_' + code;
+    storeSet('resimg:' + code, { b64: outBuf.toString('base64'), ct: outCt, k: 'img', p: 'JHHD', fn: prettyName }, 7200);
+
+    res.json({
+      Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: true,
+      data: { url: 'https://api.jhx.my.id/resimg/' + code + '.jpg', filename: prettyName + '.jpg', size: outBuf.length, sizeHuman: human(outBuf.length), contentType: outCt, scale: 'x2' }
+    });
+  } catch (e) { res.status(500).json({ Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: false, error: e.message }); }
 });
 
 
