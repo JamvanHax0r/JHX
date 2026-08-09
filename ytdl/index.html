@@ -71,7 +71,7 @@ tailwind.config = { theme: { extend: {
   <div class="card rounded-2xl p-6 sm:p-8 border-t-2 border-t-yt/60">
     <label class="font-mono text-[11px] text-slate-500 tracking-widest block mb-3">CARI VIDEO / URL YOUTUBE</label>
     <div class="flex flex-col sm:flex-row gap-3">
-      <input id="q" type="text" placeholder="Rick Astley Never Gonna Give You Up — atau — https://youtube.com/watch?v=…" class="flex-1 bg-black/50 border border-line rounded-lg px-5 py-4 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-yt/60 focus:ring-1 focus:ring-yt/40 transition-all font-mono">
+      <input id="q" type="text" placeholder="Masukkan Query atau URL" class="flex-1 bg-black/50 border border-line rounded-lg px-5 py-4 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-yt/60 focus:ring-1 focus:ring-yt/40 transition-all font-mono">
       <div class="flex gap-3">
         <button onclick="pasteQ()" class="px-5 py-4 rounded-lg border border-line font-mono text-xs text-slate-300 hover:border-yt/50 hover:text-yt transition-colors">PASTE</button>
         <button id="btn" onclick="run()" class="px-8 py-4 rounded-lg bg-gradient-to-r from-yt to-cy text-white font-semibold text-sm hover:shadow-[0_0_30px_rgba(255,0,0,.4)] transition-shadow disabled:opacity-40 disabled:cursor-not-allowed whitespace-nowrap">CARI / UNDUH ⏎</button>
@@ -173,7 +173,7 @@ console.log(dl.data.url);</pre>
         <p><span class="text-lm bg-lm/10 border border-lm/25 rounded px-2 py-0.5 text-[10px] font-semibold">POST</span> <span class="text-white">/yt-search</span> <span class="text-slate-600 text-xs">— { q }</span></p>
         <p><span class="text-lm bg-lm/10 border border-lm/25 rounded px-2 py-0.5 text-[10px] font-semibold">POST</span> <span class="text-white">/yt-download</span> <span class="text-slate-600 text-xs">— { url, format }</span></p>
         <p><span class="text-yt bg-yt/10 border border-yt/25 rounded px-2 py-0.5 text-[10px] font-semibold">GET</span> <span class="text-white">/resvid/:code.mp4</span> <span class="text-slate-600 text-xs">— proxy video</span></p>
-        <p><span class="text-lm bg-lm/10 border border-lm/25 rounded px-2 py-0.5 text-[10px] font-semibold">GET</span> <span class="text-white">/resaud/:code.m4a</span> <span class="text-slate-600 text-xs">— proxy audio</span></p>
+        <p><span class="text-lm bg-lm/10 border border-lm/25 rounded px-2 py-0.5 text-[10px] font-semibold">GET</span> <span class="text-white">/resaud/:code.mp3</span> <span class="text-slate-600 text-xs">— proxy audio</span></p>
       </div>
     </div>
     <div class="card rounded-xl overflow-hidden">
