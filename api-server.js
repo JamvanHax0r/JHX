@@ -442,7 +442,7 @@ app.post('/yt-download', async (req, res) => {
     
     const isAudio = format === 'audio';
     const code = makeCode();
-    const tmpDir = path.join(os.tmpdir(), 'jh-yt-' + code);
+    const tmpDir = path.join(__dirname, 'tmp', 'jh-yt-' + code);
     fs.mkdirSync(tmpDir, { recursive: true });
     
     const metaCmd = 'yt-dlp -J --no-warnings "' + url + '"';
@@ -467,7 +467,7 @@ app.post('/yt-download', async (req, res) => {
         } else {
           const targetHeight = parseInt(format) || 720;
           outputFile = path.join(tmpDir, 'video.mp4');
-          dlCmd = 'yt-dlp -f "bv*[height<=' + targetHeight + ']+ba/b[height<=' + targetHeight + ']" --no-warnings -o "' + outputFile + '" "' + url + '"';
+          dlCmd = 'yt-dlp -f "bv*[height<=' + targetHeight + ']+ba/b[height<=' + targetHeight + ']" --merge-output-format mp4 --no-warnings -o "' + outputFile + '" "' + url + '"';
           route = 'resvid';
           ext = 'mp4';
         }
@@ -476,6 +476,17 @@ app.post('/yt-download', async (req, res) => {
           if (dlErr) {
             fs.rmSync(tmpDir, { recursive: true, force: true });
             return res.status(500).json({ Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: false, error: 'Download gagal: ' + dlErr.message });
+          }
+          if (!fs.existsSync(outputFile)) {
+            const altFiles = fs.readdirSync(tmpDir);
+            const altFile = altFiles.find(f => /\.(mp4|webm|mkv)$/i.test(f));
+            if (altFile) {
+              const altPath = path.join(tmpDir, altFile);
+              fs.renameSync(altPath, outputFile);
+            } else {
+              fs.rmSync(tmpDir, { recursive: true, force: true });
+              return res.status(500).json({ Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: false, error: 'File output tidak ditemukan setelah download' });
+            }
           }
           
           const availableQualities = [...new Set(formats.filter(f => f.vcodec && f.vcodec !== 'none' && f.height).map(f => f.height + 'p'))].sort((a, b) => parseInt(b) - parseInt(a)).slice(0, 5);
@@ -521,7 +532,17 @@ async function serveProxy(req, res) {
 
   if (item.filePath) {
     try {
-      const stat = fs.statSync(item.filePath);
+      let actualPath = item.filePath;
+      if (!fs.existsSync(actualPath)) {
+        const dir = path.dirname(actualPath);
+        const base = path.basename(actualPath, path.extname(actualPath));
+        if (fs.existsSync(dir)) {
+          const files = fs.readdirSync(dir);
+          const match = files.find(f => f.startsWith(base) && /\.(mp4|mp3|webm|mkv|m4a)$/i.test(f));
+          if (match) actualPath = path.join(dir, match);
+        }
+      }
+      const stat = fs.statSync(actualPath);
       const ct = kind === 'vid' ? 'video/mp4' : kind === 'aud' ? 'audio/mpeg' : 'image/jpeg';
       res.setHeader('Content-Type', ct);
       res.setHeader('Content-Disposition', 'attachment; filename="' + baseName + '.' + ext + '"');
@@ -534,10 +555,10 @@ async function serveProxy(req, res) {
         res.status(206);
         res.setHeader('Content-Range', 'bytes ' + start + '-' + end + '/' + stat.size);
         res.setHeader('Content-Length', end - start + 1);
-        fs.createReadStream(item.filePath, { start, end }).pipe(res);
+        fs.createReadStream(actualPath, { start, end }).pipe(res);
       } else {
         res.setHeader('Content-Length', stat.size);
-        fs.createReadStream(item.filePath).pipe(res);
+        fs.createReadStream(actualPath).pipe(res);
       }
     } catch (e) { res.status(404).json({ error: 'file not found' }); }
     return;
