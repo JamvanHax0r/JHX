@@ -21,7 +21,7 @@
 tailwind.config = {
   theme: { extend: {
     fontFamily: { sans:['Inter','sans-serif'], display:['Space Grotesk','sans-serif'], mono:['JetBrains Mono','monospace'] },
-    colors: { night:'#05060a', panel:'#0b0e14', line:'rgba(255,255,255,0.07)', cy:'#22d3ee', vi:'#8b5cf6', pk:'#ec4899', lm:'#a3e635' }
+    colors: { night:'#05060a', panel:'#0b0e14', line:'rgba(255,255,255,0.07)', cy:'#22d3ee', vi:'#8b5cf6', pk:'#ec4899', lm:'#a3e635', yt:'#FF0000' }
   }}
 }
 </script>
@@ -149,7 +149,7 @@ tailwind.config = {
     <p class="text-slate-400 mt-3 max-w-2xl">Setiap module punya halaman dan endpoint sendiri. Ringan dipakai, cepat berjalan, aman dari awal sampai akhir.</p>
   </div>
   <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-5 mb-5">
-    <a href="/igdl/" class="reveal card rounded-xl p-7 group block">
+    <a href="/igdl/" class="reveal card rounded-xl p-7 group block order-2">
       <div class="flex items-center justify-between mb-5">
         <span class="w-11 h-11 rounded-lg bg-pk/10 border border-pk/25 flex items-center justify-center"><svg class="w-5 h-5 text-pk" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg></span>
         <span class="font-mono text-[10px] text-lm border border-lm/25 bg-lm/5 rounded-full px-2.5 py-1">● STABLE</span>
@@ -161,7 +161,7 @@ tailwind.config = {
         <span class="text-cy group-hover:translate-x-1 transition-transform">/igdl/ →</span>
       </div>
     </a>
-    <a href="/faceswap/" class="reveal card rounded-xl p-7 group block">
+    <a href="/faceswap/" class="reveal card rounded-xl p-7 group block order-1">
       <div class="flex items-center justify-between mb-5">
         <span class="w-11 h-11 rounded-lg bg-vi/10 border border-vi/25 flex items-center justify-center"><svg class="w-5 h-5 text-vi" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg></span>
         <span class="font-mono text-[10px] text-lm border border-lm/25 bg-lm/5 rounded-full px-2.5 py-1">● STABLE</span>
@@ -173,7 +173,7 @@ tailwind.config = {
         <span class="text-cy group-hover:translate-x-1 transition-transform">/faceswap/ →</span>
       </div>
     </a>
-    <a href="/twdl/" class="reveal card rounded-xl p-7 group block">
+    <a href="/twdl/" class="reveal card rounded-xl p-7 group block order-4">
       <div class="flex items-center justify-between mb-5">
         <span class="w-11 h-11 rounded-lg bg-cy/10 border border-cy/25 flex items-center justify-center"><svg class="w-5 h-5 text-cy" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M23 3a10.9 10.9 0 01-3.14 1.53 4.48 4.48 0 00-7.86 3v1A10.66 10.66 0 013 4s-4 9 5 13a11.64 11.64 0 01-7 2c9 5 20 0 20-11.5a4.5 4.5 0 00-.08-.83A7.72 7.72 0 0023 3z"/></svg></span>
         <span class="font-mono text-[10px] text-lm border border-lm/25 bg-lm/5 rounded-full px-2.5 py-1">● STABLE</span>
@@ -185,7 +185,7 @@ tailwind.config = {
         <span class="text-cy group-hover:translate-x-1 transition-transform">/twdl/ →</span>
       </div>
     </a>
-    <a href="/spdl/" class="reveal card rounded-xl p-7 group block">
+    <a href="/spdl/" class="reveal card rounded-xl p-7 group block order-3">
       <div class="flex items-center justify-between mb-5">
         <span class="w-11 h-11 rounded-lg bg-lm/10 border border-lm/25 flex items-center justify-center"><svg class="w-5 h-5 text-lm" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.5 17.3c-.22.36-.68.47-1.04.25-2.86-1.75-6.46-2.14-10.7-1.17-.41.1-.82-.16-.91-.57-.1-.41.16-.82.57-.91 4.64-1.06 8.62-.6 11.83 1.36.36.22.47.68.25 1.04zm1.47-3.27c-.28.45-.87.6-1.32.32-3.28-2.01-8.28-2.6-12.17-1.42-.51.15-1.05-.13-1.2-.64-.15-.51.13-1.05.64-1.2 4.44-1.35 9.95-.69 13.73 1.62.45.28.6.87.32 1.32zm.13-3.4C15.18 8.28 8.67 8.06 4.91 9.2c-.61.19-1.26-.16-1.45-.77-.19-.61.16-1.26.77-1.45 4.31-1.31 11.5-1.05 16.08 1.67.55.33.73 1.04.4 1.59-.33.55-1.04.73-1.59.4z"/></svg></span>
         <span class="font-mono text-[10px] text-lm border border-lm/25 bg-lm/5 rounded-full px-2.5 py-1">● STABLE</span>
@@ -197,7 +197,7 @@ tailwind.config = {
         <span class="text-cy group-hover:translate-x-1 transition-transform">/spdl/ →</span>
       </div>
     </a>
-    <a href="/ytdl/" class="reveal card rounded-xl p-7 group block">
+    <a href="/ytdl/" class="reveal card rounded-xl p-7 group block order-5">
       <div class="flex items-center justify-between mb-5">
         <span class="w-11 h-11 rounded-lg bg-yt/10 border border-yt/25 flex items-center justify-center"><svg class="w-5 h-5 text-yt" viewBox="0 0 24 24" fill="currentColor"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg></span>
         <span class="font-mono text-[10px] text-lm border border-lm/25 bg-lm/5 rounded-full px-2.5 py-1">● STABLE</span>
@@ -302,14 +302,37 @@ tailwind.config = {
 </section>
 
 <section class="px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto pb-24">
-  <div class="reveal card rounded-2xl p-10 sm:p-14 text-center relative overflow-hidden">
-    <div class="absolute inset-0 bg-gradient-to-br from-cy/10 via-transparent to-vi/10 pointer-events-none"></div>
-    <h2 class="font-display font-bold text-3xl sm:text-4xl text-white mb-4 relative">Siap Masuk Sistem?</h2>
-    <p class="text-slate-400 mb-8 relative">Mulai dari module yang sudah stabil — Instagram Downloader atau AI FaceSwap.</p>
-    <div class="relative flex flex-col sm:flex-row gap-4 justify-center">
-      <a href="/igdl/" class="px-9 py-4 rounded-lg bg-gradient-to-r from-pk to-vi text-white font-semibold hover:shadow-[0_0_40px_rgba(236,72,153,.35)] transition-shadow">Buka /igdl/ →</a>
-      <a href="/faceswap/" class="px-9 py-4 rounded-lg bg-gradient-to-r from-vi to-cy text-white font-semibold hover:shadow-[0_0_40px_rgba(139,92,246,.35)] transition-shadow">Buka /faceswap/ →</a>
-    </div>
+  <div class="reveal mb-10 text-center">
+    <p class="font-mono text-xs text-vi mb-3">05 — LAUNCHPAD</p>
+    <h2 class="font-display font-bold text-3xl sm:text-4xl text-white">Semua Module, Satu Ketukan.</h2>
+    <p class="text-slate-400 mt-3 max-w-2xl mx-auto">Pilih module favoritmu dan mulai dalam hitungan detik — tanpa daftar, tanpa bayar, tanpa batas.</p>
+  </div>
+  <div class="reveal grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+    <a href="/faceswap/" class="card rounded-xl p-5 text-center group hover:border-vi/50 hover:-translate-y-1 transition-all">
+      <span class="mx-auto mb-3 w-11 h-11 rounded-lg bg-vi/10 border border-vi/25 flex items-center justify-center"><svg class="w-5 h-5 text-vi" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg></span>
+      <p class="font-display font-bold text-sm text-white group-hover:text-vi transition-colors">AI FaceSwap</p>
+      <p class="font-mono text-[10px] text-slate-500 mt-1.5 group-hover:text-vi">BUKA →</p>
+    </a>
+    <a href="/igdl/" class="card rounded-xl p-5 text-center group hover:border-pk/50 hover:-translate-y-1 transition-all">
+      <span class="mx-auto mb-3 w-11 h-11 rounded-lg bg-pk/10 border border-pk/25 flex items-center justify-center"><svg class="w-5 h-5 text-pk" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg></span>
+      <p class="font-display font-bold text-sm text-white group-hover:text-pk transition-colors">Instagram</p>
+      <p class="font-mono text-[10px] text-slate-500 mt-1.5 group-hover:text-pk">BUKA →</p>
+    </a>
+    <a href="/spdl/" class="card rounded-xl p-5 text-center group hover:border-lm/50 hover:-translate-y-1 transition-all">
+      <span class="mx-auto mb-3 w-11 h-11 rounded-lg bg-lm/10 border border-lm/25 flex items-center justify-center"><svg class="w-5 h-5 text-lm" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.5 17.3c-.22.36-.68.47-1.04.25-2.86-1.75-6.46-2.14-10.7-1.17-.41.1-.82-.16-.91-.57-.1-.41.16-.82.57-.91 4.64-1.06 8.62-.6 11.83 1.36.36.22.47.68.25 1.04zm1.47-3.27c-.28.45-.87.6-1.32.32-3.28-2.01-8.28-2.6-12.17-1.42-.51.15-1.05-.13-1.2-.64-.15-.51.13-1.05.64-1.2 4.44-1.35 9.95-.69 13.73 1.62.45.28.6.87.32 1.32zm.13-3.4C15.18 8.28 8.67 8.06 4.91 9.2c-.61.19-1.26-.16-1.45-.77-.19-.61.16-1.26.77-1.45 4.31-1.31 11.5-1.05 16.08 1.67.55.33.73 1.04.4 1.59-.33.55-1.04.73-1.59.4z"/></svg></span>
+      <p class="font-display font-bold text-sm text-white group-hover:text-lm transition-colors">Spotify</p>
+      <p class="font-mono text-[10px] text-slate-500 mt-1.5 group-hover:text-lm">BUKA →</p>
+    </a>
+    <a href="/twdl/" class="card rounded-xl p-5 text-center group hover:border-cy/50 hover:-translate-y-1 transition-all">
+      <span class="mx-auto mb-3 w-11 h-11 rounded-lg bg-cy/10 border border-cy/25 flex items-center justify-center"><svg class="w-5 h-5 text-cy" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M23 3a10.9 10.9 0 01-3.14 1.53 4.48 4.48 0 00-7.86 3v1A10.66 10.66 0 013 4s-4 9 5 13a11.64 11.64 0 01-7 2c9 5 20 0 20-11.5a4.5 4.5 0 00-.08-.83A7.72 7.72 0 0023 3z"/></svg></span>
+      <p class="font-display font-bold text-sm text-white group-hover:text-cy transition-colors">Twitter / X</p>
+      <p class="font-mono text-[10px] text-slate-500 mt-1.5 group-hover:text-cy">BUKA →</p>
+    </a>
+    <a href="/ytdl/" class="card rounded-xl p-5 text-center group hover:border-yt/50 hover:-translate-y-1 transition-all">
+      <span class="mx-auto mb-3 w-11 h-11 rounded-lg bg-yt/10 border border-yt/25 flex items-center justify-center"><svg class="w-5 h-5 text-yt" viewBox="0 0 24 24" fill="currentColor"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg></span>
+      <p class="font-display font-bold text-sm text-white group-hover:text-yt transition-colors">YouTube</p>
+      <p class="font-mono text-[10px] text-slate-500 mt-1.5 group-hover:text-yt">BUKA →</p>
+    </a>
   </div>
 </section>
 
@@ -507,6 +530,7 @@ function buildCodes(ep){
   };
 }
 
+ENDPOINTS.sort((a, b) => a.path.localeCompare(b.path));
 const grid = document.getElementById('ep-grid');
 ENDPOINTS.forEach(ep => {
   const el = document.createElement('div');
