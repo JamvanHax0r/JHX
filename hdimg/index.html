@@ -33,9 +33,18 @@ tailwind.config = { theme: { extend: {
   @keyframes beat{0%,100%{transform:scale(1)}12%{transform:scale(1.25)}24%{transform:scale(1)}36%{transform:scale(1.2)}48%{transform:scale(1)}}
   .drop{border:1.5px dashed rgba(245,158,11,.4);transition:all .25s}
   .drop:hover,.drop.over{border-color:#22d3ee;background:rgba(34,211,238,.05)}
-  .scan{position:relative;overflow:hidden}
-  .scan::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,transparent,rgba(245,158,11,.25),transparent);animation:scan 1.6s linear infinite}
-  @keyframes scan{0%{transform:translateY(-100%)}100%{transform:translateY(100%)}}
+  .cmp{position:relative;overflow:hidden;height:320px;border-radius:.75rem;border:1px solid rgba(255,255,255,.08);background:#000;touch-action:none;cursor:ew-resize;user-select:none;-webkit-user-select:none}
+  @media(min-width:640px){.cmp{height:440px}}
+  .cmp img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;pointer-events:none}
+  .cmp-before{position:absolute;inset:0}
+  .cmp-handle{position:absolute;top:0;bottom:0;width:2px;background:rgba(245,158,11,.9);box-shadow:0 0 14px rgba(245,158,11,.7);transform:translateX(-1px)}
+  .cmp-knob{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:40px;height:40px;border-radius:9999px;background:rgba(11,14,20,.92);border:1.5px solid #F59E0B;color:#F59E0B;display:flex;align-items:center;justify-content:center;font-size:15px;box-shadow:0 0 20px rgba(245,158,11,.45)}
+  .cmp-label{position:absolute;top:10px;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.1em;padding:3px 9px;border-radius:4px;background:rgba(0,0,0,.72);border:1px solid rgba(255,255,255,.12);pointer-events:none}
+  .modal-bg{position:fixed;inset:0;background:rgba(3,6,10,.92);backdrop-filter:blur(12px);z-index:100;display:none;align-items:center;justify-content:center;padding:1rem}
+  .modal-bg.open{display:flex;animation:fadeIn .25s ease}
+  @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+  .modal-box{background:#0b0e14;border:1px solid rgba(255,255,255,.08);border-radius:1.25rem;max-width:900px;width:100%;max-height:94vh;overflow-y:auto;box-shadow:0 40px 80px rgba(0,0,0,.6)}
+  .modal-box .cmp{height:52vh;border-radius:.5rem}
   ::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:#05060a}::-webkit-scrollbar-thumb{background:#334155;border-radius:3px}
   ::selection{background:#F59E0B;color:#05060a}
 </style>
@@ -54,7 +63,7 @@ tailwind.config = { theme: { extend: {
       </a>
     </div>
     <span class="flex items-center gap-2 font-mono text-[10px] text-lm border border-lm/25 bg-lm/5 rounded-full px-3 py-1">
-      <span class="w-1.5 h-1.5 rounded-full bg-lm animate-pulse"></span>STABLE · v1.0
+      <span class="w-1.5 h-1.5 rounded-full bg-lm animate-pulse"></span>STABLE · v1.1
     </span>
   </div>
 </nav>
@@ -62,7 +71,7 @@ tailwind.config = { theme: { extend: {
 <main class="max-w-5xl mx-auto px-4 sm:px-6 pt-28 pb-20">
   <p class="font-mono text-xs text-slate-600 mb-4">~/modules/<span class="text-hd">hd-image</span></p>
   <h1 class="font-display font-bold text-4xl sm:text-5xl text-white mb-4">HD Image <span class="tgrad">Upscaler</span></h1>
-  <p class="text-slate-400 max-w-2xl leading-relaxed mb-10">Unggah foto burik atau beresolusi kecil — neural upscaler memperbesar hingga <span class="text-hd font-semibold">×2</span> dengan detail yang tajam. Proses privat, hasil tanpa watermark.</p>
+  <p class="text-slate-400 max-w-2xl leading-relaxed mb-10">Unggah foto burik atau beresolusi kecil — neural upscaler memperbesar hingga <span class="text-hd font-semibold">×2</span> dengan detail yang tajam. Geser slider perbandingan dan buktikan sendiri hasilnya.</p>
 
   <div class="card rounded-2xl p-6 sm:p-8 border-t-2 border-t-hd/60">
     <div id="drop" class="drop rounded-xl min-h-[180px] flex flex-col items-center justify-center gap-2 cursor-pointer text-center px-4 py-8" onclick="document.getElementById('file').click()">
@@ -90,23 +99,26 @@ tailwind.config = { theme: { extend: {
         <p class="font-mono text-[11px] tracking-widest text-slate-400">HASIL <span class="text-hd">· NEURAL UPSCALE SELESAI</span></p>
         <button onclick="resetAll()" class="font-mono text-[10px] text-slate-400 hover:text-white border border-line rounded px-3 py-1.5">↺ GAMBAR BARU</button>
       </div>
-      <div class="grid sm:grid-cols-2 gap-4 mb-5">
-        <div class="relative rounded-xl overflow-hidden border border-line">
-          <img id="r-before" src="" class="w-full max-h-80 object-contain bg-black/60" alt="">
-          <span class="absolute top-2 left-2 font-mono text-[10px] bg-black/70 text-slate-300 border border-line rounded px-2 py-0.5">ORIGINAL</span>
-        </div>
-        <div class="relative rounded-xl overflow-hidden border border-hd/40 scan">
-          <img id="r-after" src="" class="w-full max-h-80 object-contain bg-black/60" alt="">
-          <span class="absolute top-2 left-2 font-mono text-[10px] bg-black/70 text-hd border border-hd/40 rounded px-2 py-0.5">HD ×2 ✓</span>
-        </div>
+
+      <div class="cmp" id="cmp1">
+        <img id="rc-after" src="" alt="">
+        <div class="cmp-before" id="cb1"><img id="rc-before" src="" alt=""></div>
+        <div class="cmp-handle" id="ch1"><div class="cmp-knob">⇔</div></div>
+        <span class="cmp-label left-2.5 text-slate-300">ORIGINAL</span>
+        <span class="cmp-label right-2.5 text-hd" style="border-color:rgba(245,158,11,.4)">HD ×2 ✓</span>
       </div>
-      <div class="grid sm:grid-cols-2 gap-4">
+      <p class="font-mono text-[10px] text-slate-500 mt-2.5 text-center">⇔ tahan & geser untuk membandingkan before / after</p>
+
+      <div class="grid sm:grid-cols-2 gap-4 mt-5">
         <div class="card rounded-xl p-5">
           <p class="font-mono text-[10px] text-slate-500 mb-1.5">FILENAME · SIZE</p>
           <p id="r-name" class="font-mono text-xs text-white break-all"></p>
           <p id="r-size" class="font-mono text-[10px] text-hd mt-1.5"></p>
         </div>
-        <a id="r-dl" href="#" target="_blank" class="card rounded-xl flex items-center justify-center font-mono font-bold text-hd border-hd/40 py-5 hover:shadow-[0_0_25px_rgba(245,158,11,.25)] transition-all">⤓ DOWNLOAD HD</a>
+        <div class="flex gap-3">
+          <button onclick="openPreview()" class="flex-1 card rounded-xl font-mono font-bold text-cy border-cy/40 py-5 hover:bg-cy/10 transition-all">🔍 PREVIEW</button>
+          <a id="r-dl" href="#" target="_blank" class="flex-1 card rounded-xl flex items-center justify-center font-mono font-bold text-hd border-hd/40 py-5 hover:shadow-[0_0_25px_rgba(245,158,11,.25)] transition-all">⤓ DOWNLOAD HD</a>
+        </div>
       </div>
     </div>
   </div>
@@ -178,6 +190,28 @@ if (json.Status) console.log(json.data.url);</pre>
   </div>
 </main>
 
+<div class="modal-bg" id="pmodal">
+  <div class="modal-box">
+    <div class="flex items-center justify-between px-5 py-4 border-b border-line">
+      <div class="flex items-center gap-3 min-w-0">
+        <span class="font-mono text-[10px] uppercase tracking-wider text-hd bg-hd/10 border border-hd/25 rounded px-2 py-0.5">hd ×2</span>
+        <p id="pm-name" class="font-mono text-xs text-slate-300 truncate"></p>
+      </div>
+      <button onclick="closePreview()" class="w-9 h-9 rounded-lg border border-line hover:border-hd/50 hover:text-hd flex items-center justify-center transition-colors">✕</button>
+    </div>
+    <div class="p-4 sm:p-6">
+      <div class="cmp" id="cmp2">
+        <img id="pc-after" src="" alt="">
+        <div class="cmp-before" id="cb2"><img id="pc-before" src="" alt=""></div>
+        <div class="cmp-handle" id="ch2"><div class="cmp-knob">⇔</div></div>
+        <span class="cmp-label left-2.5 text-slate-300">ORIGINAL</span>
+        <span class="cmp-label right-2.5 text-hd" style="border-color:rgba(245,158,11,.4)">HD ×2 ✓</span>
+      </div>
+      <p class="font-mono text-[10px] text-slate-500 mt-2.5 text-center">⇔ geser untuk melihat perbedaan detail secara dekat</p>
+    </div>
+  </div>
+</div>
+
 <footer class="border-t border-line bg-panel/60 py-9 px-4 text-center space-y-2.5">
   <p class="text-sm text-slate-400">Made with <span class="beat text-pk">❤</span> by <span class="tgrad font-display font-bold text-base">JamvanHax0r</span></p>
   <p class="text-sm text-slate-500">Supported by: <span class="text-cy font-medium">BCCTeam</span> <span class="text-slate-700">—</span> <span class="text-vi font-medium">FLMGroup</span> <span class="text-slate-700">—</span> <span class="text-pk font-medium">Fiony Bot</span></p>
@@ -187,7 +221,7 @@ if (json.Status) console.log(json.data.url);</pre>
 <script>
 document.getElementById('yr').textContent = new Date().getFullYear();
 const $ = id => document.getElementById(id);
-let imgB64 = null, imgCt = null, origUrl = '';
+let imgB64 = null, imgCt = null, origUrl = '', lastHd = null;
 
 const dz = $('drop');
 dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('over'); });
@@ -216,7 +250,7 @@ function handleFile(file){
 }
 
 function resetAll(){
-  imgB64 = null; imgCt = null; origUrl = '';
+  imgB64 = null; imgCt = null; origUrl = ''; lastHd = null;
   $('file').value = '';
   $('prev').classList.add('hidden');
   $('btn').classList.add('hidden');
@@ -237,9 +271,11 @@ async function run(){
     const j = await r.json();
     clearInterval(iv);
     if (!j.Status) throw new Error(j.error || 'Gagal memproses gambar.');
-    $('status').textContent = '✓ selesai — hasil HD siap diunduh (' + j.data.sizeHuman + ')';
-    $('r-before').src = origUrl;
-    $('r-after').src = j.data.url;
+    lastHd = j.data;
+    $('status').textContent = '✓ selesai — hasil HD siap dibandingkan (' + j.data.sizeHuman + ')';
+    $('rc-before').src = origUrl;
+    $('rc-after').src = j.data.url;
+    setPct($('cmp1'), 50);
     $('r-name').textContent = j.data.filename;
     $('r-size').textContent = j.data.sizeHuman + ' · scale ' + j.data.scale;
     $('r-dl').href = j.data.url;
@@ -248,6 +284,49 @@ async function run(){
   } catch(e){ clearInterval(iv); $('status').classList.add('hidden'); showErr(e.message); }
   finally { $('btn').disabled = false; }
 }
+
+function setPct(cmp, pct){
+  pct = Math.max(2, Math.min(98, pct));
+  const before = cmp.querySelector('.cmp-before');
+  const handle = cmp.querySelector('.cmp-handle');
+  before.style.clipPath = 'inset(0 ' + (100 - pct) + '% 0 0)';
+  handle.style.left = pct + '%';
+}
+function initCmp(cmp){
+  const move = x => {
+    const r = cmp.getBoundingClientRect();
+    setPct(cmp, ((x - r.left) / r.width) * 100);
+  };
+  cmp.addEventListener('pointerdown', e => {
+    e.preventDefault();
+    cmp.setPointerCapture(e.pointerId);
+    move(e.clientX);
+    const mm = ev => move(ev.clientX);
+    const up = () => { cmp.removeEventListener('pointermove', mm); cmp.removeEventListener('pointerup', up); cmp.removeEventListener('pointercancel', up); };
+    cmp.addEventListener('pointermove', mm);
+    cmp.addEventListener('pointerup', up);
+    cmp.addEventListener('pointercancel', up);
+  });
+  setPct(cmp, 50);
+}
+initCmp($('cmp1'));
+initCmp($('cmp2'));
+
+function openPreview(){
+  if (!lastHd) return;
+  $('pm-name').textContent = lastHd.filename;
+  $('pc-before').src = origUrl;
+  $('pc-after').src = lastHd.url;
+  setPct($('cmp2'), 50);
+  $('pmodal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closePreview(){
+  $('pmodal').classList.remove('open');
+  document.body.style.overflow = '';
+}
+$('pmodal').addEventListener('click', e => { if (e.target.id === 'pmodal') closePreview(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closePreview(); });
 
 function showErr(msg){ if (!msg) { $('err').classList.add('hidden'); return; } $('err').textContent = '✗ ' + msg; $('err').classList.remove('hidden'); }
 function cp(id){
