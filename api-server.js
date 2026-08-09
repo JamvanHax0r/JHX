@@ -379,7 +379,7 @@ app.post('/faceswap', async (req, res) => {
   try {
     const { target, swap } = req.body;
     if (!target || !swap) return res.status(400).json({ status: false, error: 'URL target dan swap wajib diisi!' });
-    const bases = ['https://jhx.my.id/vidge', 'https://vidmage.ai'];
+    const bases = ['https://jhx.my.id/FionySwap', 'https://vidmage.ai'];
     let result = null, lastErr = '';
     for (const base of bases) {
       try { result = await runFaceSwap(base, target, swap); break; }
