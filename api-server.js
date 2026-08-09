@@ -592,6 +592,40 @@ app.get('/resimg/:code', serveProxy);
 app.get('/resvid/:code', serveProxy);
 app.get('/resaud/:code', serveProxy);
 
+
+function garbageCollect() {
+  const now = Date.now();
+  let cleaned = 0;
+  try {
+    for (const f of fs.readdirSync(DATA_DIR)) {
+      if (!f.endsWith('.json')) continue;
+      const p = path.join(DATA_DIR, f);
+      try {
+        const raw = JSON.parse(fs.readFileSync(p, 'utf8'));
+        if (raw.exp && now > raw.exp) { fs.unlinkSync(p); cleaned++; }
+      } catch {
+        const st = fs.statSync(p);
+        if (now - st.mtimeMs > 24 * 3600 * 1000) { fs.unlinkSync(p); cleaned++; }
+      }
+    }
+  } catch (e) { console.error('[GC] data:', e.message); }
+  try {
+    const tmpBase = path.join(__dirname, 'tmp');
+    if (fs.existsSync(tmpBase)) {
+      for (const d of fs.readdirSync(tmpBase)) {
+        const dp = path.join(tmpBase, d);
+        try {
+          const st = fs.statSync(dp);
+          if (now - st.mtimeMs > 2 * 3600 * 1000) { fs.rmSync(dp, { recursive: true, force: true }); cleaned++; }
+        } catch {}
+      }
+    }
+  } catch (e) { console.error('[GC] tmp:', e.message); }
+  console.log('[GC] sweep done — cleaned ' + cleaned + ' items');
+}
+setInterval(garbageCollect, 10 * 60 * 1000);
+garbageCollect();
+
 const PORT = 4100;
 const server = app.listen(PORT, () => console.log('✓ JH-Tools API running on port ' + PORT));
 server.on('error', (e) => { console.error('LISTEN ERROR:', e.message); process.exit(1); });
