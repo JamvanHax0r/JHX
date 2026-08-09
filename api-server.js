@@ -1,8 +1,10 @@
 const express = require('express');
 const fs = require('fs');
 const path = require('path');
+const os = require('os');
 const axios = require('axios');
 const cheerio = require('cheerio');
+const { exec } = require('child_process');
 
 const app = express();
 app.use(express.json({ limit: '10mb' }));
@@ -434,63 +436,73 @@ app.post('/yt-search', async (req, res) => {
 
 app.post('/yt-download', async (req, res) => {
   try {
-    const { exec } = require('child_process');
     const url = (req.body && req.body.url) || '';
     const format = (req.body && req.body.format) || 'best';
-    
-    if (!url || !url.includes('youtube.com')) return res.status(400).json({ Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: false, error: 'URL YouTube tidak valid!' });
+    if (!url || !/youtube\.com|youtu\.be/.test(url)) return res.status(400).json({ Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: false, error: 'URL YouTube tidak valid!' });
     
     const isAudio = format === 'audio';
-    const cmd = isAudio 
-      ? `yt-dlp -J --no-warnings "${url}"` 
-      : `yt-dlp -J --no-warnings "${url}"`;
+    const code = makeCode();
+    const tmpDir = path.join(os.tmpdir(), 'jh-yt-' + code);
+    fs.mkdirSync(tmpDir, { recursive: true });
     
-    exec(cmd, { maxBuffer: 1024 * 1024 * 15, timeout: 60000 }, (error, stdout, stderr) => {
-      if (error) return res.status(500).json({ Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: false, error: 'Gagal mengambil metadata: ' + error.message });
+    const metaCmd = 'yt-dlp -J --no-warnings "' + url + '"';
+    exec(metaCmd, { maxBuffer: 1024 * 1024 * 15, timeout: 60000 }, (err, stdout) => {
+      if (err) {
+        fs.rmSync(tmpDir, { recursive: true, force: true });
+        return res.status(500).json({ Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: false, error: 'Gagal metadata: ' + err.message });
+      }
       
       try {
         const meta = JSON.parse(stdout);
         const title = meta.title || 'Unknown';
         const formats = meta.formats || [];
+        const prettyName = 'JHYT_' + cleanTitle(title);
         
+        let dlCmd, outputFile, route, ext;
         if (isAudio) {
-          const audioFormat = formats.filter(f => f.acodec && f.acodec !== 'none' && f.ext === 'm4a').sort((a, b) => (b.abr || 0) - (a.abr || 0))[0];
-          if (!audioFormat) return res.status(404).json({ Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: false, error: 'Format audio tidak tersedia!' });
-          
-          const code = makeCode();
-          const prettyName = 'JHYT_' + cleanTitle(title);
-          storeSet('resaud:' + code, { u: audioFormat.url, k: 'aud', p: prettyName, fn: prettyName, ref: 'https://www.youtube.com/' }, 3600);
-          
-          return res.json({
-            Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: true, type: 'download',
-            data: { url: 'https://api.jhx.my.id/resaud/' + code + '.m4a', filename: prettyName + '.m4a', youtube_url: url, format: 'audio (m4a)' }
-          });
+          outputFile = path.join(tmpDir, 'audio.mp3');
+          dlCmd = 'yt-dlp -x --audio-format mp3 --audio-quality 192K --no-warnings -o "' + outputFile + '" "' + url + '"';
+          route = 'resaud';
+          ext = 'mp3';
         } else {
           const targetHeight = parseInt(format) || 720;
-          const videoFormat = formats
-            .filter(f => f.vcodec && f.vcodec !== 'none' && f.height)
-            .sort((a, b) => Math.abs((a.height || 0) - targetHeight) - Math.abs((b.height || 0) - targetHeight))[0];
+          outputFile = path.join(tmpDir, 'video.mp4');
+          dlCmd = 'yt-dlp -f "bv*[height<=' + targetHeight + ']+ba/b[height<=' + targetHeight + ']" --no-warnings -o "' + outputFile + '" "' + url + '"';
+          route = 'resvid';
+          ext = 'mp4';
+        }
+        
+        exec(dlCmd, { timeout: 300000 }, (dlErr) => {
+          if (dlErr) {
+            fs.rmSync(tmpDir, { recursive: true, force: true });
+            return res.status(500).json({ Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: false, error: 'Download gagal: ' + dlErr.message });
+          }
           
-          if (!videoFormat) return res.status(404).json({ Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: false, error: 'Format video ' + targetHeight + 'p tidak tersedia!' });
+          const availableQualities = [...new Set(formats.filter(f => f.vcodec && f.vcodec !== 'none' && f.height).map(f => f.height + 'p'))].sort((a, b) => parseInt(b) - parseInt(a)).slice(0, 5);
           
-          const code = makeCode();
-          const prettyName = 'JHYT_' + cleanTitle(title);
-          storeSet('resvid:' + code, { u: videoFormat.url, k: 'vid', p: prettyName, fn: prettyName, ref: 'https://www.youtube.com/' }, 3600);
+          let actualHeight = 720;
+          if (!isAudio) {
+            const target = parseInt(format) || 720;
+            const match = formats.filter(f => f.vcodec && f.vcodec !== 'none' && f.height).sort((a, b) => Math.abs(a.height - target) - Math.abs(b.height - target))[0];
+            if (match) actualHeight = match.height;
+          }
           
-          const availableQualities = [...new Set(formats.filter(f => f.vcodec && f.vcodec !== 'none' && f.height).map(f => f.height + 'p'))].slice(0, 5);
+          storeSet(route + ':' + code, { filePath: outputFile, k: isAudio ? 'aud' : 'vid', p: prettyName, fn: prettyName, ref: 'https://www.youtube.com/' }, 7200);
+          setTimeout(() => { try { fs.rmSync(tmpDir, { recursive: true, force: true }); } catch {} }, 7200 * 1000);
           
           return res.json({
             Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: true, type: 'download',
-            data: { 
-              url: 'https://api.jhx.my.id/resvid/' + code + '.mp4', 
-              filename: prettyName + '.mp4', 
-              youtube_url: url, 
-              format: videoFormat.height + 'p',
-              available_qualities: availableQualities
+            data: {
+              url: 'https://api.jhx.my.id/' + route + '/' + code + '.' + ext,
+              filename: prettyName + '.' + ext,
+              youtube_url: url,
+              format: isAudio ? 'audio (mp3 192kbps)' : actualHeight + 'p',
+              available_qualities: isAudio ? ['audio'] : availableQualities
             }
           });
-        }
+        });
       } catch (e) {
+        fs.rmSync(tmpDir, { recursive: true, force: true });
         res.status(500).json({ Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: false, error: 'Parse error: ' + e.message });
       }
     });
@@ -498,8 +510,6 @@ app.post('/yt-download', async (req, res) => {
     res.status(500).json({ Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: false, error: e.message });
   }
 });
-
-
 async function serveProxy(req, res) {
   const route = req.path.startsWith('/resvid') ? 'resvid' : req.path.startsWith('/resaud') ? 'resaud' : 'resimg';
   const code = String(req.params.code).split('.')[0];
@@ -508,6 +518,30 @@ async function serveProxy(req, res) {
   const kind = item.k || 'img';
   const ext = kind === 'vid' ? 'mp4' : kind === 'aud' ? 'mp3' : 'jpg';
   const baseName = item.fn || ((item.p || ('JHIG_' + kind)) + '_' + code);
+
+  if (item.filePath) {
+    try {
+      const stat = fs.statSync(item.filePath);
+      const ct = kind === 'vid' ? 'video/mp4' : kind === 'aud' ? 'audio/mpeg' : 'image/jpeg';
+      res.setHeader('Content-Type', ct);
+      res.setHeader('Content-Disposition', 'attachment; filename="' + baseName + '.' + ext + '"');
+      res.setHeader('Cache-Control', 'public, max-age=86400');
+      res.setHeader('Accept-Ranges', 'bytes');
+      if (req.headers.range) {
+        const parts = req.headers.range.replace(/bytes=/, '').split('-');
+        const start = parseInt(parts[0], 10);
+        const end = parts[1] ? parseInt(parts[1], 10) : stat.size - 1;
+        res.status(206);
+        res.setHeader('Content-Range', 'bytes ' + start + '-' + end + '/' + stat.size);
+        res.setHeader('Content-Length', end - start + 1);
+        fs.createReadStream(item.filePath, { start, end }).pipe(res);
+      } else {
+        res.setHeader('Content-Length', stat.size);
+        fs.createReadStream(item.filePath).pipe(res);
+      }
+    } catch (e) { res.status(404).json({ error: 'file not found' }); }
+    return;
+  }
 
   if (item.b64) {
     const bin = Buffer.from(item.b64, 'base64');
