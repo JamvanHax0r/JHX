@@ -757,7 +757,7 @@ app.post('/lyrics-search', async (req, res) => {
       'Origin': 'https://genius.com',
       'Referer': 'https://genius.com/search?q=' + encodeURIComponent(q)
     };
-    const { data } = await axios.get('https://genius.com/api/search/multi?per_page=8&q=' + encodeURIComponent(q), { headers: jantung });
+    const { data } = await axios.get('https://genius.com/api/search/multi?per_page=5&q=' + encodeURIComponent(q), { headers: jantung });
     const songSection = ((data.response && data.response.sections) || []).find(s => s.type === 'song');
     if (!songSection || !songSection.hits || !songSection.hits.length) return res.status(404).json({ Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: false, error: 'Lagu tidak ditemukan!' });
     const results = songSection.hits.map(h => {
