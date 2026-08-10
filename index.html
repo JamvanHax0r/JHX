@@ -477,9 +477,9 @@ const ENDPOINTS = [
   },
   {
     id: 'hd', method: 'POST', path: '/hd-image', title: 'HD Image Upscaler', color: 'hd',
-    desc: 'Perbesar resolusi gambar hingga 2x dengan neural upscaler. Kirim base64 gambar, terima hasil HD siap unduh dengan filename branded.',
-    body: { b64: '/9j/4AAQ...(base64 gambar)', ct: 'image/jpeg' },
-    ok: { Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: true, data: { url: 'https://api.jhx.my.id/resimg/HD01.jpg', filename: 'JHHD_x2_HD01.jpg', size: 1515777, sizeHuman: '1.45 MB', scale: 'x2' } },
+    desc: 'Perbesar resolusi gambar ×2 (cepat) atau ×4 (ultra) dengan neural upscaler. Kirim base64 gambar + scale, terima hasil HD siap unduh dengan filename branded.',
+    body: { b64: '/9j/4AAQ...(base64 gambar)', ct: 'image/jpeg', scale: '4' },
+    ok: { Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: true, data: { url: 'https://api.jhx.my.id/resimg/HD01.jpg', filename: 'JHHD_x4_HD01.jpg', size: 1515777, sizeHuman: '1.45 MB', scale: 'x2' } },
     err: { Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: false, error: 'Gambar kosong!' }
   },
   {

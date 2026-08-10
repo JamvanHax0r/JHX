@@ -624,57 +624,127 @@ app.post('/tk-downloader', async (req, res) => {
 
 app.post('/hd-image', async (req, res) => {
   try {
-    const { b64, ct } = req.body || {};
+    const { b64, ct, scale } = req.body || {};
     if (!b64) return res.status(400).json({ Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: false, error: 'Gambar kosong!' });
     const mime = ct || 'image/png';
     if (!/^image\//i.test(mime)) return res.status(400).json({ Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: false, error: 'File harus berupa gambar!' });
     const imgBuf = Buffer.from(b64, 'base64');
     if (imgBuf.length > 8 * 1024 * 1024) return res.status(400).json({ Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: false, error: 'Ukuran maksimal 8MB!' });
+    const is4x = String(scale) === '4';
+    let outBuf = null, outCt = '';
 
-    const jantung = {
-      'accept': '*/*',
-      'accept-language': 'id-ID,id;q=0.9,en-US;q=0.8,en;q=0.7',
-      'origin': 'https://www.photiu.ai',
-      'referer': 'https://www.photiu.ai/id/image-upscaler',
-      'user-agent': 'Mozilla/5.0 (Linux; Android 13) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Mobile Safari/537.36'
-    };
+    if (is4x) {
+      const crypto = require('crypto');
+      const jantung = {
+        'Accept': 'application/json, text/plain, */*',
+        'X-Requested-With': 'XMLHttpRequest',
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+        'Origin': 'https://www.img2go.com',
+        'Referer': 'https://www.img2go.com/',
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0'
+      };
+      let cookieMap = {};
+      const api = {
+        async req(method, url, data, config = {}) {
+          const headers = { ...jantung, ...(config.headers || {}) };
+          const cookieStr = Object.entries(cookieMap).map(([k, v]) => k + '=' + v).join('; ');
+          if (cookieStr) headers['Cookie'] = cookieStr;
+          if (cookieMap['XSRF-TOKEN']) headers['X-XSRF-TOKEN'] = decodeURIComponent(cookieMap['XSRF-TOKEN']);
+          const r = await axios({ method, url, data, headers, responseType: config.responseType, timeout: 60000, validateStatus: () => true });
+          (r.headers['set-cookie'] || []).forEach(c => {
+            const pair = c.split(';')[0];
+            const eqIdx = pair.indexOf('=');
+            if (eqIdx > -1) cookieMap[pair.substring(0, eqIdx)] = pair.substring(eqIdx + 1);
+          });
+          return r;
+        },
+        post(url, data, config) { return this.req('POST', url, data, config); },
+        get(url, config) { return this.req('GET', url, null, config); }
+      };
+      const pollJob = async (url, condFn, maxRetries = 30, delay = 2500) => {
+        for (let i = 0; i < maxRetries; i++) {
+          await sleep(delay);
+          const { data } = await api.get(url);
+          const result = condFn(data);
+          if (result) return result;
+        }
+        throw new Error('Timeout di step: ' + url);
+      };
 
-    const ext = (mime.split('/')[1] || 'png').replace('jpeg', 'jpg');
-    const boundary = '----jhform' + makeCode() + makeCode() + Date.now();
-    const body = Buffer.concat([
-      Buffer.from('--' + boundary + '\r\nContent-Disposition: form-data; name="upfile"; filename="input.' + ext + '"\r\nContent-Type: ' + mime + '\r\n\r\n'),
-      imgBuf,
-      Buffer.from('\r\n--' + boundary + '\r\nContent-Disposition: form-data; name="factor"\r\n\r\n2\r\n--' + boundary + '--\r\n')
-    ]);
+      const fileName = 'JH_' + Date.now() + '.jpg';
+      await api.get('https://dragon.img2go.com/api/user');
+      const { data: initRes } = await api.post('https://dragon.img2go.com/api/jobs', { operation: 'com.img2go.system.initialupload', async: true, conversion: [{ target: 'mirror', category: 'mirror', options: {} }] });
+      if (!initRes || !initRes.sat) throw new Error('IMG2GO INIT: ' + JSON.stringify(initRes).slice(0, 200));
+      const initialJobId = initRes.sat.id_job;
+      const upServerData = await pollJob('https://dragon.img2go.com/api/jobs/' + initialJobId + '?async=true', d => d && d.server && d.id && d.token ? d : null, 15, 1500);
+      const { data: wfRes } = await api.post('https://dragon.img2go.com/api/workflows', { origin: 'auto' });
 
-    const up = await axios.post('https://www.photiu.ai/api/upscale', body, {
-      headers: { ...jantung, 'Content-Type': 'multipart/form-data; boundary=' + boundary },
-      responseType: 'arraybuffer',
-      maxBodyLength: Infinity,
-      maxContentLength: Infinity,
-      timeout: 120000,
-      validateStatus: () => true
-    });
+      const ext = (mime.split('/')[1] || 'jpg').replace('jpeg', 'jpg');
+      const boundary = '----WebKitFormBoundary' + Math.random().toString(36).substring(2);
+      const payload = Buffer.concat([
+        Buffer.from('--' + boundary + '\r\nContent-Disposition: form-data; name="file"; filename="' + fileName + '"\r\nContent-Type: ' + mime + '\r\n\r\n'),
+        imgBuf,
+        Buffer.from('\r\n--' + boundary + '--\r\n')
+      ]);
+      const upRes = await api.post(upServerData.server + '/upload-file/' + upServerData.id, payload, { headers: { 'X-Oc-Token': upServerData.token, 'X-Oc-Upload-Uuid': (crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(36)), 'Content-Type': 'multipart/form-data; boundary=' + boundary } });
+      if (!upRes || upRes.status >= 400) throw new Error('IMG2GO UPLOAD gagal, status ' + (upRes ? upRes.status : '?'));
 
-    const outCt = up.headers['content-type'] || '';
-    if (!/^image\//i.test(outCt)) {
+      const uploadedFile = await pollJob('https://dragon.img2go.com/api/jobs/' + initialJobId + '?async=true', d => d && d.status && d.status.code === 'completed' && d.output && d.output.length > 0 ? d.output[0] : null);
+      const { data: bindRes } = await api.post('https://dragon.img2go.com/api/workflows/' + wfRes.hash + '/upload', { files: [{ filename: fileName, extension: ext, contentType: mime, size: uploadedFile.size, uri: uploadedFile.uri, metadata: { thumbnail_available: true, original_filename: fileName, original_content_type: mime, original_size: uploadedFile.size } }] });
+      const { data: upscaleInit } = await api.post('https://dragon.img2go.com/api/jobs', { operation: 'com.img2go.upscaleimage', async: true, workflow_hash: wfRes.hash, input_file_ids: [bindRes.file_groups[0].latest_version.file_id] });
+      if (!upscaleInit || !upscaleInit.sat) throw new Error('IMG2GO UPSCALE INIT: ' + JSON.stringify(upscaleInit).slice(0, 200));
+      const finalJobId = await pollJob('https://dragon.img2go.com/api/jobs/' + upscaleInit.sat.id_job + '?async=true', d => d && d.id ? d.id : null, 15, 1500);
+      await api.post('https://dragon.img2go.com/api/jobs/' + finalJobId + '/input', [{ type: 'remote', source: uploadedFile.uri, filename: fileName }]);
+      await api.post('https://dragon.img2go.com/api/jobs/' + finalJobId + '/conversions', { target: 'ai_upscale', category: 'operation', options: { allow_multiple_outputs: true, upscale_factor: '4x' }, metadata: { Producer: 'Img2Go' } });
+      const finalOutput = await pollJob('https://dragon.img2go.com/api/jobs/' + finalJobId, d => d && d.status && d.status.code === 'completed' && d.output && d.output.length > 0 ? d.output[0] : null, 40, 3000);
+      const finalImgRes = await api.get(finalOutput.uri, { responseType: 'arraybuffer' });
+      outBuf = Buffer.from(finalImgRes.data);
+      outCt = finalImgRes.headers['content-type'] || 'image/jpeg';
+    } else {
+      const jantung2 = {
+        'accept': '*/*',
+        'accept-language': 'id-ID,id;q=0.9,en-US;q=0.8,en;q=0.7',
+        'origin': 'https://www.photiu.ai',
+        'referer': 'https://www.photiu.ai/id/image-upscaler',
+        'user-agent': 'Mozilla/5.0 (Linux; Android 13) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Mobile Safari/537.36'
+      };
+      const ext2 = (mime.split('/')[1] || 'png').replace('jpeg', 'jpg');
+      const boundary2 = '----jhform' + makeCode() + makeCode() + Date.now();
+      const body2 = Buffer.concat([
+        Buffer.from('--' + boundary2 + '\r\nContent-Disposition: form-data; name="upfile"; filename="input.' + ext2 + '"\r\nContent-Type: ' + mime + '\r\n\r\n'),
+        imgBuf,
+        Buffer.from('\r\n--' + boundary2 + '\r\nContent-Disposition: form-data; name="factor"\r\n\r\n2\r\n--' + boundary2 + '--\r\n')
+      ]);
+      const up2 = await axios.post('https://www.photiu.ai/api/upscale', body2, {
+        headers: { ...jantung2, 'Content-Type': 'multipart/form-data; boundary=' + boundary2 },
+        responseType: 'arraybuffer',
+        maxBodyLength: Infinity,
+        maxContentLength: Infinity,
+        timeout: 120000,
+        validateStatus: () => true
+      });
+      outCt = up2.headers['content-type'] || '';
+      outBuf = Buffer.from(up2.data);
+    }
+
+    if (!outBuf || !/^image\//i.test(outCt)) {
       let errBody = '';
-      try { errBody = Buffer.from(up.data).toString('utf8', 0, 300); } catch (e) {}
+      try { errBody = outBuf.toString('utf8', 0, 300); } catch (e) {}
       return res.status(500).json({ Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: false, error: 'Upscale gagal: ' + errBody });
     }
 
-    const outBuf = Buffer.from(up.data);
     const code = makeCode();
-    const prettyName = 'JHHD_x2_' + code;
+    const prettyName = 'JHHD_x' + (is4x ? '4' : '2') + '_' + code;
     storeSet('resimg:' + code, { b64: outBuf.toString('base64'), ct: outCt, k: 'img', p: 'JHHD', fn: prettyName }, 7200);
 
     res.json({
       Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: true,
-      data: { url: 'https://api.jhx.my.id/resimg/' + code + '.jpg', filename: prettyName + '.jpg', size: outBuf.length, sizeHuman: human(outBuf.length), contentType: outCt, scale: 'x2' }
+      data: { url: 'https://api.jhx.my.id/resimg/' + code + '.jpg', filename: prettyName + '.jpg', size: outBuf.length, sizeHuman: human(outBuf.length), contentType: outCt, scale: is4x ? 'x4' : 'x2' }
     });
   } catch (e) { res.status(500).json({ Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: false, error: e.message }); }
 });
-
 
 async function serveProxy(req, res) {
   const route = req.path.startsWith('/resvid') ? 'resvid' : req.path.startsWith('/resaud') ? 'resaud' : 'resimg';
