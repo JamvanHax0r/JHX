@@ -872,7 +872,7 @@ app.post('/th-downloader', async (req, res) => {
         url: 'https://api.jhx.my.id/' + route + '/' + code + (kind === 'vid' ? '.mp4' : '.jpg'),
         filename: base + (kind === 'vid' ? '.mp4' : '.jpg')
       };
-      if (m.thumbnail) {
+      if (m.thumbnail && !/\.mp4(\?|$)|\/video\?/i.test(m.thumbnail)) {
         const t = reg(m.thumbnail, 'img', 'JHTH_thumb_' + code);
         result.thumbnail = t.url;
       }
