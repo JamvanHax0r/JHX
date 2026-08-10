@@ -854,24 +854,27 @@ app.post('/th-downloader', async (req, res) => {
 
     if (!results.length) throw new Error('Gagal ekstrak media dari response!');
 
-    function reg(target, kind) {
+    function reg(target, kind, fn) {
       const code = makeCode();
       const route = kind === 'vid' ? 'resvid' : 'resimg';
-      storeSet(route + ':' + code, { u: target, k: kind, ref: 'https://www.threadsdl.app/' }, 3600);
+      storeSet(route + ':' + code, { u: target, k: kind, fn: fn || ('JHTH_' + (kind === 'vid' ? 'vid_' : 'img_') + code), ref: 'https://www.threadsdl.app/' }, 3600);
       return { url: 'https://api.jhx.my.id/' + route + '/' + code + (kind === 'vid' ? '.mp4' : '.jpg'), code };
     }
 
     const media = results.map((m, i) => {
       const kind = m.type === 'video' ? 'vid' : 'img';
-      const r = reg(m.url, kind);
+      const code = makeCode();
+      const route = kind === 'vid' ? 'resvid' : 'resimg';
+      const base = (kind === 'vid' ? 'JHTH_vid_' : 'JHTH_img_') + code + (kind === 'img' ? '_' + (i + 1) : '');
+      storeSet(route + ':' + code, { u: m.url, k: kind, fn: base, ref: 'https://www.threadsdl.app/' }, 3600);
       const result = {
         type: m.type,
-        url: r.url,
-        filename: kind === 'vid' ? 'JHTH_vid_' + r.code + '.mp4' : 'JHTH_img_' + r.code + '_' + (i + 1) + '.jpg'
+        url: 'https://api.jhx.my.id/' + route + '/' + code + (kind === 'vid' ? '.mp4' : '.jpg'),
+        filename: base + (kind === 'vid' ? '.mp4' : '.jpg')
       };
       if (m.thumbnail) {
-        const thumbReg = reg(m.thumbnail, 'img');
-        result.thumbnail = thumbReg.url;
+        const t = reg(m.thumbnail, 'img', 'JHTH_thumb_' + code);
+        result.thumbnail = t.url;
       }
       return result;
     });
