@@ -891,6 +891,18 @@ app.post('/th-downloader', async (req, res) => {
   } catch (e) { res.status(500).json({ Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: false, error: e.response?.data || e.message }); }
 });
 
+function jhPrefix(ref) {
+  ref = ref || '';
+  if (ref.includes('snaptik') || ref.includes('tiktok')) return 'JHTK';
+  if (ref.includes('x.com') || ref.includes('twitter') || ref.includes('twimg')) return 'JHTW';
+  if (ref.includes('youtube') || ref.includes('youtu.be')) return 'JHYT';
+  if (ref.includes('spotify')) return 'JHSP';
+  if (ref.includes('threadsdl') || ref.includes('threadster')) return 'JHTH';
+  if (ref.includes('photiu') || ref.includes('img2go')) return 'JHHD';
+  if (ref.includes('genius')) return 'JHLY';
+  return 'JHIG';
+}
+
 async function serveProxy(req, res) {
   const route = req.path.startsWith('/resvid') ? 'resvid' : req.path.startsWith('/resaud') ? 'resaud' : 'resimg';
   const code = String(req.params.code).split('.')[0];
@@ -898,7 +910,7 @@ async function serveProxy(req, res) {
   if (!item) return res.status(410).json({ error: 'link expired' });
   const kind = item.k || 'img';
   const ext = kind === 'vid' ? 'mp4' : kind === 'aud' ? 'mp3' : 'jpg';
-  const baseName = item.fn || ((item.p || ('JHIG_' + kind)) + '_' + code);
+  const baseName = item.fn || ((item.p || (jhPrefix(item.ref) + '_' + kind)) + '_' + code);
 
   if (item.filePath) {
     try {
