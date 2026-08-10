@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lyrics Finder — JH-Tools</title>
+<meta name="description" content="Cari lagu dan baca lirik lengkap dengan tampilan premium. JH Lyrics Engine.">
+<meta property="og:title" content="Lyrics Finder — JH-Tools">
+<meta property="og:description" content="JH Lyrics Engine — cari lagu, baca lirik, simpan .txt.">
+<meta property="og:image" content="https://jhax0r.my.id/logo.jpeg">
+<meta name="theme-color" content="#05060a">
+<link rel="icon" href="https://jhax0r.my.id/logo.jpeg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+tailwind.config = { theme: { extend: {
+  fontFamily: { sans:['Inter','sans-serif'], display:['Space Grotesk','sans-serif'], mono:['JetBrains Mono','monospace'] },
+  colors: { night:'#05060a', panel:'#0b0e14', line:'rgba(255,255,255,0.07)', cy:'#22d3ee', vi:'#8b5cf6', pk:'#ec4899', lm:'#a3e635', ly:'#C084FC' }
+}}}
+</script>
+<style>
+  body{background:#05060a;color:#e6e8ee;overflow-x:hidden}
+  .grid-bg{position:fixed;inset:0;z-index:-2;background-image:linear-gradient(rgba(255,255,255,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.035) 1px,transparent 1px);background-size:56px 56px;mask-image:radial-gradient(ellipse 80% 60% at 50% 0%,black 40%,transparent 100%)}
+  .orb{position:fixed;border-radius:9999px;filter:blur(110px);z-index:-1}
+  .orb-1{width:420px;height:420px;background:#7c3aed;top:-140px;right:-120px;opacity:.2}
+  .orb-2{width:380px;height:380px;background:#db2777;bottom:-120px;left:-120px;opacity:.14}
+  .tgrad{background:linear-gradient(90deg,#C084FC,#ec4899,#C084FC);background-size:300% 100%;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;animation:flow 7s linear infinite}
+  @keyframes flow{0%{background-position:0% 50%}100%{background-position:300% 50%}}
+  .card{background:rgba(11,14,20,.7);border:1px solid rgba(255,255,255,.07);backdrop-filter:blur(14px)}
+  .beat{display:inline-block;animation:beat 1.3s ease-in-out infinite}
+  @keyframes beat{0%,100%{transform:scale(1)}12%{transform:scale(1.25)}24%{transform:scale(1)}36%{transform:scale(1.2)}48%{transform:scale(1)}}
+  .lyr-glow{text-shadow:0 0 28px rgba(192,132,252,.4)}
+  .lyr-hero{position:relative}
+  .lyr-hero::before{content:'';position:absolute;inset:-30%;background:radial-gradient(circle,rgba(192,132,252,.22),transparent 62%);filter:blur(24px);pointer-events:none}
+  .stanza{margin-bottom:1.5rem;padding-left:1.1rem;border-left:2px solid rgba(192,132,252,.3)}
+  .stanza p{margin:.4rem 0;line-height:2;font-size:.925rem;color:#cbd5e1}
+  .ly-ch{color:#C084FC !important;font-weight:600;text-shadow:0 0 18px rgba(192,132,252,.35)}
+  .note{position:absolute;color:rgba(192,132,252,.22);pointer-events:none;animation:floatNote 7s ease-in-out infinite}
+  @keyframes floatNote{0%,100%{transform:translateY(0) rotate(-8deg)}50%{transform:translateY(-16px) rotate(8deg)}}
+  .modal-bg{position:fixed;inset:0;background:rgba(3,6,10,.92);backdrop-filter:blur(12px);z-index:100;display:none;align-items:center;justify-content:center;padding:1rem}
+  .modal-bg.open{display:flex;animation:fadeIn .25s ease}
+  @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+  .modal-box{background:#0b0e14;border:1px solid rgba(255,255,255,.08);border-radius:1.25rem;max-width:760px;width:100%;max-height:94vh;overflow-y:auto;box-shadow:0 40px 80px rgba(0,0,0,.6)}
+  ::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:#05060a}::-webkit-scrollbar-thumb{background:#334155;border-radius:3px}
+  ::selection{background:#C084FC;color:#05060a}
+</style>
+</head>
+<body class="font-sans antialiased">
+<div class="grid-bg"></div><div class="orb orb-1"></div><div class="orb orb-2"></div>
+
+<nav class="fixed w-full top-0 z-50 bg-night/75 backdrop-blur-xl border-b border-line">
+  <div class="max-w-5xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+    <div class="flex items-center gap-4">
+      <a href="/" class="font-mono text-xs text-slate-400 hover:text-ly transition-colors">← /</a>
+      <span class="w-px h-4 bg-line"></span>
+      <a href="/" class="flex items-center gap-2.5">
+        <img src="https://jhax0r.my.id/logo.jpeg" class="h-8 w-8 rounded-lg border border-line" alt="JH-Tools">
+        <span class="font-display font-bold text-white">JH-<span class="tgrad">TOOLS</span></span>
+      </a>
+    </div>
+    <span class="flex items-center gap-2 font-mono text-[10px] text-lm border border-lm/25 bg-lm/5 rounded-full px-3 py-1">
+      <span class="w-1.5 h-1.5 rounded-full bg-lm animate-pulse"></span>STABLE · v1.0
+    </span>
+  </div>
+</nav>
+
+<main class="max-w-5xl mx-auto px-4 sm:px-6 pt-28 pb-20">
+  <p class="font-mono text-xs text-slate-600 mb-4">~/modules/<span class="text-ly">lyrics</span></p>
+  <h1 class="font-display font-bold text-4xl sm:text-5xl text-white mb-4">Lyrics <span class="tgrad">Finder</span></h1>
+  <p class="text-slate-400 max-w-2xl leading-relaxed mb-10">Ketik judul lagu atau nama artis — <span class="text-ly font-medium">JH Lyrics Engine</span> menemukan lagu beserta lirik lengkapnya, dirapikan dengan formatting premium. Salin atau simpan sebagai .txt.</p>
+
+  <div class="card rounded-2xl p-6 sm:p-8 border-t-2 border-t-ly/60">
+    <label class="font-mono text-[11px] text-slate-500 tracking-widest block mb-3">CARI LAGU</label>
+    <div class="flex flex-col sm:flex-row gap-3">
+      <input id="q" type="text" placeholder="Kembali Pulang — Kangen Band…" class="flex-1 bg-black/50 border border-line rounded-lg px-5 py-4 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-ly/60 focus:ring-1 focus:ring-ly/40 transition-all font-mono">
+      <button id="btn" onclick="run()" class="px-8 py-4 rounded-lg bg-gradient-to-r from-ly to-pk text-white font-semibold text-sm hover:shadow-[0_0_30px_rgba(192,132,252,.4)] transition-shadow disabled:opacity-40 disabled:cursor-not-allowed whitespace-nowrap">CARI LIRIK ⏎</button>
+    </div>
+    <p id="status" class="hidden font-mono text-[11px] text-ly mt-4"></p>
+    <div id="err" class="hidden mt-5 p-4 rounded-lg bg-red-500/10 border border-red-500/30 text-red-400 text-sm"></div>
+
+    <div id="res" class="hidden mt-8 border-t border-line pt-7">
+      <p id="rtitle" class="font-mono text-[11px] tracking-widest text-slate-400 mb-6">HASIL PENCARIAN</p>
+      <div id="rgrid" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4"></div>
+    </div>
+  </div>
+
+  <div class="mt-12">
+    <p class="font-mono text-xs text-ly mb-3">DEVELOPER REFERENCE</p>
+    <h2 class="font-display font-bold text-2xl text-white mb-6">Pakai Lewat Kode.</h2>
+    <div class="grid lg:grid-cols-2 gap-5">
+      <div class="card rounded-xl overflow-hidden">
+        <div class="px-5 py-3 border-b border-line flex items-center justify-between">
+          <div class="flex items-center gap-2"><span class="font-mono text-[10px] font-bold text-lm bg-lm/10 border border-lm/25 rounded px-2 py-0.5">POST</span><span class="font-mono text-xs text-white">/lyrics-search</span></div>
+          <button class="font-mono text-[10px] text-cy hover:text-white" onclick="cp('ly-req')">copy</button>
+        </div>
+        <pre id="ly-req" class="p-4 font-mono text-[11.5px] leading-relaxed text-slate-300 overflow-x-auto">curl -X POST https://api.jhx.my.id/lyrics-search \
+  -H "Content-Type: application/json" \
+  -d '{"q":"QUERY_HERE"}'</pre>
+      </div>
+      <div class="card rounded-xl overflow-hidden">
+        <div class="px-5 py-3 border-b border-line flex items-center justify-between">
+          <div class="flex items-center gap-2"><span class="font-mono text-[10px] font-bold text-lm bg-lm/10 border border-lm/25 rounded px-2 py-0.5">POST</span><span class="font-mono text-xs text-white">/lyrics-detail</span></div>
+          <button class="font-mono text-[10px] text-cy hover:text-white" onclick="cp('ly-req2')">copy</button>
+        </div>
+        <pre id="ly-req2" class="p-4 font-mono text-[11.5px] leading-relaxed text-slate-300 overflow-x-auto">curl -X POST https://api.jhx.my.id/lyrics-detail \
+  -H "Content-Type: application/json" \
+  -d '{"q":"SONG_ID_OR_SLUG_HERE"}'</pre>
+      </div>
+    </div>
+    <div class="mt-4 grid lg:grid-cols-2 gap-5">
+      <div class="card rounded-xl overflow-hidden">
+        <div class="px-5 py-3 border-b border-line flex items-center justify-between">
+          <span class="font-mono text-[10px] text-slate-500">RESPONSE SEARCH · 200 OK</span>
+          <button class="font-mono text-[10px] text-cy hover:text-white" onclick="cp('ly-res')">copy</button>
+        </div>
+        <pre id="ly-res" class="p-4 font-mono text-[11.5px] leading-relaxed text-slate-300 overflow-x-auto">{
+  "Status": true,
+  "type": "search",
+  "data": [
+    {
+      "id": 123456,
+      "title": "Kembali Pulang",
+      "artist": "Kangen Band",
+      "thumbnail": "https://api.jhx.my.id/resimg/LY01.jpg",
+      "slug": "/kangen-band-kembali-pulang-lyrics"
+    }
+  ]
+}</pre>
+      </div>
+      <div class="card rounded-xl overflow-hidden">
+        <div class="px-5 py-3 border-b border-line flex items-center justify-between">
+          <span class="font-mono text-[10px] text-slate-500">RESPONSE DETAIL · 200 OK</span>
+          <button class="font-mono text-[10px] text-cy hover:text-white" onclick="cp('ly-res2')">copy</button>
+        </div>
+        <pre id="ly-res2" class="p-4 font-mono text-[11.5px] leading-relaxed text-slate-300 overflow-x-auto">{
+  "Status": true,
+  "type": "detail",
+  "data": {
+    "title": "Kembali Pulang",
+    "artist": "Kangen Band",
+    "thumbnail": "https://api.jhx.my.id/resimg/LY01.jpg",
+    "lyrics": "Bintang terlihat terang\nSaat dirimu datang…"
+  }
+}</pre>
+      </div>
+    </div>
+    <div class="mt-4 card rounded-xl overflow-hidden">
+      <div class="px-5 py-3 border-b border-line flex items-center justify-between">
+        <span class="font-mono text-[10px] text-slate-500">NODE.JS EXAMPLE</span>
+        <button class="font-mono text-[10px] text-cy hover:text-white" onclick="cp('ly-node')">copy</button>
+      </div>
+      <pre id="ly-node" class="p-4 font-mono text-[11.5px] leading-relaxed text-slate-300 overflow-x-auto">const search = await fetch('https://api.jhx.my.id/lyrics-search', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({ q: 'QUERY_HERE' })
+}).then(r => r.json());
+
+const detail = await fetch('https://api.jhx.my.id/lyrics-detail', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({ q: search.data[0].id })
+}).then(r => r.json());
+
+console.log(detail.data.lyrics);</pre>
+    </div>
+  </div>
+
+  <div class="grid lg:grid-cols-2 gap-5 mt-10">
+    <div class="card rounded-xl overflow-hidden">
+      <div class="px-5 py-3 border-b border-line font-mono text-xs text-slate-500">endpoints</div>
+      <div class="p-5 font-mono text-sm space-y-2.5">
+        <p><span class="text-lm bg-lm/10 border border-lm/25 rounded px-2 py-0.5 text-[10px] font-semibold">POST</span> <span class="text-white">/lyrics-search</span> <span class="text-slate-600 text-xs">— { q }</span></p>
+        <p><span class="text-lm bg-lm/10 border border-lm/25 rounded px-2 py-0.5 text-[10px] font-semibold">POST</span> <span class="text-white">/lyrics-detail</span> <span class="text-slate-600 text-xs">— { q: id/slug }</span></p>
+      </div>
+    </div>
+    <div class="card rounded-xl overflow-hidden">
+      <div class="px-5 py-3 border-b border-line font-mono text-xs text-slate-500">catatan</div>
+      <ul class="p-5 text-sm text-slate-400 space-y-2.5">
+        <li><span class="text-ly">→</span> Database lagu global — Indonesia & internasional.</li>
+        <li><span class="text-ly">→</span> Lirik dirapikan otomatis per stanza + highlight Reff.</li>
+        <li><span class="text-ly">→</span> Support copy & simpan sebagai file .txt branded.</li>
+      </ul>
+    </div>
+  </div>
+</main>
+
+<div class="modal-bg" id="pmodal">
+  <div class="modal-box">
+    <div class="flex items-center justify-between px-5 py-4 border-b border-line">
+      <div class="flex items-center gap-3 min-w-0">
+        <span class="font-mono text-[10px] uppercase tracking-wider text-ly bg-ly/10 border border-ly/25 rounded px-2 py-0.5">lyrics</span>
+        <p id="pm-file" class="font-mono text-xs text-slate-500 truncate"></p>
+      </div>
+      <button onclick="closeLyrics()" class="w-9 h-9 rounded-lg border border-line hover:border-ly/50 hover:text-ly flex items-center justify-center transition-colors">✕</button>
+    </div>
+    <div class="relative p-6 sm:p-8">
+      <span class="note text-2xl" style="top:8%;left:6%">♪</span>
+      <span class="note text-xl" style="top:22%;right:8%;animation-delay:1.2s">♫</span>
+      <span class="note text-2xl" style="top:55%;left:4%;animation-delay:2.4s">♬</span>
+      <span class="note text-xl" style="top:74%;right:6%;animation-delay:3.6s">♩</span>
+      <div class="lyr-hero flex items-center gap-5 mb-7">
+        <img id="pm-cover" src="" class="relative w-20 h-20 sm:w-24 sm:h-24 rounded-xl object-cover border border-ly/40 shadow-[0_0_30px_rgba(192,132,252,.35)]" alt="">
+        <div class="relative min-w-0">
+          <p id="pm-title" class="font-display font-bold text-xl sm:text-2xl text-white lyr-glow truncate"></p>
+          <p id="pm-artist" class="font-mono text-xs text-ly mt-1.5 truncate"></p>
+        </div>
+      </div>
+      <div class="flex items-center gap-3 mb-7">
+        <span class="h-px flex-1 bg-gradient-to-r from-transparent via-ly/40 to-transparent"></span>
+        <span class="text-ly/70 text-lg">❝</span>
+        <span class="h-px flex-1 bg-gradient-to-r from-transparent via-ly/40 to-transparent"></span>
+      </div>
+      <div id="pm-lyrics" class="relative"></div>
+      <div class="flex items-center gap-3 mt-8">
+        <span class="h-px flex-1 bg-gradient-to-r from-transparent via-ly/40 to-transparent"></span>
+        <span class="font-mono text-[10px] text-slate-600">— JH LYRICS ENGINE —</span>
+        <span class="h-px flex-1 bg-gradient-to-r from-transparent via-ly/40 to-transparent"></span>
+      </div>
+    </div>
+    <div class="px-6 py-4 border-t border-line flex justify-end gap-3">
+      <button onclick="copyLyrics()" class="font-mono text-xs bg-white/5 border border-line text-white px-5 py-2.5 rounded-lg hover:bg-ly/10 hover:border-ly/40 transition-all">📋 COPY LYRICS</button>
+      <button onclick="saveTxt()" class="font-mono text-xs bg-gradient-to-r from-ly to-pk text-white font-bold px-6 py-2.5 rounded-lg hover:shadow-[0_0_25px_rgba(192,132,252,.4)] transition-shadow">⤓ SAVE .TXT</button>
+    </div>
+  </div>
+</div>
+
+<footer class="border-t border-line bg-panel/60 py-9 px-4 text-center space-y-2.5">
+  <p class="text-sm text-slate-400">Made with <span class="beat text-pk">❤</span> by <span class="tgrad font-display font-bold text-base">JamvanHax0r</span></p>
+  <p class="text-sm text-slate-500">Supported by: <span class="text-cy font-medium">BCCTeam</span> <span class="text-slate-700">—</span> <span class="text-vi font-medium">FLMGroup</span> <span class="text-slate-700">—</span> <span class="text-pk font-medium">Fiony Bot</span></p>
+  <p class="font-mono text-xs text-slate-600">© <span id="yr"></span> — All Rights Reserved</p>
+</footer>
+
+<script>
+document.getElementById('yr').textContent = new Date().getFullYear();
+const $ = id => document.getElementById(id);
+let lastResults = [];
+let lastDetail = null;
+
+function escT(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function cleanName(s){ return String(s||'').replace(/[<>:"/\\|?*]/g,'').replace(/\s+/g,'_').replace(/_{2,}/g,'_').replace(/^_+|_+$/g,'').slice(0,60) || 'track'; }
+
+const steps = ['[1/2] mencari lagu…','[2/2] mengambil lirik…'];
+async function run(){
+  const val = $('q').value.trim();
+  $('err').classList.add('hidden'); $('res').classList.add('hidden');
+  if (!val) { showErr('Isi kata kunci pencarian.'); return; }
+  $('btn').disabled = true; $('status').classList.remove('hidden');
+  let s = 0; $('status').textContent = steps[0];
+  const iv = setInterval(() => { s = 1; $('status').textContent = steps[1]; }, 4000);
+  try {
+    const r = await fetch('https://api.jhx.my.id/lyrics-search', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ q: val }) });
+    const j = await r.json();
+    clearInterval(iv);
+    if (!j.Status) throw new Error(j.error || 'Gagal mencari.');
+    lastResults = j.data;
+    $('status').textContent = '✓ ' + j.data.length + ' lagu ditemukan — pilih untuk melihat lirik';
+    $('rtitle').textContent = 'HASIL PENCARIAN · "' + val.toUpperCase() + '"';
+    $('rgrid').innerHTML = lastResults.map((t, i) => `
+      <div id="card-${i}" class="card rounded-xl overflow-hidden group cursor-pointer" onclick="openLyrics(${i})">
+        <div class="relative">
+          <img src="${t.thumbnail}" onerror="this.style.display='none'" class="w-full aspect-square object-cover group-hover:scale-105 transition-transform duration-500" alt="">
+          <span class="absolute inset-0 items-center justify-center hidden group-hover:flex bg-black/40 backdrop-blur-[2px]">
+            <span class="font-mono text-[10px] text-ly border border-ly/40 bg-black/60 rounded-full px-3 py-1.5">BACA LIRIK →</span>
+          </span>
+        </div>
+        <div class="p-3.5 space-y-1.5">
+          <p class="font-semibold text-sm text-white truncate">${escT(t.title)}</p>
+          <p class="font-mono text-[10px] text-slate-500 truncate">${escT(t.artist)}</p>
+        </div>
+      </div>`).join('');
+    $('res').classList.remove('hidden');
+  } catch(e){ clearInterval(iv); $('status').classList.add('hidden'); showErr(e.message); }
+  finally { $('btn').disabled = false; }
+}
+
+async function openLyrics(i){
+  const t = lastResults[i];
+  const card = document.getElementById('card-' + i);
+  card.style.opacity = '0.5'; card.style.pointerEvents = 'none';
+  try {
+    const r = await fetch('https://api.jhx.my.id/lyrics-detail', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ q: String(t.id) }) });
+    const j = await r.json();
+    if (!j.Status) throw new Error(j.error || 'Gagal mengambil lirik.');
+    lastDetail = j.data;
+    $('pm-cover').src = j.data.thumbnail || t.thumbnail;
+    $('pm-title').textContent = j.data.title;
+    $('pm-artist').textContent = '♫ ' + j.data.artist;
+    $('pm-file').textContent = 'JHLY_' + cleanName(j.data.artist) + '_-_' + cleanName(j.data.title) + '.txt';
+    $('pm-lyrics').innerHTML = renderLyrics(j.data.lyrics);
+    $('pmodal').classList.add('open');
+    document.body.style.overflow = 'hidden';
+  } catch(e){ showErr(e.message); }
+  finally { card.style.opacity = '1'; card.style.pointerEvents = 'auto'; }
+}
+
+function renderLyrics(text){
+  return text.split(/\n\n+/).map(st => {
+    const lines = st.split('\n').map(line => {
+      const isCh = /^(reff|chorus|refrain)\b:?/i.test(line.trim());
+      return '<p class="' + (isCh ? 'ly-ch' : '') + '">' + escT(line) + '</p>';
+    }).join('');
+    return '<div class="stanza">' + lines + '</div>';
+  }).join('');
+}
+
+function copyLyrics(){
+  if (!lastDetail) return;
+  navigator.clipboard.writeText(lastDetail.lyrics).then(() => {
+    const btns = document.querySelectorAll('#pmodal button');
+    const b = btns[btns.length - 2];
+    const orig = b.textContent;
+    b.textContent = '✓ COPIED';
+    setTimeout(() => b.textContent = orig, 1500);
+  });
+}
+
+function saveTxt(){
+  if (!lastDetail) return;
+  const txt = lastDetail.title + ' — ' + lastDetail.artist + '\n\n' + lastDetail.lyrics + '\n\n— JH Lyrics Engine';
+  const blob = new Blob([txt], { type: 'text/plain;charset=utf-8' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'JHLY_' + cleanName(lastDetail.artist) + '_-_' + cleanName(lastDetail.title) + '.txt';
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+function closeLyrics(){
+  $('pmodal').classList.remove('open');
+  document.body.style.overflow = '';
+}
+$('pmodal').addEventListener('click', e => { if (e.target.id === 'pmodal') closeLyrics(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLyrics(); });
+
+function showErr(msg){ if (!msg) { $('err').classList.add('hidden'); return; } $('err').textContent = '✗ ' + msg; $('err').classList.remove('hidden'); }
+function cp(id){
+  const el = document.getElementById(id);
+  if (!el) return;
+  navigator.clipboard.writeText(el.textContent).then(() => {
+    const btn = el.parentElement.querySelector('button');
+    const orig = btn.textContent;
+    btn.textContent = 'copied ✓';
+    setTimeout(() => btn.textContent = orig, 1500);
+  });
+}
+</script>
+</body>
+</html>

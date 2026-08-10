@@ -746,6 +746,88 @@ app.post('/hd-image', async (req, res) => {
   } catch (e) { res.status(500).json({ Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: false, error: e.message }); }
 });
 
+app.post('/lyrics-search', async (req, res) => {
+  try {
+    const q = (req.body && req.body.q) || '';
+    if (!q) return res.status(400).json({ Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: false, error: 'Kata kunci pencarian kosong!' });
+    const jantung = {
+      'Accept': 'application/json, text/html, application/xhtml+xml, */*;q=0.8',
+      'Accept-Language': 'id-ID,id;q=0.9,en-US;q=0.8,en;q=0.7',
+      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36',
+      'Origin': 'https://genius.com',
+      'Referer': 'https://genius.com/search?q=' + encodeURIComponent(q)
+    };
+    const { data } = await axios.get('https://genius.com/api/search/multi?per_page=8&q=' + encodeURIComponent(q), { headers: jantung });
+    const songSection = ((data.response && data.response.sections) || []).find(s => s.type === 'song');
+    if (!songSection || !songSection.hits || !songSection.hits.length) return res.status(404).json({ Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: false, error: 'Lagu tidak ditemukan!' });
+    const results = songSection.hits.map(h => {
+      let thumb = '';
+      const t = h.result && h.result.song_art_image_thumbnail_url;
+      if (t) {
+        const c = makeCode();
+        storeSet('resimg:' + c, { u: t, k: 'img', ref: 'https://genius.com/' }, 7200);
+        thumb = 'https://api.jhx.my.id/resimg/' + c + '.jpg';
+      }
+      let slug = '';
+      try { slug = new URL(h.result.url).pathname; } catch (e) {}
+      return { id: h.result.id, title: h.result.title || '', artist: h.result.artist_names || '', thumbnail: thumb, slug };
+    });
+    res.json({ Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: true, type: 'search', data: results });
+  } catch (e) { res.status(500).json({ Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: false, error: e.response?.data || e.message }); }
+});
+
+app.post('/lyrics-detail', async (req, res) => {
+  try {
+    const q = (req.body && req.body.q) || '';
+    if (!q) return res.status(400).json({ Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: false, error: 'Parameter kosong!' });
+    const jantung = {
+      'Accept': 'application/json, text/html, application/xhtml+xml, */*;q=0.8',
+      'Accept-Language': 'id-ID,id;q=0.9,en-US;q=0.8,en;q=0.7',
+      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36'
+    };
+    let url = q;
+    if (/^\d+$/.test(q)) {
+      const { data: apiData } = await axios.get('https://genius.com/api/songs/' + q, { headers: jantung });
+      url = apiData.response && apiData.response.song && apiData.response.song.url;
+      if (!url) throw new Error('ID tidak valid');
+    } else if (!q.startsWith('http')) {
+      url = 'https://genius.com/' + q.replace(/^\//, '');
+    }
+    const { data } = await axios.get(url, { headers: jantung });
+    const $ = cheerio.load(data);
+    let lyrics = '';
+    $('div[data-lyrics-container="true"]').each((i, el) => {
+      let html = $(el).html();
+      html = html.replace(/<br\s*\/?>/gi, '\n');
+      html = html.replace(/<[^>]*>?/gm, '');
+      lyrics += html.trim() + '\n\n';
+    });
+    lyrics = lyrics.replace(/&#x27;/g, "'").replace(/&quot;/g, '"').replace(/&amp;/g, '&');
+    const firstBracket = lyrics.indexOf('[');
+    if (firstBracket !== -1 && firstBracket < 500) lyrics = lyrics.substring(firstBracket);
+    else lyrics = lyrics.replace(/^[\s\S]*?Lyrics\s*/i, '');
+    lyrics = lyrics.replace(/\d*Embed$/, '');
+    lyrics = lyrics.replace(/\[.*?\]\n*/g, '');
+    lyrics = lyrics.replace(/\n{3,}/g, '\n\n').trim();
+    if (!lyrics) return res.status(404).json({ Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: false, error: 'Lirik kosong!' });
+    let fullTitle = $('title').text() || '';
+    let artist = 'Unknown', title = 'Unknown';
+    fullTitle = fullTitle.replace(' Lyrics | Genius Lyrics', '').trim();
+    const splitIndex = fullTitle.indexOf(' – ');
+    if (splitIndex !== -1) { artist = fullTitle.substring(0, splitIndex).trim(); title = fullTitle.substring(splitIndex + 3).trim(); }
+    else title = fullTitle;
+    let thumb = '';
+    const rawThumb = $('meta[property="og:image"]').attr('content') || '';
+    if (rawThumb) {
+      const c = makeCode();
+      storeSet('resimg:' + c, { u: rawThumb, k: 'img', ref: 'https://genius.com/' }, 7200);
+      thumb = 'https://api.jhx.my.id/resimg/' + c + '.jpg';
+    }
+    res.json({ Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: true, type: 'detail', data: { title, artist, thumbnail: thumb, lyrics } });
+  } catch (e) { res.status(500).json({ Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: false, error: e.response?.data || e.message }); }
+});
+
+
 async function serveProxy(req, res) {
   const route = req.path.startsWith('/resvid') ? 'resvid' : req.path.startsWith('/resaud') ? 'resaud' : 'resimg';
   const code = String(req.params.code).split('.')[0];
