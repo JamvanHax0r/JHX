@@ -834,92 +834,59 @@ app.post('/th-downloader', async (req, res) => {
     if (!url || !/(threads\.com|threads\.net)/i.test(url)) return res.status(400).json({ Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: false, error: 'URL Threads tidak valid!' });
 
     const jantung = {
-      'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
-      'accept-language': 'id-ID',
-      'content-type': 'application/x-www-form-urlencoded',
-      'sec-ch-ua': '"Chromium";v="127", "Not)A;Brand";v="99", "Microsoft Edge Simulate";v="127", "Lemur";v="127"',
-      'sec-ch-ua-mobile': '?1',
-      'sec-ch-ua-platform': '"Android"',
-      'sec-fetch-dest': 'document',
-      'sec-fetch-mode': 'navigate',
-      'sec-fetch-site': 'same-origin',
-      'sec-fetch-user': '?1',
-      'upgrade-insecure-requests': '1',
-      'user-agent': 'Mozilla/5.0 (Linux; Android 13; 23021RAA2Y Build/TKQ1.221114.001; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/127.0.0.0 Mobile Safari/537.36',
-      'referer': 'https://threadster.app/'
+      'Content-Type': 'application/json',
+      'User-Agent': 'Mozilla/5.0 (Linux; Android 13; 23021RAA2Y Build/TKQ1.221114.001; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/150.0.7871.181 Mobile Safari/537.36',
+      'Referer': 'https://www.threadsdl.app/id/'
     };
 
-    let cookieMap = {};
-    const api = {
-      async req(method, u, data, config = {}) {
-        const headers = { ...jantung, ...(config.headers || {}) };
-        const cookieStr = Object.entries(cookieMap).map(([k, v]) => k + '=' + v).join('; ');
-        if (cookieStr) headers['Cookie'] = cookieStr;
-        const r = await axios({ method, url: u, data, headers, maxRedirects: 5, timeout: 60000 });
-        (r.headers['set-cookie'] || []).forEach(c => {
-          const pair = c.split(';')[0];
-          const eqIdx = pair.indexOf('=');
-          if (eqIdx > -1) cookieMap[pair.substring(0, eqIdx)] = pair.substring(eqIdx + 1);
-        });
-        return r;
-      },
-      post(u, data, config) { return this.req('POST', u, data, config); },
-      get(u, config) { return this.req('GET', u, null, config); }
-    };
+    const { data } = await axios.post('https://www.threadsdl.app/api/threads', { url }, { headers: jantung, timeout: 60000 });
+    if (!data || !data.medias) throw new Error('Data media kosong atau link invalid!');
 
-    await api.get('https://threadster.app/');
-    const payload = new URLSearchParams({ url }).toString();
-    const { data } = await api.post('https://threadster.app/download', payload);
-
-    const $ = cheerio.load(data);
-    const results = [];
-    let username = '', profilePic = '', caption = '';
-
-    $('.download_item').each((i, el) => {
-      if (i === 0) {
-        const rawUsername = $(el).find('.download__item__profile_pic span').text().trim();
-        username = rawUsername.replace('@', '').replace('·', '').trim();
-        profilePic = $(el).find('.download__item__profile_pic img').attr('src') || '';
-        caption = $(el).find('.download__item__caption__text').text().trim();
+    const results = data.medias.map(m => {
+      if (m.mediaType === 2 && m.videos && m.videos.length > 0) {
+        return { type: 'video', url: m.videos[0].url, thumbnail: m.cover || '' };
+      } else if (m.mediaType === 1 && m.images && m.images.length > 0) {
+        const hdImg = m.images.reduce((prev, curr) => (prev.width > curr.width) ? prev : curr);
+        return { type: 'image', url: hdImg.url };
       }
-      const dlLink = $(el).find('a.download__item__download_btn').attr('href');
-      if (dlLink) {
-        const isVideo = $(el).find('video').length > 0 || dlLink.includes('/video?');
-        results.push({ type: isVideo ? 'video' : 'image', url: dlLink });
-      }
-    });
+      return null;
+    }).filter(Boolean);
 
-    if (!results.length) throw new Error('Media tidak ditemukan — server mungkin sedang membatasi request, coba lagi.');
+    if (!results.length) throw new Error('Gagal ekstrak media dari response!');
 
     function reg(target, kind) {
       const code = makeCode();
       const route = kind === 'vid' ? 'resvid' : 'resimg';
-      storeSet(route + ':' + code, { u: target, k: kind, ref: 'https://threadster.app/' }, 3600);
+      storeSet(route + ':' + code, { u: target, k: kind, ref: 'https://www.threadsdl.app/' }, 3600);
       return { url: 'https://api.jhx.my.id/' + route + '/' + code + (kind === 'vid' ? '.mp4' : '.jpg'), code };
     }
 
     const media = results.map((m, i) => {
       const kind = m.type === 'video' ? 'vid' : 'img';
       const r = reg(m.url, kind);
-      return {
+      const result = {
         type: m.type,
         url: r.url,
         filename: kind === 'vid' ? 'JHTH_vid_' + r.code + '.mp4' : 'JHTH_img_' + r.code + '_' + (i + 1) + '.jpg'
       };
+      if (m.thumbnail) {
+        const thumbReg = reg(m.thumbnail, 'img');
+        result.thumbnail = thumbReg.url;
+      }
+      return result;
     });
 
     res.json({
       Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: true,
       data: {
-        username: username || 'Unknown',
-        profilePic: profilePic ? reg(profilePic, 'img').url : '',
-        caption,
+        username: data.username || 'Unknown',
+        profilePic: data.avatar ? reg(data.avatar, 'img').url : '',
+        caption: data.text || '',
         media
       }
     });
   } catch (e) { res.status(500).json({ Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: false, error: e.response?.data || e.message }); }
 });
-
 
 async function serveProxy(req, res) {
   const route = req.path.startsWith('/resvid') ? 'resvid' : req.path.startsWith('/resaud') ? 'resaud' : 'resimg';
