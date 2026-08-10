@@ -12,11 +12,11 @@
 <link rel="icon" href="https://jhax0r.my.id/logo.jpeg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Lora:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
 <script src="https://cdn.tailwindcss.com"></script>
 <script>
 tailwind.config = { theme: { extend: {
-  fontFamily: { sans:['Inter','sans-serif'], display:['Space Grotesk','sans-serif'], mono:['JetBrains Mono','monospace'] },
+  fontFamily: { sans:['Inter','sans-serif'], display:['Space Grotesk','sans-serif'], mono:['JetBrains Mono','monospace'], lyr:['Lora','serif'] },
   colors: { night:'#05060a', panel:'#0b0e14', line:'rgba(255,255,255,0.07)', cy:'#22d3ee', vi:'#8b5cf6', pk:'#ec4899', lm:'#a3e635', ly:'#C084FC' }
 }}}
 </script>
@@ -35,8 +35,11 @@ tailwind.config = { theme: { extend: {
   .lyr-hero{position:relative}
   .lyr-hero::before{content:'';position:absolute;inset:-30%;background:radial-gradient(circle,rgba(192,132,252,.22),transparent 62%);filter:blur(24px);pointer-events:none}
   .stanza{margin-bottom:1.5rem;padding-left:1.1rem;border-left:2px solid rgba(192,132,252,.3)}
-  .stanza p{margin:.4rem 0;line-height:2;font-size:.925rem;color:#cbd5e1}
+  .stanza p{margin:.45rem 0;line-height:2.15;font-family:'Lora',serif;font-size:1rem;letter-spacing:.015em;color:#d6cbe8}
+  .ly-ch{font-style:italic}
   .ly-ch{color:#C084FC !important;font-weight:600;text-shadow:0 0 18px rgba(192,132,252,.35)}
+  .spin{display:inline-block;animation:spin 1s linear infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
   .note{position:absolute;color:rgba(192,132,252,.22);pointer-events:none;animation:floatNote 7s ease-in-out infinite}
   @keyframes floatNote{0%,100%{transform:translateY(0) rotate(-8deg)}50%{transform:translateY(-16px) rotate(8deg)}}
   .modal-bg{position:fixed;inset:0;background:rgba(3,6,10,.92);backdrop-filter:blur(12px);z-index:100;display:none;align-items:center;justify-content:center;padding:1rem}
@@ -181,6 +184,7 @@ console.log(detail.data.lyrics);</pre>
         <li><span class="text-ly">→</span> Database lagu global — Indonesia & internasional.</li>
         <li><span class="text-ly">→</span> Lirik dirapikan otomatis per stanza + highlight Reff.</li>
         <li><span class="text-ly">→</span> Support copy & simpan sebagai file .txt branded.</li>
+        <li><span class="text-ly">→</span> Audio lagu disisipkan otomatis via JH Music Engine — sing along!</li>
       </ul>
     </div>
   </div>
@@ -207,6 +211,7 @@ console.log(detail.data.lyrics);</pre>
           <p id="pm-artist" class="font-mono text-xs text-ly mt-1.5 truncate"></p>
         </div>
       </div>
+      <div id="pm-audio" class="mb-6"></div>
       <div class="flex items-center gap-3 mb-7">
         <span class="h-px flex-1 bg-gradient-to-r from-transparent via-ly/40 to-transparent"></span>
         <span class="text-ly/70 text-lg">❝</span>
@@ -291,6 +296,7 @@ async function openLyrics(i){
     $('pm-lyrics').innerHTML = renderLyrics(j.data.lyrics);
     $('pmodal').classList.add('open');
     document.body.style.overflow = 'hidden';
+    loadAudio(j.data.title, j.data.artist);
   } catch(e){ showErr(e.message); }
   finally { card.style.opacity = '1'; card.style.pointerEvents = 'auto'; }
 }
@@ -327,7 +333,35 @@ function saveTxt(){
   URL.revokeObjectURL(a.href);
 }
 
+let audioToken = 0;
+async function loadAudio(title, artist){
+  const my = ++audioToken;
+  const box = $('pm-audio');
+  box.innerHTML = '<div class="card rounded-xl p-4 flex items-center gap-3" style="border-color:rgba(192,132,252,.25)"><span class="spin text-ly">◌</span><p class="font-mono text-[11px] text-slate-400">🎧 menyiapkan audio untuk “' + escT(title) + '”…</p></div>';
+  try {
+    const sr = await fetch('https://api.jhx.my.id/yt-search', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ q: title + ' ' + artist }) });
+    const sj = await sr.json();
+    if (my !== audioToken) return;
+    if (!sj.Status || !sj.data || !sj.data.length) throw new Error('audio tidak ditemukan');
+    const dr = await fetch('https://api.jhx.my.id/yt-download', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ url: sj.data[0].url, format: 'audio' }) });
+    const dj = await dr.json();
+    if (my !== audioToken) return;
+    if (!dj.Status) throw new Error(dj.error || 'gagal menyiapkan audio');
+    box.innerHTML = '<div class="card rounded-xl p-4 space-y-2.5" style="border-color:rgba(192,132,252,.35);box-shadow:0 0 25px rgba(192,132,252,.15)">' +
+      '<div class="flex items-center justify-between"><p class="font-mono text-[10px] text-ly">🎧 NOW PLAYING · ' + escT(title) + ' — ' + escT(artist) + '</p><span class="font-mono text-[9px] text-slate-600">JH MUSIC ENGINE</span></div>' +
+      '<audio controls preload="metadata" class="w-full" src="' + dj.data.url + '"></audio></div>';
+  } catch(e){
+    if (my !== audioToken) return;
+    box.innerHTML = '<div class="card rounded-xl p-4 flex items-center justify-between gap-3"><p class="font-mono text-[11px] text-slate-500">🎧 audio tidak tersedia untuk lagu ini</p><button onclick="retryAudio()" class="font-mono text-[10px] text-ly border border-ly/30 rounded px-3 py-1.5 hover:bg-ly/10 transition-all">↺ COBA LAGI</button></div>';
+  }
+}
+function retryAudio(){ if (lastDetail) loadAudio(lastDetail.title, lastDetail.artist); }
+
 function closeLyrics(){
+  audioToken++;
+  const au = document.querySelector('#pm-audio audio');
+  if (au) au.pause();
+  $('pm-audio').innerHTML = '';
   $('pmodal').classList.remove('open');
   document.body.style.overflow = '';
 }
