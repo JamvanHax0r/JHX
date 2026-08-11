@@ -3,42 +3,71 @@ package id.jhx.tools;
 import android.app.Activity;
 import android.app.DownloadManager;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
+import android.view.KeyEvent;
 import android.webkit.URLUtil;
 import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
+import android.webkit.WebResourceError;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Toast;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 public class MainActivity extends Activity {
     private WebView wv;
+    private SwipeRefreshLayout swipe;
     private ValueCallback<Uri[]> fileCallback;
+    private boolean pageFailed = false;
 
     @Override
     protected void onCreate(Bundle b) {
         super.onCreate(b);
-        wv = new WebView(this);
-        setContentView(wv);
+        setContentView(R.layout.activity_main);
+        wv = findViewById(R.id.wv);
+        swipe = findViewById(R.id.swipe);
+        swipe.setColorSchemeColors(0xFFF59E0B, 0xFF22D3EE, 0xFF8B5CF6);
+
         WebSettings s = wv.getSettings();
         s.setJavaScriptEnabled(true);
         s.setDomStorageEnabled(true);
         s.setMediaPlaybackRequiresUserGesture(false);
         s.setLoadWithOverviewMode(true);
         s.setUseWideViewPort(true);
-        s.setUserAgentString(s.getUserAgentString() + " JHTools/1.0");
+        s.setCacheMode(WebSettings.LOAD_DEFAULT);
+        s.setUserAgentString(s.getUserAgentString() + " JHTools/1.1");
 
         wv.setWebViewClient(new WebViewClient() {
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest r) {
                 String h = r.getUrl().getHost();
-                if (h != null && (h.endsWith("jhx.my.id") || h.endsWith("jhax0r.my.id"))) return false;
+                if (h != null && (h.endsWith("jhx.my.id") || h.endsWith("jhax0r.my.id") || h.endsWith("api.jhx.my.id"))) return false;
                 try { startActivity(new Intent(Intent.ACTION_VIEW, r.getUrl())); } catch (Exception e) {}
                 return true;
+            }
+            @Override
+            public void onPageStarted(WebView view, String url, android.graphics.Bitmap favicon) {
+                pageFailed = false;
+            }
+            @Override
+            public void onPageFinished(WebView view, String url) {
+                swipe.setRefreshing(false);
+                if (!pageFailed && url.startsWith("file:///android_asset/offline.html")) {
+                    wv.loadUrl("https://jhx.my.id/");
+                }
+            }
+            @Override
+            public void onReceivedError(WebView view, WebResourceRequest req, WebResourceError err) {
+                if (req.isForMainFrame()) {
+                    pageFailed = true;
+                    wv.loadUrl("file:///android_asset/offline.html");
+                }
             }
         });
 
@@ -64,7 +93,28 @@ public class MainActivity extends Activity {
             }
         });
 
+        swipe.setOnRefreshListener(() -> {
+            if (isOnline()) {
+                if (wv.getUrl() != null && wv.getUrl().startsWith("file:")) {
+                    wv.loadUrl("https://jhx.my.id/");
+                } else {
+                    wv.reload();
+                }
+            } else {
+                wv.loadUrl("file:///android_asset/offline.html");
+                swipe.setRefreshing(false);
+            }
+        });
+
         wv.loadUrl("https://jhx.my.id/");
+    }
+
+    private boolean isOnline() {
+        try {
+            ConnectivityManager cm = (ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
+            NetworkInfo n = cm.getActiveNetworkInfo();
+            return n != null && n.isConnected();
+        } catch (Exception e) { return false; }
     }
 
     @Override
@@ -77,7 +127,8 @@ public class MainActivity extends Activity {
     }
 
     @Override
-    public void onBackPressed() {
-        if (wv.canGoBack()) wv.goBack(); else super.onBackPressed();
+    public boolean onKeyDown(int kc, KeyEvent ev) {
+        if (kc == KeyEvent.KEYCODE_BACK && wv.canGoBack()) { wv.goBack(); return true; }
+        return super.onKeyDown(kc, ev);
     }
 }
