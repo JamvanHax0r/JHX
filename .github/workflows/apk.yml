@@ -12,12 +12,29 @@ jobs:
         with:
           distribution: temurin
           java-version: 17
-      - uses: android-actions/setup-android@v3
-      - run: sdkmanager "platforms;android-34" "build-tools;34.0.0"
-      - uses: gradle/actions/setup-gradle@v3
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+      - name: Install platforms
+        run: |
+          yes | sdkmanager --licenses || true
+          sdkmanager "platforms;android-34" "build-tools;34.0.0"
+      - name: Prepare keystore and icon
+        run: |
+          ls -la
+          if [ -f jhtools.keystore ]; then cp jhtools.keystore android/jhtools.keystore; fi
+          if [ ! -f android/jhtools.keystore ]; then echo "KEYSTORE MISSING"; exit 1; fi
+          mkdir -p android/app/src/main/res/drawable
+          if [ ! -s android/app/src/main/res/drawable/ic_launcher.jpg ] && [ ! -s android/app/src/main/res/drawable/ic_launcher.png ]; then
+            echo "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==" | base64 -d > android/app/src/main/res/drawable/ic_launcher.png
+          fi
+          ls -la android android/app/src/main/res/drawable
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
         with:
           gradle-version: 8.7
-      - run: cd android && gradle assembleRelease --no-daemon
+          cache-disabled: true
+      - name: Build
+        run: cd android && gradle assembleRelease --no-daemon --stacktrace
       - uses: actions/upload-artifact@v4
         with:
           name: JHTools-APK

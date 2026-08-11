@@ -11,7 +11,7 @@ android {
     }
     signingConfigs {
         release {
-            storeFile file('../../jhtools.keystore')
+            storeFile file('../jhtools.keystore')
             storePassword 'jhtools123'
             keyAlias 'jhtools'
             keyPassword 'jhtools123'
