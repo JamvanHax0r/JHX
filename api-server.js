@@ -398,7 +398,7 @@ app.post('/yt-search', async (req, res) => {
     if (!q) return res.status(400).json({ Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: false, error: 'Kata kunci pencarian kosong!' });
     
     const { exec } = require('child_process');
-    const cmd = `yt-dlp --flat-playlist -J "ytsearch12:${q.replace(/"/g, '')}"`;
+    const cmd = `yt-dlp --flat-playlist --ignore-errors -J "ytsearch25:${q.replace(/"/g, '')}"`;
     
     exec(cmd, { maxBuffer: 1024 * 1024 * 10, timeout: 30000 }, (error, stdout, stderr) => {
       if (error) return res.status(500).json({ Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: false, error: 'Gagal mencari di YouTube: ' + error.message });
@@ -445,7 +445,7 @@ app.post('/yt-download', async (req, res) => {
     const tmpDir = path.join(__dirname, 'tmp', 'jh-yt-' + code);
     fs.mkdirSync(tmpDir, { recursive: true });
     
-    const metaCmd = 'yt-dlp -J --extractor-args "youtube:player_client=android,web" --no-warnings "' + url + '"';
+    const metaCmd = 'yt-dlp -J --no-warnings "' + url + '"';
     exec(metaCmd, { maxBuffer: 1024 * 1024 * 15, timeout: 60000 }, (err, stdout) => {
       if (err) {
         fs.rmSync(tmpDir, { recursive: true, force: true });
@@ -461,13 +461,13 @@ app.post('/yt-download', async (req, res) => {
         let dlCmd, outputFile, route, ext;
         if (isAudio) {
           outputFile = path.join(tmpDir, 'audio.mp3');
-          dlCmd = 'yt-dlp -x --audio-format mp3 --audio-quality 192K --extractor-args "youtube:player_client=android,web" --no-warnings -o "' + outputFile + '" "' + url + '"';
+          dlCmd = 'yt-dlp --extract-audio --audio-format mp3 --audio-quality 0 --no-warnings -o "' + outputFile + '" "' + url + '"';
           route = 'resaud';
           ext = 'mp3';
         } else {
           const targetHeight = parseInt(format) || 720;
           outputFile = path.join(tmpDir, 'video.mp4');
-          dlCmd = 'yt-dlp -f "bv*[height<=' + targetHeight + ']+ba/b[height<=' + targetHeight + ']" --merge-output-format mp4 --extractor-args "youtube:player_client=android,web" --no-warnings -o "' + outputFile + '" "' + url + '"';
+          dlCmd = 'yt-dlp -f "bv*[height<=' + targetHeight + ']+ba/b[height<=' + targetHeight + ']/best[height<=' + targetHeight + ']/best" --merge-output-format mp4 --no-warnings -o "' + outputFile + '" "' + url + '"';
           route = 'resvid';
           ext = 'mp4';
         }
