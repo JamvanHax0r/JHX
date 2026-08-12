@@ -55,7 +55,6 @@ public class MainActivity extends Activity {
         s.setLoadWithOverviewMode(true);
         s.setUseWideViewPort(true);
         s.setCacheMode(WebSettings.LOAD_DEFAULT);
-        s.setAppCacheEnabled(true);
         s.setUserAgentString(s.getUserAgentString() + " JHTools/2.0");
 
         wv.setWebViewClient(new WebViewClient() {
