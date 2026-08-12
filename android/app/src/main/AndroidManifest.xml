@@ -7,6 +7,7 @@
         android:label="JH-Tools"
         android:icon="@drawable/ic_launcher"
         android:theme="@style/AppTheme"
+        android:hardwareAccelerated="true"
         android:usesCleartextTraffic="false">
         <activity
             android:name=".SplashActivity"
@@ -20,6 +21,7 @@
         <activity
             android:name=".MainActivity"
             android:exported="false"
+            android:hardwareAccelerated="true"
             android:configChanges="orientation|screenSize|keyboardHidden|screenLayout|smallestScreenSize" />
     </application>
 </manifest>

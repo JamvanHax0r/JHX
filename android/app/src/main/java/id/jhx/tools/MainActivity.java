@@ -8,6 +8,7 @@ import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.webkit.URLUtil;
 import android.webkit.ValueCallback;
@@ -25,11 +26,24 @@ public class MainActivity extends Activity {
     private SwipeRefreshLayout swipe;
     private ValueCallback<Uri[]> fileCallback;
     private boolean pageFailed = false;
+    private static final String TAG = "JHX";
+    private static final String LIVE_URL = "https://jhx.my.id/";
 
     @Override
     protected void onCreate(Bundle b) {
         super.onCreate(b);
         setContentView(R.layout.activity_main);
+
+        // AUTO-CLEAR CACHE on first install (fix WebView ke-cache JS lama)
+        if (b == null) {
+            try {
+                new WebView(this).clearCache(true);
+                Log.d(TAG, "Cache cleared on first install");
+            } catch (Exception e) {
+                Log.e(TAG, "Cache clear failed", e);
+            }
+        }
+
         wv = findViewById(R.id.wv);
         swipe = findViewById(R.id.swipe);
         swipe.setColorSchemeColors(0xFFF59E0B, 0xFF22D3EE, 0xFF8B5CF6);
@@ -41,27 +55,39 @@ public class MainActivity extends Activity {
         s.setLoadWithOverviewMode(true);
         s.setUseWideViewPort(true);
         s.setCacheMode(WebSettings.LOAD_DEFAULT);
-        s.setUserAgentString(s.getUserAgentString() + " JHTools/1.1");
+        s.setAppCacheEnabled(true);
+        s.setUserAgentString(s.getUserAgentString() + " JHTools/2.0");
 
         wv.setWebViewClient(new WebViewClient() {
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest r) {
                 String h = r.getUrl().getHost();
-                if (h != null && (h.endsWith("jhx.my.id") || h.endsWith("jhax0r.my.id") || h.endsWith("api.jhx.my.id"))) return false;
-                try { startActivity(new Intent(Intent.ACTION_VIEW, r.getUrl())); } catch (Exception e) {}
+                if (h != null && (h.endsWith("jhx.my.id") || h.endsWith("jhax0r.my.id") || h.endsWith("api.jhx.my.id"))) {
+                    return false;
+                }
+                try {
+                    startActivity(new Intent(Intent.ACTION_VIEW, r.getUrl()));
+                } catch (Exception e) {
+                    Log.e(TAG, "External link failed", e);
+                }
                 return true;
             }
+
             @Override
             public void onPageStarted(WebView view, String url, android.graphics.Bitmap favicon) {
                 pageFailed = false;
+                Log.d(TAG, "page-start: " + url);
             }
+
             @Override
             public void onPageFinished(WebView view, String url) {
                 swipe.setRefreshing(false);
+                Log.d(TAG, "page-done: " + url);
                 if (!pageFailed && url.startsWith("file:///android_asset/offline.html")) {
-                    wv.loadUrl("https://jhx.my.id/");
+                    wv.loadUrl(LIVE_URL);
                 }
             }
+
             @Override
             public void onReceivedError(WebView view, WebResourceRequest req, WebResourceError err) {
                 if (req.isForMainFrame()) {
@@ -76,28 +102,54 @@ public class MainActivity extends Activity {
             public boolean onShowFileChooser(WebView view, ValueCallback<Uri[]> cb, FileChooserParams p) {
                 if (fileCallback != null) fileCallback.onReceiveValue(null);
                 fileCallback = cb;
-                try { startActivityForResult(p.createIntent(), 1); } catch (Exception e) { fileCallback = null; return false; }
+                try {
+                    startActivityForResult(p.createIntent(), 1);
+                } catch (Exception e) {
+                    fileCallback = null;
+                    return false;
+                }
                 return true;
             }
         });
 
         wv.setDownloadListener((url, ua, cd, mime, len) -> {
+            // FIX .BIN: kalau Content-Disposition kosong atau filename .bin, fallback pakai URL path
+            String filename = URLUtil.guessFileName(url, cd, mime);
+            if (filename == null || filename.endsWith(".bin") || filename.equals("downloadfile")) {
+                try {
+                    String path = Uri.parse(url).getPath();
+                    if (path != null && path.contains(".")) {
+                        filename = path.substring(path.lastIndexOf('/') + 1);
+                    }
+                } catch (Exception e) {
+                    Log.e(TAG, "filename-fallback", e);
+                }
+            }
+            Log.d(TAG, "download: mime=" + mime + " cd=" + cd + " fn=" + filename);
+
             try {
                 DownloadManager.Request rq = new DownloadManager.Request(Uri.parse(url));
                 rq.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
-                rq.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, URLUtil.guessFileName(url, cd, mime));
+                rq.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, filename);
                 ((DownloadManager) getSystemService(DOWNLOAD_SERVICE)).enqueue(rq);
-                Toast.makeText(this, "Download dimulai", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Download: " + filename, Toast.LENGTH_SHORT).show();
             } catch (Exception e) {
-                try { startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(url))); } catch (Exception e2) {}
+                Log.e(TAG, "download-fail", e);
+                try {
+                    startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(url)));
+                } catch (Exception e2) {
+                    Toast.makeText(this, "Download failed", Toast.LENGTH_SHORT).show();
+                }
             }
         });
 
         swipe.setOnRefreshListener(() -> {
             if (isOnline()) {
                 if (wv.getUrl() != null && wv.getUrl().startsWith("file:")) {
-                    wv.loadUrl("https://jhx.my.id/");
+                    wv.loadUrl(LIVE_URL);
                 } else {
+                    // Cache-bust: clear cache + reload biar dapet web terbaru
+                    wv.clearCache(true);
                     wv.reload();
                 }
             } else {
@@ -106,7 +158,7 @@ public class MainActivity extends Activity {
             }
         });
 
-        wv.loadUrl("https://jhx.my.id/");
+        wv.loadUrl(LIVE_URL);
     }
 
     private boolean isOnline() {
@@ -114,7 +166,9 @@ public class MainActivity extends Activity {
             ConnectivityManager cm = (ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
             NetworkInfo n = cm.getActiveNetworkInfo();
             return n != null && n.isConnected();
-        } catch (Exception e) { return false; }
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     @Override
@@ -128,7 +182,10 @@ public class MainActivity extends Activity {
 
     @Override
     public boolean onKeyDown(int kc, KeyEvent ev) {
-        if (kc == KeyEvent.KEYCODE_BACK && wv.canGoBack()) { wv.goBack(); return true; }
+        if (kc == KeyEvent.KEYCODE_BACK && wv.canGoBack()) {
+            wv.goBack();
+            return true;
+        }
         return super.onKeyDown(kc, ev);
     }
 }
