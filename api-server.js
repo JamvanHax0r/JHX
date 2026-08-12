@@ -910,7 +910,7 @@ async function serveProxy(req, res) {
   if (!item) return res.status(410).json({ error: 'link expired' });
   const kind = item.k || 'img';
   const ext = kind === 'vid' ? 'mp4' : kind === 'aud' ? 'mp3' : 'jpg';
-  const baseName = item.fn || ((item.p || (jhPrefix(item.ref) + '_' + kind)) + '_' + code);
+  const baseName = String(item.fn || ((item.p || (jhPrefix(item.ref) + '_' + kind)) + '_' + code)).replace(/[^\x20-\x7E]/g, '');
 
   if (item.filePath) {
     try {
@@ -942,7 +942,7 @@ async function serveProxy(req, res) {
         res.setHeader('Content-Length', stat.size);
         fs.createReadStream(actualPath).pipe(res);
       }
-    } catch (e) { res.status(404).json({ error: 'file not found' }); }
+    } catch (e) { console.error('[serveProxy] err:', e.message); res.status(404).json({ error: 'file not found' }); }
     return;
   }
 
@@ -970,6 +970,9 @@ async function serveProxy(req, res) {
     up.data.pipe(res);
   } catch (e) { res.status(502).json({ error: 'upstream error' }); }
 }
+
+
+
 app.get('/resimg/:code', serveProxy);
 app.get('/resvid/:code', serveProxy);
 app.get('/resaud/:code', serveProxy);
