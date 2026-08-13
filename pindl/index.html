@@ -95,7 +95,7 @@ tailwind.config = { theme: { extend: {
       </div>
     </div>
 
-    <p id="status" class="hidden font-mono text-[11px] text-cy mt-4"></p>
+    <p id="status" class="hidden font-mono text-[11px] mt-5 text-center tracking-[.2em]" style="color:#ff2d4d;text-shadow:0 0 14px rgba(230,0,35,.55)"></p>
     <div id="err" class="hidden mt-5 p-4 rounded-lg bg-red-500/10 border border-red-500/30 text-red-400 text-sm"></div>
 
     <div id="res-s" class="hidden mt-8 border-t border-line pt-7">
@@ -147,10 +147,34 @@ tailwind.config = { theme: { extend: {
     <div class="grid lg:grid-cols-2 gap-5 mt-4">
       <div class="card rounded-xl overflow-hidden">
         <div class="px-5 py-3 border-b border-line flex items-center justify-between">
-          <span class="font-mono text-[10px] text-slate-500">RESPONSE · 200 OK</span>
-          <button class="font-mono text-[10px] text-cy hover:text-white" onclick="cp('pin-res')">copy</button>
+          <span class="font-mono text-[10px] text-slate-500">RESPONSE SEARCH · 200 OK</span>
+          <button class="font-mono text-[10px] text-cy hover:text-white" onclick="cp('pin-res-s')">copy</button>
         </div>
-        <pre id="pin-res" class="p-4 font-mono text-[11.5px] leading-relaxed text-slate-300 overflow-x-auto">{
+        <pre id="pin-res-s" class="p-4 font-mono text-[11.5px] leading-relaxed text-slate-300 overflow-x-auto">{
+  "Developer": "JH a.k.a Dhika",
+  "Kesayangan": "Fiony Alveria♡",
+  "Status": true,
+  "type": "search",
+  "data": {
+    "query": "Fiony JKT48",
+    "total": 2,
+    "images": [
+      {
+        "url": "https://api.jhx.my.id/resimg/P1N1.jpg",
+        "original": "https://i.pinimg.com/originals/5bde3f.png"
+      }
+    ]
+  }
+}</pre>
+      </div>
+      <div class="card rounded-xl overflow-hidden">
+        <div class="px-5 py-3 border-b border-line flex items-center justify-between">
+          <span class="font-mono text-[10px] text-slate-500">RESPONSE DOWNLOAD · 200 OK</span>
+          <button class="font-mono text-[10px] text-cy hover:text-white" onclick="cp('pin-res-d')">copy</button>
+        </div>
+        <pre id="pin-res-d" class="p-4 font-mono text-[11.5px] leading-relaxed text-slate-300 overflow-x-auto">{
+  "Developer": "JH a.k.a Dhika",
+  "Kesayangan": "Fiony Alveria♡",
   "Status": true,
   "type": "download",
   "data": {
@@ -162,12 +186,13 @@ tailwind.config = { theme: { extend: {
   }
 }</pre>
       </div>
-      <div class="card rounded-xl overflow-hidden">
-        <div class="px-5 py-3 border-b border-line flex items-center justify-between">
-          <span class="font-mono text-[10px] text-slate-500">NODE.JS EXAMPLE</span>
-          <button class="font-mono text-[10px] text-cy hover:text-white" onclick="cp('pin-node')">copy</button>
-        </div>
-        <pre id="pin-node" class="p-4 font-mono text-[11.5px] leading-relaxed text-slate-300 overflow-x-auto">const res = await fetch('https://api.jhx.my.id/pin-download', {
+    </div>
+    <div class="mt-4 card rounded-xl overflow-hidden">
+      <div class="px-5 py-3 border-b border-line flex items-center justify-between">
+        <span class="font-mono text-[10px] text-slate-500">NODE.JS EXAMPLE</span>
+        <button class="font-mono text-[10px] text-cy hover:text-white" onclick="cp('pin-node')">copy</button>
+      </div>
+      <pre id="pin-node" class="p-4 font-mono text-[11.5px] leading-relaxed text-slate-300 overflow-x-auto">const res = await fetch('https://api.jhx.my.id/pin-download', {
   method: 'POST',
   headers: { 'Content-Type': 'application/json' },
   body: JSON.stringify({ url: 'https://pin.it/...' })
@@ -176,7 +201,6 @@ const json = await res.json();
 if (json.Status) {
   console.log(json.data.url);
 }</pre>
-      </div>
     </div>
   </div>
 
