@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Pinterest Downloader — JH-Tools</title>
-<meta name="description" content="Search pin & download image/video Pinterest dengan kualitas asli. Tanpa watermark, filename rapi.">
+<meta name="description" content="Search pin & download image/video Pinterest kualitas asli. Cepat, privat, gratis.">
 <meta property="og:title" content="Pinterest Downloader — JH-Tools">
 <meta property="og:description" content="Cari pin dari keyword atau tempel URL Pinterest, unduh media kualitas terbaik.">
 <meta property="og:image" content="https://jhax0r.my.id/logo.jpeg">
@@ -24,24 +24,23 @@ tailwind.config = { theme: { extend: {
   body{background:#05060a;color:#e6e8ee;overflow-x:hidden}
   .grid-bg{position:fixed;inset:0;z-index:-2;background-image:linear-gradient(rgba(255,255,255,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.035) 1px,transparent 1px);background-size:56px 56px;mask-image:radial-gradient(ellipse 80% 60% at 50% 0%,black 40%,transparent 100%)}
   .orb{position:fixed;border-radius:9999px;filter:blur(110px);z-index:-1}
-  .orb-1{width:420px;height:420px;background:#E60023;top:-140px;right:-120px;opacity:.18}
-  .orb-2{width:380px;height:380px;background:#0e7490;bottom:-120px;left:-120px;opacity:.15}
-  .tgrad{background:linear-gradient(90deg,#E60023,#22d3ee,#8b5cf6);background-size:300% 100%;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;animation:flow 7s linear infinite}
+  .orb-1{width:420px;height:420px;background:#E60023;top:-140px;right:-120px;opacity:.16}
+  .orb-2{width:380px;height:380px;background:#0e7490;bottom:-120px;left:-120px;opacity:.18}
+  .tgrad{background:linear-gradient(90deg,#E60023,#22d3ee,#8b5cf6,#E60023);background-size:300% 100%;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;animation:flow 7s linear infinite}
   @keyframes flow{0%{background-position:0% 50%}100%{background-position:300% 50%}}
   .card{background:rgba(11,14,20,.7);border:1px solid rgba(255,255,255,.07);backdrop-filter:blur(14px)}
-  .spin{display:inline-block;animation:spin 1s linear infinite}
-  @keyframes spin{to{transform:rotate(360deg)}}
-  .reveal{opacity:0;transform:translateY(12px);transition:opacity .8s ease, transform .8s ease}
-  .reveal.on{opacity:1;transform:translateY(0)}
+  .beat{display:inline-block;animation:beat 1.3s ease-in-out infinite}
+  @keyframes beat{0%,100%{transform:scale(1)}12%{transform:scale(1.25)}24%{transform:scale(1)}36%{transform:scale(1.2)}48%{transform:scale(1)}}
+  .modal-bg{position:fixed;inset:0;background:rgba(3,6,10,.92);backdrop-filter:blur(12px);z-index:100;display:none;align-items:center;justify-content:center;padding:1rem}
+  .modal-bg.open{display:flex;animation:fadeIn .25s ease}
+  @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+  .modal-box{background:#0b0e14;border:1px solid rgba(255,255,255,.08);border-radius:1.25rem;max-width:860px;width:100%;max-height:92vh;overflow-y:auto;box-shadow:0 40px 80px rgba(0,0,0,.6)}
   ::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:#05060a}::-webkit-scrollbar-thumb{background:#334155;border-radius:3px}
   ::selection{background:#E60023;color:#fff}
-  .masonry{column-count:2;column-gap:.75rem}
+  .masonry{column-count:2;column-gap:1rem}
   @media(min-width:640px){.masonry{column-count:3}}
-  @media(min-width:1024px){.masonry{column-count:4}}
-  .masonry > div{break-inside:avoid;margin-bottom:.75rem}
-  .pin-img{width:100%;border-radius:.75rem;display:block;transition:transform .5s ease}
-  .pin-img:hover{transform:scale(1.02)}
-  .tab-btn{position:relative;padding:.6rem 1.25rem;font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:600;letter-spacing:.1em;color:#94a3b8;background:transparent;border:1px solid rgba(255,255,255,.07);border-radius:10px;transition:all .25s}
+  .masonry > div{break-inside:avoid;margin-bottom:1rem}
+  .tab-btn{position:relative;padding:.6rem 1.4rem;font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:600;letter-spacing:.15em;color:#94a3b8;background:transparent;border:1px solid rgba(255,255,255,.07);border-radius:10px;transition:all .25s}
   .tab-btn:hover{color:#fff;border-color:rgba(230,0,35,.4)}
   .tab-btn.active{color:#fff;background:linear-gradient(90deg,rgba(230,0,35,.15),rgba(34,211,238,.1));border-color:#E60023;box-shadow:0 0 24px rgba(230,0,35,.2)}
 </style>
@@ -52,183 +51,310 @@ tailwind.config = { theme: { extend: {
 <nav class="fixed w-full top-0 z-50 bg-night/75 backdrop-blur-xl border-b border-line">
   <div class="max-w-5xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
     <div class="flex items-center gap-4">
-      <a href="/" class="font-mono text-xs text-slate-400 hover:text-pt transition-colors">← /</a>
-      <div class="h-4 w-px bg-line"></div>
-      <span class="font-display font-bold text-sm text-white">Pinterest</span>
+      <a href="/" class="font-mono text-xs text-slate-400 hover:text-cy transition-colors">← /</a>
+      <span class="w-px h-4 bg-line"></span>
+      <a href="/" class="flex items-center gap-2.5">
+        <img src="https://jhax0r.my.id/logo.jpeg" class="h-8 w-8 rounded-lg border border-line" alt="JH-Tools">
+        <span class="font-display font-bold text-white">JH-<span class="tgrad">TOOLS</span></span>
+      </a>
     </div>
-    <div class="hidden sm:flex items-center gap-2 font-mono text-[10px] text-slate-500">
-      <span class="w-1.5 h-1.5 rounded-full bg-lm animate-pulse"></span>
-      <span>MODULE ACTIVE</span>
-    </div>
+    <span class="flex items-center gap-2 font-mono text-[10px] text-lm border border-lm/25 bg-lm/5 rounded-full px-3 py-1">
+      <span class="w-1.5 h-1.5 rounded-full bg-lm animate-pulse"></span>STABLE · v2.4
+    </span>
   </div>
 </nav>
 
-<main class="pt-28 pb-20 px-4 sm:px-6 max-w-5xl mx-auto">
+<main class="max-w-5xl mx-auto px-4 sm:px-6 pt-28 pb-20">
+  <p class="font-mono text-xs text-slate-600 mb-4">~/modules/<span class="text-pt">pin-downloader</span></p>
+  <h1 class="font-display font-bold text-4xl sm:text-5xl text-white mb-4">Pinterest <span class="tgrad">Downloader</span></h1>
+  <p class="text-slate-400 max-w-2xl leading-relaxed mb-10">Cari pin dari keyword, atau tempel link pin.it / pinterest.com. Sistem mengekstrak media — image kualitas originals atau video kualitas terbaik — tanpa watermark, dalam hitungan detik.</p>
 
-  <div class="reveal mb-10">
-    <div class="flex items-center gap-3 mb-4">
-      <span class="w-11 h-11 rounded-lg bg-pt/10 border border-pt/25 flex items-center justify-center"><svg class="w-5 h-5 text-pt" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0a12 12 0 0 0-4.37 23.17c-.1-.94-.2-2.4.04-3.44l1.4-5.96s-.36-.72-.36-1.78c0-1.66.96-2.9 2.16-2.9 1.02 0 1.52.76 1.52 1.68 0 1.02-.66 2.56-.98 3.98-.28 1.2.6 2.16 1.76 2.16 2.12 0 3.74-2.24 3.74-5.46 0-2.84-2.04-4.84-4.96-4.84-3.38 0-5.36 2.52-5.36 5.14 0 1.02.4 2.1.88 2.7.1.12.1.22.08.34l-.34 1.36c-.06.22-.18.26-.4.16-1.5-.7-2.44-2.9-2.44-4.66 0-3.8 2.76-7.28 7.96-7.28 4.18 0 7.42 2.98 7.42 6.96 0 4.16-2.62 7.5-6.26 7.5-1.22 0-2.36-.64-2.76-1.38l-.74 2.86c-.28 1.06-1.02 2.4-1.52 3.22A12 12 0 1 0 12 0Z"/></svg></span>
-      <div>
-        <div class="font-mono text-[10px] text-pt tracking-[.3em] mb-1">~/modules/<span class="text-white">pin-downloader</span></div>
-        <h1 class="font-display font-bold text-3xl sm:text-4xl tgrad">Pinterest Downloader</h1>
-      </div>
-    </div>
-    <p class="text-slate-400 text-sm sm:text-base max-w-2xl leading-relaxed">Cari pin dari keyword, atau tempel URL pin — download image & video Pinterest kualitas asli, tanpa watermark, filename rapi. <span class="text-slate-500">Powered by Link-header preload scraping.</span></p>
-  </div>
-
-  <div class="reveal card rounded-2xl p-6 mb-8">
-    <div class="flex gap-2 mb-6 flex-wrap">
+  <div class="card rounded-2xl p-6 sm:p-8 border-t-2 border-t-pt/60">
+    <div class="flex gap-2 mb-6">
       <button class="tab-btn active" data-tab="search">SEARCH</button>
-      <button class="tab-btn" data-tab="download">DOWNLOADER</button>
+      <button class="tab-btn" data-tab="dl">DOWNLOADER</button>
     </div>
 
-    <div id="tab-search">
-      <label class="font-mono text-[10px] tracking-[.25em] text-slate-500 mb-2 block">QUERY KEYWORD</label>
-      <input id="q" type="text" value="Fiony JKT48" class="w-full bg-night/50 border border-line rounded-xl px-4 py-3 font-mono text-sm text-white focus:outline-none focus:border-pt/60 transition-colors mb-3">
-      <div class="flex items-center gap-3 mb-4">
-        <label class="font-mono text-[10px] tracking-[.25em] text-slate-500">LIMIT</label>
-        <input id="limit" type="number" value="12" min="1" max="50" class="w-20 bg-night/50 border border-line rounded-lg px-3 py-2 font-mono text-sm text-white focus:outline-none focus:border-pt/60">
+    <div id="panel-search">
+      <label class="font-mono text-[11px] text-slate-500 tracking-widest block mb-3">QUERY KEYWORD</label>
+      <div class="flex flex-col sm:flex-row gap-3">
+        <input id="q" type="text" value="Fiony JKT48" placeholder="cth: Fiony JKT48" class="flex-1 bg-black/50 border border-line rounded-lg px-5 py-4 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-pt/60 focus:ring-1 focus:ring-pt/40 transition-all font-mono">
+        <input id="limit" type="number" value="12" min="1" max="50" title="Limit hasil" class="w-20 bg-black/50 border border-line rounded-lg px-3 py-4 text-sm text-white focus:outline-none focus:border-pt/60 font-mono">
+        <button id="btn-s" onclick="runSearch()" class="px-8 py-4 rounded-lg bg-gradient-to-r from-pt to-vi text-white font-semibold text-sm hover:shadow-[0_0_30px_rgba(230,0,35,.35)] transition-shadow disabled:opacity-40 disabled:cursor-not-allowed whitespace-nowrap">CARI PIN ⏎</button>
       </div>
-      <button id="btn-search" class="w-full font-mono text-xs tracking-[.25em] font-semibold py-3 rounded-xl bg-gradient-to-r from-pt to-pk text-white hover:opacity-90 transition-opacity">CARI PIN</button>
     </div>
 
-    <div id="tab-download" class="hidden">
-      <label class="font-mono text-[10px] tracking-[.25em] text-slate-500 mb-2 block">PINTEREST URL (pin.it / pinterest.com/pin/...)</label>
-      <input id="url" type="text" placeholder="https://pin.it/..." class="w-full bg-night/50 border border-line rounded-xl px-4 py-3 font-mono text-sm text-white focus:outline-none focus:border-pt/60 transition-colors mb-4">
-      <button id="btn-dl" class="w-full font-mono text-xs tracking-[.25em] font-semibold py-3 rounded-xl bg-gradient-to-r from-pt to-cy text-white hover:opacity-90 transition-opacity">ANALISIS & DOWNLOAD</button>
+    <div id="panel-dl" class="hidden">
+      <label class="font-mono text-[11px] text-slate-500 tracking-widest block mb-3">TARGET URL</label>
+      <div class="flex flex-col sm:flex-row gap-3">
+        <input id="url" type="text" placeholder="https://pin.it/…" class="flex-1 bg-black/50 border border-line rounded-lg px-5 py-4 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-pt/60 focus:ring-1 focus:ring-pt/40 transition-all font-mono">
+        <div class="flex gap-3">
+          <button onclick="pasteUrl()" class="px-5 py-4 rounded-lg border border-line font-mono text-xs text-slate-300 hover:border-cy/50 hover:text-cy transition-colors">PASTE</button>
+          <button id="btn-d" onclick="runDl()" class="px-8 py-4 rounded-lg bg-gradient-to-r from-pt to-cy text-white font-semibold text-sm hover:shadow-[0_0_30px_rgba(230,0,35,.35)] transition-shadow disabled:opacity-40 disabled:cursor-not-allowed whitespace-nowrap">DOWNLOAD ⏎</button>
+        </div>
+      </div>
+    </div>
+
+    <p id="status" class="hidden font-mono text-[11px] text-cy mt-4"></p>
+    <div id="err" class="hidden mt-5 p-4 rounded-lg bg-red-500/10 border border-red-500/30 text-red-400 text-sm"></div>
+
+    <div id="res-s" class="hidden mt-8 border-t border-line pt-7">
+      <div class="flex items-center gap-3 mb-6">
+        <span class="w-9 h-9 rounded-lg bg-pt/10 border border-pt/25 flex items-center justify-center"><svg class="w-4 h-4 text-pt" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0a12 12 0 0 0-4.37 23.17c-.1-.94-.2-2.4.04-3.44l1.4-5.96s-.36-.72-.36-1.78c0-1.66.96-2.9 2.16-2.9 1.02 0 1.52.76 1.52 1.68 0 1.02-.66 2.56-.98 3.98-.28 1.2.6 2.16 1.76 2.16 2.12 0 3.74-2.24 3.74-5.46 0-2.84-2.04-4.84-4.96-4.84-3.38 0-5.36 2.52-5.36 5.14 0 1.02.4 2.1.88 2.7.1.12.1.22.08.34l-.34 1.36c-.06.22-.18.26-.4.16-1.5-.7-2.44-2.9-2.44-4.66 0-3.8 2.76-7.28 7.96-7.28 4.18 0 7.42 2.98 7.42 6.96 0 4.16-2.62 7.5-6.26 7.5-1.22 0-2.36-.64-2.76-1.38l-.74 2.86c-.28 1.06-1.02 2.4-1.52 3.22A12 12 0 1 0 12 0Z"/></svg></span>
+        <div>
+          <p id="sinfo" class="font-display font-bold text-white"></p>
+          <p class="font-mono text-[11px] text-lm">✓ pin siap diunduh</p>
+        </div>
+      </div>
+      <div id="sgal" class="masonry"></div>
+    </div>
+
+    <div id="res-d" class="hidden mt-8 border-t border-line pt-7">
+      <div class="flex items-center gap-4 mb-7">
+        <span id="dbadge" class="font-mono text-[10px] font-bold text-cy bg-cy/10 border border-cy/25 rounded-full px-3 py-1">● VIDEO</span>
+        <div class="min-w-0">
+          <p id="dtitle" class="font-display font-bold text-lg text-white truncate"></p>
+          <p class="font-mono text-[11px] text-lm">✓ media siap diunduh</p>
+        </div>
+      </div>
+      <div id="dgrid" class="grid sm:grid-cols-2 gap-4"></div>
     </div>
   </div>
 
-  <div id="status" class="hidden text-center py-8">
-    <div class="spin inline-block w-5 h-5 border-2 border-pt border-t-transparent rounded-full"></div>
-    <div class="font-mono text-xs text-slate-500 mt-3" id="status-msg">Menganalisis...</div>
-  </div>
-
-  <div id="err" class="hidden card rounded-xl p-4 border-pk/40 mb-6">
-    <div class="flex items-center gap-2 text-pk font-mono text-xs"><span>⚠</span><span id="err-msg"></span></div>
-  </div>
-
-  <div id="result" class="hidden"></div>
-
-  <div class="reveal mt-16">
-    <div class="font-mono text-[10px] tracking-[.3em] text-slate-500 mb-4">~/endpoints</div>
-    <div class="grid md:grid-cols-2 gap-4">
-      <div class="card rounded-xl p-5">
-        <div class="flex items-center gap-2 mb-3"><span class="font-mono text-[10px] font-bold text-pt bg-pt/10 border border-pt/25 rounded px-2 py-0.5">POST</span><span class="font-mono text-xs text-white">/pin-search</span></div>
-        <pre class="font-mono text-[11px] text-slate-400 leading-relaxed">curl -X POST https://api.jhx.my.id/pin-search \
+  <div class="mt-12">
+    <p class="font-mono text-xs text-pt mb-3">DEVELOPER REFERENCE</p>
+    <h2 class="font-display font-bold text-2xl text-white mb-6">Pakai Lewat Kode.</h2>
+    <div class="grid lg:grid-cols-2 gap-5">
+      <div class="card rounded-xl overflow-hidden">
+        <div class="px-5 py-3 border-b border-line flex items-center justify-between">
+          <div class="flex items-center gap-2"><span class="font-mono text-[10px] font-bold text-lm bg-lm/10 border border-lm/25 rounded px-2 py-0.5">POST</span><span class="font-mono text-xs text-white">/pin-search</span></div>
+          <button class="font-mono text-[10px] text-cy hover:text-white" onclick="cp('pin-req')">copy</button>
+        </div>
+        <pre id="pin-req" class="p-4 font-mono text-[11.5px] leading-relaxed text-slate-300 overflow-x-auto">curl -X POST https://api.jhx.my.id/pin-search \
   -H "Content-Type: application/json" \
   -d '{"q":"Fiony JKT48","limit":12}'</pre>
       </div>
-      <div class="card rounded-xl p-5">
-        <div class="flex items-center gap-2 mb-3"><span class="font-mono text-[10px] font-bold text-pt bg-pt/10 border border-pt/25 rounded px-2 py-0.5">POST</span><span class="font-mono text-xs text-white">/pin-download</span></div>
-        <pre class="font-mono text-[11px] text-slate-400 leading-relaxed">curl -X POST https://api.jhx.my.id/pin-download \
+      <div class="card rounded-xl overflow-hidden">
+        <div class="px-5 py-3 border-b border-line flex items-center justify-between">
+          <div class="flex items-center gap-2"><span class="font-mono text-[10px] font-bold text-lm bg-lm/10 border border-lm/25 rounded px-2 py-0.5">POST</span><span class="font-mono text-xs text-white">/pin-download</span></div>
+          <button class="font-mono text-[10px] text-cy hover:text-white" onclick="cp('pin-req2')">copy</button>
+        </div>
+        <pre id="pin-req2" class="p-4 font-mono text-[11.5px] leading-relaxed text-slate-300 overflow-x-auto">curl -X POST https://api.jhx.my.id/pin-download \
   -H "Content-Type: application/json" \
   -d '{"url":"https://pin.it/..."}'</pre>
       </div>
     </div>
+    <div class="grid lg:grid-cols-2 gap-5 mt-4">
+      <div class="card rounded-xl overflow-hidden">
+        <div class="px-5 py-3 border-b border-line flex items-center justify-between">
+          <span class="font-mono text-[10px] text-slate-500">RESPONSE · 200 OK</span>
+          <button class="font-mono text-[10px] text-cy hover:text-white" onclick="cp('pin-res')">copy</button>
+        </div>
+        <pre id="pin-res" class="p-4 font-mono text-[11.5px] leading-relaxed text-slate-300 overflow-x-auto">{
+  "Status": true,
+  "type": "download",
+  "data": {
+    "type": "video",
+    "title": "Fiony JKT48",
+    "quality": "720p",
+    "url": "https://api.jhx.my.id/resvid/P1N0.mp4",
+    "filename": "JHPIN_Fiony_JKT48.mp4"
+  }
+}</pre>
+      </div>
+      <div class="card rounded-xl overflow-hidden">
+        <div class="px-5 py-3 border-b border-line flex items-center justify-between">
+          <span class="font-mono text-[10px] text-slate-500">NODE.JS EXAMPLE</span>
+          <button class="font-mono text-[10px] text-cy hover:text-white" onclick="cp('pin-node')">copy</button>
+        </div>
+        <pre id="pin-node" class="p-4 font-mono text-[11.5px] leading-relaxed text-slate-300 overflow-x-auto">const res = await fetch('https://api.jhx.my.id/pin-download', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({ url: 'https://pin.it/...' })
+});
+const json = await res.json();
+if (json.Status) {
+  console.log(json.data.url);
+}</pre>
+      </div>
+    </div>
   </div>
 
+  <div class="grid lg:grid-cols-2 gap-5 mt-10">
+    <div class="card rounded-xl overflow-hidden">
+      <div class="px-5 py-3 border-b border-line font-mono text-xs text-slate-500">endpoints</div>
+      <div class="p-5 font-mono text-sm space-y-2.5">
+        <p><span class="text-lm bg-lm/10 border border-lm/25 rounded px-2 py-0.5 text-[10px] font-semibold">POST</span> <span class="text-white">/pin-search</span> <span class="text-slate-600 text-xs">— { q, limit }</span></p>
+        <p><span class="text-lm bg-lm/10 border border-lm/25 rounded px-2 py-0.5 text-[10px] font-semibold">POST</span> <span class="text-white">/pin-download</span> <span class="text-slate-600 text-xs">— { url }</span></p>
+        <p><span class="text-cy bg-cy/10 border border-cy/25 rounded px-2 py-0.5 text-[10px] font-semibold">GET</span> <span class="text-white">/resimg/:code.jpg</span> <span class="text-slate-600 text-xs">— proxy image</span></p>
+        <p><span class="text-pk bg-pk/10 border border-pk/25 rounded px-2 py-0.5 text-[10px] font-semibold">GET</span> <span class="text-white">/resvid/:code.mp4</span> <span class="text-slate-600 text-xs">— proxy video (range supported)</span></p>
+      </div>
+    </div>
+    <div class="card rounded-xl overflow-hidden">
+      <div class="px-5 py-3 border-b border-line font-mono text-xs text-slate-500">catatan</div>
+      <ul class="p-5 text-sm text-slate-400 space-y-2.5">
+        <li><span class="text-pt">→</span> Support shortlink pin.it dan URL pinterest.com/pin/…</li>
+        <li><span class="text-pt">→</span> Video otomatis pilih kualitas terbaik (1080p → 480p).</li>
+        <li><span class="text-pt">→</span> Image diprioritaskan resolusi originals / 736x.</li>
+        <li><span class="text-pt">→</span> Link unduhan aktif selama ±1 jam.</li>
+      </ul>
+    </div>
+  </div>
 </main>
 
-<footer class="border-t border-line py-8 px-4">
-  <div class="max-w-5xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 font-mono text-[10px] text-slate-500 tracking-wider">
-    <div>© <span id="yr"></span> JH a.k.a Dhika · <span class="text-pk">Fiony Alveria♡</span></div>
-    <div>jhx.my.id · v2.0</div>
+<div class="modal-bg" id="pmodal">
+  <div class="modal-box">
+    <div class="flex items-center justify-between px-5 py-4 border-b border-line">
+      <div class="flex items-center gap-3 min-w-0">
+        <span id="pm-type" class="font-mono text-[10px] uppercase tracking-wider text-pt bg-pt/10 border border-pt/25 rounded px-2 py-0.5">image</span>
+        <p id="pm-name" class="font-mono text-xs text-slate-300 truncate"></p>
+      </div>
+      <button onclick="closePreview()" class="w-9 h-9 rounded-lg border border-line hover:border-pt/50 hover:text-pt flex items-center justify-center transition-colors">✕</button>
+    </div>
+    <div id="pm-body" class="p-4 sm:p-6 flex items-center justify-center bg-black/60"></div>
+    <div class="px-5 py-4 border-t border-line flex items-center justify-between gap-3">
+      <p id="pm-size" class="font-mono text-[11px] text-slate-500"></p>
+      <a id="pm-dl" href="#" target="_blank" rel="noopener" class="font-mono text-xs bg-gradient-to-r from-pt to-vi text-white px-6 py-2.5 rounded-lg hover:shadow-[0_0_25px_rgba(230,0,35,.35)] transition-shadow">⤓ DOWNLOAD</a>
+    </div>
   </div>
+</div>
+
+<footer class="border-t border-line bg-panel/60 py-9 px-4 text-center space-y-2.5">
+  <p class="text-sm text-slate-400">Made with <span class="beat text-pk">❤</span> by <span class="tgrad font-display font-bold text-base">JamvanHax0r</span></p>
+  <p class="text-sm text-slate-500">Supported by: <span class="text-cy font-medium">BCCTeam</span> <span class="text-slate-700">—</span> <span class="text-vi font-medium">FLMGroup</span> <span class="text-slate-700">—</span> <span class="text-pk font-medium">Fiony Bot</span></p>
+  <p class="font-mono text-xs text-slate-600">© <span id="yr"></span> — All Rights Reserved</p>
 </footer>
 
 <script>
 document.getElementById('yr').textContent = new Date().getFullYear();
-const io = new IntersectionObserver(es => es.forEach(e => e.isIntersecting && e.target.classList.add('on')), { threshold: .1 });
-document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+const $ = id => document.getElementById(id);
+let lastMedia = [];
 
-const tabs = document.querySelectorAll('.tab-btn');
-const panels = { search: document.getElementById('tab-search'), download: document.getElementById('tab-download') };
-tabs.forEach(t => t.onclick = () => {
-  tabs.forEach(x => x.classList.remove('active'));
+document.querySelectorAll('.tab-btn').forEach(t => t.onclick = () => {
+  document.querySelectorAll('.tab-btn').forEach(x => x.classList.remove('active'));
   t.classList.add('active');
-  Object.keys(panels).forEach(k => panels[k].classList.toggle('hidden', k !== t.dataset.tab));
+  $('panel-search').classList.toggle('hidden', t.dataset.tab !== 'search');
+  $('panel-dl').classList.toggle('hidden', t.dataset.tab !== 'dl');
 });
 
-const BASE = 'https://api.jhx.my.id';
-const showStatus = (msg) => { const s = document.getElementById('status'); s.classList.remove('hidden'); document.getElementById('status-msg').textContent = msg; document.getElementById('result').classList.add('hidden'); document.getElementById('err').classList.add('hidden'); };
-const hideStatus = () => document.getElementById('status').classList.add('hidden');
-const showErr = (msg) => { hideStatus(); const e = document.getElementById('err'); e.classList.remove('hidden'); document.getElementById('err-msg').textContent = typeof msg === 'string' ? msg : JSON.stringify(msg); };
+async function pasteUrl(){ try { $('url').value = await navigator.clipboard.readText(); } catch(e){ $('url').focus(); } }
 
-async function doSearch() {
-  const q = document.getElementById('q').value.trim();
-  const limit = parseInt(document.getElementById('limit').value) || 12;
-  if (!q) return showErr('Query kosong!');
-  showStatus('Mencari "' + q + '" di Pinterest...');
+const steps = ['[1/3] mengambil data…','[2/3] memproses media…','[3/3] menyiapkan unduhan…'];
+function startStatus(){
+  $('err').classList.add('hidden'); $('res-s').classList.add('hidden'); $('res-d').classList.add('hidden');
+  $('btn-s').disabled = true; $('btn-d').disabled = true;
+  $('status').classList.remove('hidden');
+  let s = 0; $('status').textContent = steps[0];
+  return setInterval(() => { s = Math.min(s+1, 2); $('status').textContent = steps[s]; }, 4000);
+}
+function endStatus(){ $('btn-s').disabled = false; $('btn-d').disabled = false; }
+
+async function runSearch(){
+  const q = $('q').value.trim();
+  const limit = parseInt($('limit').value) || 12;
+  if (!q) { showErr('Query kosong.'); return; }
+  const iv = startStatus();
   try {
-    const r = await fetch(BASE + '/pin-search', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ q, limit }) });
+    const r = await fetch('https://api.jhx.my.id/pin-search', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ q, limit }) });
     const j = await r.json();
-    hideStatus();
-    if (!j.Status) return showErr(j.error || 'Zonk wak!');
-    renderSearch(j.data);
-  } catch (e) { showErr(e.message); }
-}
-
-function renderSearch(data) {
-  const r = document.getElementById('result');
-  r.classList.remove('hidden');
-  r.innerHTML = `
-    <div class="flex items-center justify-between mb-4">
-      <div class="font-mono text-[10px] text-slate-500 tracking-[.2em]">${data.total} HASIL · QUERY: <span class="text-pt">${data.query}</span></div>
-    </div>
-    <div class="masonry">
-      ${data.images.map((img, i) => `
-        <div class="card overflow-hidden rounded-xl group relative">
-          <img src="${img.url}" class="pin-img" loading="lazy" alt="Pin ${i+1}">
-          <a href="${img.url}" download="JHPIN_${i+1}.jpg" class="absolute bottom-2 right-2 bg-night/80 backdrop-blur border border-line rounded-lg px-2.5 py-1.5 font-mono text-[10px] text-white hover:text-pt opacity-0 group-hover:opacity-100 transition-opacity">↓ DOWNLOAD</a>
+    clearInterval(iv);
+    if (!j.Status) throw new Error(j.error || 'Zonk wak! Gagal nemu image dari Pinterest.');
+    $('status').textContent = '✓ selesai — ' + j.data.total + ' pin ditemukan';
+    $('sinfo').textContent = 'Query: ' + j.data.query;
+    lastMedia = j.data.images.map(img => ({ type:'image', url: img.url, filename: 'JHPIN_' + ((img.url.match(/resimg\/([A-Za-z0-9]+)/)||[])[1] || 'img') + '.jpg' }));
+    $('sgal').innerHTML = lastMedia.map((m, i) => `
+      <div class="card rounded-xl overflow-hidden group">
+        <div class="relative cursor-pointer" onclick="openPreview(${i})">
+          <img src="${m.url}" loading="lazy" class="w-full block transition-transform duration-500 group-hover:scale-[1.03]" alt="">
+          <span class="absolute inset-0 items-center justify-center hidden group-hover:flex bg-black/40 backdrop-blur-[2px]">
+            <span class="w-11 h-11 rounded-full bg-white/15 border border-white/30 flex items-center justify-center text-white text-sm">🔍</span>
+          </span>
         </div>
-      `).join('')}
-    </div>`;
+        <div class="p-3 flex gap-2">
+          <button onclick="openPreview(${i})" class="flex-1 font-mono text-[10px] bg-white/5 hover:bg-cy/20 border border-cy/40 text-white py-2 rounded-lg transition-all">◉ PREVIEW</button>
+          <a href="${m.url}" target="_blank" rel="noopener" class="flex-1 text-center font-mono text-[10px] bg-white/5 hover:bg-pt/20 border border-pt/40 text-white py-2 rounded-lg transition-all">⤓ SAVE</a>
+        </div>
+      </div>`).join('');
+    $('res-s').classList.remove('hidden');
+  } catch(e){ clearInterval(iv); $('status').classList.add('hidden'); showErr(e.message); }
+  finally { endStatus(); }
 }
 
-async function doDownload() {
-  const url = document.getElementById('url').value.trim();
-  if (!url) return showErr('URL Pinterest kosong!');
-  showStatus('Menganalisis media...');
+async function runDl(){
+  const url = $('url').value.trim();
+  if (!url) { showErr('URL Pinterest kosong.'); return; }
+  if (!/pinterest\.com|pin\.it/i.test(url)) { showErr('URL Pinterest tidak valid.'); return; }
+  const iv = startStatus();
   try {
-    const r = await fetch(BASE + '/pin-download', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ url }) });
+    const r = await fetch('https://api.jhx.my.id/pin-download', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ url }) });
     const j = await r.json();
-    hideStatus();
-    if (!j.Status) return showErr(j.error || 'Zonk wak!');
-    renderDownload(j.data);
-  } catch (e) { showErr(e.message); }
-}
-
-function renderDownload(d) {
-  const r = document.getElementById('result');
-  r.classList.remove('hidden');
-  const isVideo = d.type === 'video';
-  const badge = isVideo
-    ? `<span class="font-mono text-[10px] font-bold text-cy bg-cy/10 border border-cy/25 rounded-full px-2.5 py-1">● VIDEO · ${d.quality || 'auto'}</span>`
-    : `<span class="font-mono text-[10px] font-bold text-pt bg-pt/10 border border-pt/25 rounded-full px-2.5 py-1">● IMAGE</span>`;
-  r.innerHTML = `
-    <div class="card rounded-2xl overflow-hidden">
-      <div class="aspect-video bg-night/50 flex items-center justify-center relative">
-        ${isVideo
-          ? `<video src="${d.url}" controls class="w-full h-full object-contain"></video>`
-          : `<img src="${d.url}" class="w-full h-full object-contain" alt="">`}
-      </div>
-      <div class="p-6">
-        <div class="flex items-center justify-between mb-4 flex-wrap gap-2">
-          ${badge}
-          <span class="font-mono text-[10px] text-slate-500 tracking-wider truncate">${d.source || ''}</span>
+    clearInterval(iv);
+    if (!j.Status) throw new Error(j.error || 'Zonk wak! Gagal nemu media valid.');
+    const d = j.data;
+    $('status').textContent = '✓ selesai — ' + d.type + ' siap diunduh';
+    $('dbadge').innerHTML = d.type === 'video' ? ('● VIDEO · ' + (d.quality || 'auto')) : '● IMAGE';
+    $('dtitle').textContent = d.title || 'Pinterest Media';
+    lastMedia = [{ type: d.type, url: d.url, filename: d.filename, thumb: d.type === 'image' ? d.url : '' }];
+    $('dgrid').innerHTML = `
+      <div class="card rounded-xl overflow-hidden group">
+        <div class="relative h-40 bg-black/60 cursor-pointer" onclick="openPreview(0)">
+          ${d.type === 'image'
+            ? `<img src="${d.url}" class="w-full h-full object-cover opacity-80 group-hover:opacity-100 group-hover:scale-105 transition-all duration-500" alt="">`
+            : `<div class="w-full h-full flex items-center justify-center text-3xl">🎬</div>`}
+          <span class="absolute top-2.5 left-2.5 font-mono text-[10px] uppercase tracking-wider text-white bg-black/70 border border-line rounded px-2 py-1">${d.type}</span>
+          ${d.quality ? `<span class="absolute top-2.5 right-2.5 font-mono text-[10px] text-white bg-black/70 border border-line rounded px-2 py-1">${d.quality}</span>` : ''}
         </div>
-        <h3 class="font-display font-bold text-lg text-white mb-1 line-clamp-2">${d.title || 'Pinterest Media'}</h3>
-        <div class="font-mono text-[10px] text-slate-500 mb-5 break-all">${d.filename || ''}</div>
-        <a href="${d.url}" download="${d.filename || 'JHPIN_download'}" class="block text-center w-full font-mono text-xs tracking-[.25em] font-semibold py-3 rounded-xl bg-gradient-to-r from-pt to-cy text-white hover:opacity-90 transition-opacity">↓ DOWNLOAD ${isVideo ? 'VIDEO' : 'IMAGE'}</a>
-      </div>
-    </div>`;
+        <div class="p-4 space-y-3">
+          <p class="font-mono text-[11px] text-slate-400 truncate">${d.filename}</p>
+          <div class="flex gap-2">
+            <button onclick="openPreview(0)" class="flex-1 font-mono text-xs bg-white/5 hover:bg-cy/20 border border-cy/40 text-white py-2.5 rounded-lg transition-all">◉ PREVIEW</button>
+            <a href="${d.url}" target="_blank" rel="noopener" class="flex-1 text-center font-mono text-xs bg-white/5 hover:bg-pt/20 border border-pt/40 text-white py-2.5 rounded-lg transition-all">⤓ SAVE</a>
+          </div>
+        </div>
+      </div>`;
+    $('res-d').classList.remove('hidden');
+  } catch(e){ clearInterval(iv); $('status').classList.add('hidden'); showErr(e.message); }
+  finally { endStatus(); }
 }
 
-document.getElementById('btn-search').onclick = doSearch;
-document.getElementById('btn-dl').onclick = doDownload;
-document.getElementById('q').addEventListener('keydown', e => { if (e.key === 'Enter') doSearch(); });
-document.getElementById('url').addEventListener('keydown', e => { if (e.key === 'Enter') doDownload(); });
+function openPreview(i){
+  const m = lastMedia[i];
+  if (!m) return;
+  $('pm-type').textContent = m.type;
+  $('pm-name').textContent = m.filename;
+  $('pm-size').textContent = m.sizeHuman ? ('SIZE · ' + m.sizeHuman) : 'SIZE · —';
+  $('pm-dl').href = m.url;
+  const body = $('pm-body');
+  if (m.type === 'video') {
+    body.innerHTML = '<video controls playsinline preload="metadata" class="w-full max-h-[70vh] rounded-lg" src="' + m.url + '"></video>';
+  } else {
+    body.innerHTML = '<img src="' + m.url + '" class="max-w-full max-h-[70vh] rounded-lg" alt="">';
+  }
+  $('pmodal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closePreview(){
+  $('pm-body').innerHTML = '';
+  $('pmodal').classList.remove('open');
+  document.body.style.overflow = '';
+}
+$('pmodal').addEventListener('click', e => { if (e.target.id === 'pmodal') closePreview(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closePreview(); });
+$('q').addEventListener('keydown', e => { if (e.key === 'Enter') runSearch(); });
+$('url').addEventListener('keydown', e => { if (e.key === 'Enter') runDl(); });
+
+function showErr(msg){ if (!msg) { $('err').classList.add('hidden'); return; } $('err').textContent = '✗ ' + msg; $('err').classList.remove('hidden'); }
+
+function cp(id){
+  const el = document.getElementById(id);
+  if (!el) return;
+  navigator.clipboard.writeText(el.textContent).then(() => {
+    const btn = el.parentElement.querySelector('button');
+    const orig = btn.textContent;
+    btn.textContent = 'copied ✓';
+    setTimeout(() => btn.textContent = orig, 1500);
+  });
+}
 </script>
 </body>
 </html>
