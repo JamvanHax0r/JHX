@@ -903,6 +903,132 @@ function jhPrefix(ref) {
   return 'JHIG';
 }
 
+app.post('/pin-search', async (req, res) => {
+  try {
+    const q = (req.body && req.body.q) || '';
+    const limit = Math.min(parseInt(req.body && req.body.limit) || 10, 50);
+    if (!q) return res.status(400).json({ Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: false, error: 'Query kosong!' });
+    const jantung = {
+      'screen-dpr': '4',
+      'x-pinterest-pws-handler': 'www/search/[scope].js',
+      'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
+      'accept-language': 'en-US,en;q=0.9',
+      'referer': 'https://www.pinterest.com/'
+    };
+    const encoded = encodeURIComponent(JSON.stringify({ options: { query: q } }));
+    const r = await axios.head('https://www.pinterest.com/resource/BaseSearchResource/get/?data=' + encoded, { headers: jantung, validateStatus: () => true, timeout: 30000 });
+    const linkHeader = r.headers.link || '';
+    const regex = /<\s*(https:\/\/i\.pinimg\.com\/[^>]+)\s*>\s*;\s*rel=preload;\s*as=image/gi;
+    const matches = [...new Set([...linkHeader.matchAll(regex)].map(v => v[1]))].slice(0, limit);
+    if (!matches.length) return res.json({ Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: false, error: 'Zonk wak! Gak nemu image dari Pinterest.' });
+    const images = matches.map(imgUrl => {
+      const code = makeCode();
+      storeSet('resimg:' + code, { u: imgUrl, k: 'img', p: 'JHPIN', ref: 'https://www.pinterest.com/' }, 3600);
+      return { url: 'https://api.jhx.my.id/resimg/' + code + '.jpg', original: imgUrl };
+    });
+    res.json({ Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: true, type: 'search', data: { query: q, total: images.length, images } });
+  } catch (e) { res.status(500).json({ Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: false, error: e.message }); }
+});
+
+app.post('/pin-download', async (req, res) => {
+  try {
+    const url = (req.body && req.body.url) || '';
+    if (!url || !/(pinterest\.com|pin\.it)/i.test(url)) return res.status(400).json({ Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: false, error: 'URL Pinterest tidak valid!' });
+    const jantung = {
+      'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
+      'accept-language': 'en-US,en;q=0.9',
+      'referer': 'https://www.pinterest.com/'
+    };
+    const r = await axios.get(url, { headers: jantung, maxRedirects: 5, timeout: 30000 });
+    const html = String(r.data);
+    const pageUrl = (r.request && r.request.res && r.request.res.responseUrl) || url;
+    const decodeEscapes = s => String(s).replace(/\\u002F/g, '/').replace(/\\u0026/g, '&').replace(/\\u003D/g, '=').replace(/\\u00253A/g, ':').replace(/\\u00252F/g, '/').replace(/\\\//g, '/').replace(/\\"/g, '"');
+    const decoded = decodeEscapes(html);
+    const extractMeta = (rawHtml, prop) => {
+      const escProp = prop.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      const patterns = [
+        new RegExp('<meta[^>]+property=["\']' + escProp + '["\'][^>]+content=["\']([^"\']+)["\']', 'i'),
+        new RegExp('<meta[^>]+content=["\']([^"\']+)["\'][^>]+property=["\']' + escProp + '["\']', 'i'),
+        new RegExp('<meta[^>]+name=["\']' + escProp + '["\'][^>]+content=["\']([^"\']+)["\']', 'i'),
+        new RegExp('<meta[^>]+content=["\']([^"\']+)["\'][^>]+name=["\']' + escProp + '["\']', 'i')
+      ];
+      for (const re of patterns) { const m = rawHtml.match(re); if (m && m[1]) return m[1]; }
+      const jm = rawHtml.match(new RegExp('"' + escProp + '"\\s*:\\s*"([^"]+)"', 'i'));
+      return (jm && jm[1]) || null;
+    };
+    const cleanText = s => String(s).replace(/\s+/g, ' ').replace(/&quot;/g, '"').replace(/&amp;/g, '&').trim();
+    const title = cleanText(extractMeta(decoded, 'og:title') || extractMeta(decoded, 'twitter:title') || 'Pinterest Media');
+    const safeName = title.replace(/[^\w\s-]/g, '').trim().replace(/\s+/g, '_') || 'JHPIN';
+    const cleanMediaUrl = u => {
+      try {
+        let cl = String(u).trim();
+        const em = cl.match(/^(.+?\.(?:jpg|jpeg|png|webp|mp4|m3u8))/i);
+        if (em) cl = em[1];
+        cl = cl.replace(/\\u002F/g, '/').replace(/\\u0026/g, '&').replace(/\\\//g, '/');
+        const ur = new URL(cl); ur.search = '';
+        return ur.toString();
+      } catch (e) { const em = String(u).match(/https:\/\/(?:i|v\d+)\.pinimg\.com\/.+?\.(?:jpg|jpeg|png|webp|mp4|m3u8)/i); return em ? em[0] : u; }
+    };
+    const extractMatches = (str, regex) => [...str.matchAll(regex)].map(v => cleanMediaUrl(v[0]));
+    const mp4Matches = [...new Set([
+      ...extractMatches(decoded, /https:\/\/v\d+\.pinimg\.com\/videos\/[^"'\\\s<]+\.mp4/gi),
+      ...extractMatches(decoded, /https:\/\/v\d+\.pinimg\.com\/videos\/iht\/[^"'\\\s<]+\.mp4/gi),
+      ...extractMatches(decoded, /https:\/\/v\d+\.pinimg\.com\/videos\/mc\/[^"'\\\s<]+\.mp4/gi)
+    ])];
+    if (mp4Matches.length > 0) {
+      const pickBestMp4 = urls => {
+        for (const p of ['1080', '720', '564', '540', '480']) {
+          const f = urls.find(u => new RegExp('(?:/|_)' + p + '[pP]?\\b').test(u));
+          if (f) return f;
+        }
+        return urls.find(u => /\/720p\//i.test(u)) || urls[0];
+      };
+      const inferQuality = u => {
+        if (/1080/i.test(u)) return '1080p';
+        if (/720/i.test(u)) return '720p';
+        if (/540/i.test(u)) return '540p';
+        if (/480/i.test(u)) return '480p';
+        return 'auto';
+      };
+      const chosen = pickBestMp4(mp4Matches);
+      const code = makeCode();
+      storeSet('resvid:' + code, { u: chosen, k: 'vid', p: 'JHPIN', fn: 'JHPIN_' + safeName, ref: 'https://www.pinterest.com/' }, 3600);
+      return res.json({ Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: true, type: 'download', data: { type: 'video', title, quality: inferQuality(chosen), url: 'https://api.jhx.my.id/resvid/' + code + '.mp4', filename: 'JHPIN_' + safeName + '.mp4', source: pageUrl } });
+    }
+    const primaryImage = cleanMediaUrl(extractMeta(decoded, 'og:image') || extractMeta(decoded, 'twitter:image') || '');
+    let rawImageMatches = [...new Set([
+      ...extractMatches(decoded, /https:\/\/i\.pinimg\.com\/originals\/[^"'\\\s<>()]+?\.(?:jpg|jpeg|png|webp)/gi),
+      ...extractMatches(decoded, /https:\/\/i\.pinimg\.com\/736x\/[^"'\\\s<>()]+?\.(?:jpg|jpeg|png|webp)/gi),
+      ...extractMatches(decoded, /https:\/\/i\.pinimg\.com\/564x\/[^"'\\\s<>()]+?\.(?:jpg|jpeg|png|webp)/gi),
+      ...extractMatches(decoded, /https:\/\/i\.pinimg\.com\/474x\/[^"'\\\s<>()]+?\.(?:jpg|jpeg|png|webp)/gi)
+    ])].filter(u => /^https:\/\/i\.pinimg\.com\//i.test(u) && !/logo|favicon|default|75x75|60x60|30x30/i.test(u));
+    const getImageKey = u => { const m = String(u).match(/\/([a-f0-9]{24,64})\.(?:jpg|jpeg|png|webp)$/i); return (m && m[1]) || String(u); };
+    const prioritizeImages = urls => {
+      const uniq = [...new Set(urls)];
+      return [].concat(
+        uniq.filter(u => /\/originals\//i.test(u)),
+        uniq.filter(u => /\/736x\//i.test(u)),
+        uniq.filter(u => /\/564x\//i.test(u)),
+        uniq.filter(u => /\/474x\//i.test(u))
+      );
+    };
+    let images = primaryImage ? [primaryImage].concat(rawImageMatches.filter(u => getImageKey(u) === getImageKey(primaryImage))) : rawImageMatches;
+    images = prioritizeImages(images);
+    if (images.length > 1) {
+      const grouped = {};
+      for (const u of images) { const k = getImageKey(u); if (!grouped[k]) grouped[k] = []; grouped[k].push(u); }
+      const bestGroup = Object.values(grouped).sort((a, b) => b.length - a.length)[0] || [];
+      images = prioritizeImages(bestGroup);
+    }
+    const finalImage = images[0];
+    if (!finalImage) return res.json({ Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: false, error: 'Zonk wak! Gak nemu media valid.' });
+    const code = makeCode();
+    storeSet('resimg:' + code, { u: finalImage, k: 'img', p: 'JHPIN', fn: 'JHPIN_' + safeName, ref: 'https://www.pinterest.com/' }, 3600);
+    res.json({ Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: true, type: 'download', data: { type: 'image', title, url: 'https://api.jhx.my.id/resimg/' + code + '.jpg', filename: 'JHPIN_' + safeName + '.jpg', source: pageUrl } });
+  } catch (e) { res.status(500).json({ Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: false, error: e.message }); }
+});
+
+
 async function serveProxy(req, res) {
   const route = req.path.startsWith('/resvid') ? 'resvid' : req.path.startsWith('/resaud') ? 'resaud' : 'resimg';
   const code = String(req.params.code).split('.')[0];

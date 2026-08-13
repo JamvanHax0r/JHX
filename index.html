@@ -21,7 +21,7 @@
 tailwind.config = {
   theme: { extend: {
     fontFamily: { sans:['Inter','sans-serif'], display:['Space Grotesk','sans-serif'], mono:['JetBrains Mono','monospace'] },
-    colors: { night:'#05060a', panel:'#0b0e14', line:'rgba(255,255,255,0.07)', cy:'#22d3ee', vi:'#8b5cf6', pk:'#ec4899', lm:'#a3e635', yt:'#FF0000', tk:'#FE2C55', tkc:'#25F4EE', hd:'#F59E0B', ly:'#C084FC', th:'#F1F5F9' }
+    colors: { night:'#05060a', panel:'#0b0e14', line:'rgba(255,255,255,0.07)', cy:'#22d3ee', vi:'#8b5cf6', pk:'#ec4899', lm:'#a3e635', yt:'#FF0000', tk:'#FE2C55', tkc:'#25F4EE', hd:'#F59E0B', ly:'#C084FC', th:'#F1F5F9', pt:'#E60023' }
   }}
 }
 </script>
@@ -231,6 +231,18 @@ tailwind.config = {
       <div class="flex items-center justify-between font-mono text-xs">
         <span class="text-slate-500">POST /api/th-downloader</span>
         <span class="text-cy group-hover:translate-x-1 transition-transform">/thdl/ →</span>
+      </div>
+    </a>
+    <a href="/pindl/" class="reveal card rounded-xl p-7 group block order-10">
+      <div class="flex items-center justify-between mb-5">
+        <span class="w-11 h-11 rounded-lg bg-pt/10 border border-pt/25 flex items-center justify-center"><svg class="w-5 h-5 text-pt" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0a12 12 0 0 0-4.37 23.17c-.1-.94-.2-2.4.04-3.44l1.4-5.96s-.36-.72-.36-1.78c0-1.66.96-2.9 2.16-2.9 1.02 0 1.52.76 1.52 1.68 0 1.02-.66 2.56-.98 3.98-.28 1.2.6 2.16 1.76 2.16 2.12 0 3.74-2.24 3.74-5.46 0-2.84-2.04-4.84-4.96-4.84-3.38 0-5.36 2.52-5.36 5.14 0 1.02.4 2.1.88 2.7.1.12.1.22.08.34l-.34 1.36c-.06.22-.18.26-.4.16-1.5-.7-2.44-2.9-2.44-4.66 0-3.8 2.76-7.28 7.96-7.28 4.18 0 7.42 2.98 7.42 6.96 0 4.16-2.62 7.5-6.26 7.5-1.22 0-2.36-.64-2.76-1.38l-.74 2.86c-.28 1.06-1.02 2.4-1.52 3.22A12 12 0 1 0 12 0Z"/></svg></span>
+        <span class="font-mono text-[10px] text-lm border border-lm/25 bg-lm/5 rounded-full px-2.5 py-1">● STABLE</span>
+      </div>
+      <h3 class="font-display font-bold text-xl text-white mb-2 group-hover:text-pt transition-colors">Pinterest Downloader</h3>
+      <p class="text-sm text-slate-400 leading-relaxed mb-6">Search pin dari keyword & download image/video Pinterest — kualitas asli, filename rapi, tanpa watermark.</p>
+      <div class="flex items-center justify-between font-mono text-xs">
+        <span class="text-slate-500">POST /api/pin-search · pin-download</span>
+        <span class="text-cy group-hover:translate-x-1 transition-transform">/pindl/ →</span>
       </div>
     </a>
     <a href="/tkdl/" class="reveal card rounded-xl p-7 group block order-7">
@@ -601,7 +613,21 @@ const ENDPOINTS = [
     body: { q: 'Rick Astley Never Gonna Give You Up' },
     ok: { Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: true, type: 'search', data: [ { id: 'dQw4w9WgXcQ', title: 'Never Gonna Give You Up', artist: 'Rick Astley', duration: '3:33', url: 'https://youtube.com/watch?v=dQw4w9WgXcQ', thumbnail: 'https://api.jhx.my.id/resimg/YT01.jpg' } ] },
     err: { Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: false, error: 'Kata kunci pencarian kosong!' }
-  }
+  },
+  {
+    id: 'pin', method: 'POST', path: '/pin-search', title: 'Pinterest Search', color: 'pt',
+    desc: 'Cari pin dari keyword — return grid image proxied via JH server. Limit hingga 50 hasil.',
+    body: { q: 'Fiony JKT48', limit: 5 },
+    ok: { Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: true, type: 'search', data: { query: 'Fiony JKT48', total: 5, images: [ { url: 'https://api.jhx.my.id/resimg/PIN01.jpg', original: 'https://i.pinimg.com/originals/5b/de/3f/5bde3f.png' } ] } },
+    err: { Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: false, error: 'Query kosong!' }
+  },
+  {
+    id: 'pin-dl', method: 'POST', path: '/pin-download', title: 'Pinterest Downloader', color: 'pt',
+    desc: 'Download image atau video dari URL Pinterest. Auto detect type + quality video (1080p → 480p).',
+    body: { url: 'https://pin.it/5xBzbdKFA' },
+    ok: { Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: true, type: 'download', data: { type: 'video', title: 'Fiony JKT48', quality: '720p', url: 'https://api.jhx.my.id/resvid/PIN01.mp4', filename: 'JHPIN_Fiony_JKT48.mp4', source: 'https://www.pinterest.com/pin/...' } },
+    err: { Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: false, error: 'URL Pinterest tidak valid!' }
+  },
 ];
 
 function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
