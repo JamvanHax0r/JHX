@@ -1042,6 +1042,37 @@ app.post('/pin-download', async (req, res) => {
 });
 
 
+app.post('/fb-downloader', async (req, res) => {
+  try {
+    const url = (req.body && req.body.url) || '';
+    if (!url || !/(facebook\.com|fb\.watch|fb\.com)/i.test(url)) return res.status(400).json({ Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: false, error: 'URL Facebook tidak valid!' });
+    const jantung = {
+      'Accept': 'application/json',
+      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+    };
+    const apiUrl = 'https://serverless-tooly-gateway-6n4h522y.ue.gateway.dev/facebook/video?url=' + encodeURIComponent(url);
+    const { data } = await axios.get(apiUrl, { headers: jantung, timeout: 30000 });
+    if (!data || !data.success) return res.json({ Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: false, error: 'Gagal nyedot data dari API Facebook.' });
+    let rawTitle = data.title || 'Unknown';
+    let caption = rawTitle, author = 'Unknown';
+    if (rawTitle.includes('|')) { const parts = rawTitle.split('|'); author = parts.pop().trim(); caption = parts.join('|').trim(); }
+    const safeName = String(caption).replace(/[^\w\s-]/g, '').trim().replace(/\s+/g, '_').slice(0, 60) || 'JHFB';
+    const media = [];
+    const pushVid = (q, v) => {
+      if (!v || !v.url) return;
+      const code = makeCode();
+      storeSet('resvid:' + code, { u: v.url, k: 'vid', p: 'JHFB', fn: 'JHFB_' + safeName + '_' + q, ref: 'https://www.facebook.com/' }, 3600);
+      media.push({ quality: q, size: v.size || null, url: 'https://api.jhx.my.id/resvid/' + code + '.mp4', filename: 'JHFB_' + safeName + '_' + q + '.mp4' });
+    };
+    if (data.videos) { pushVid('HD', data.videos.hd); pushVid('SD', data.videos.sd); }
+    if (!media.length) return res.json({ Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: false, error: 'Media kosong dari API!' });
+    res.json({ Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: true, type: 'download', data: { caption, author, media } });
+  } catch (e) {
+    res.status(500).json({ Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: false, error: e.message });
+  }
+});
+
+
 async function serveProxy(req, res) {
   const route = req.path.startsWith('/resvid') ? 'resvid' : req.path.startsWith('/resaud') ? 'resaud' : 'resimg';
   const code = String(req.params.code).split('.')[0];
