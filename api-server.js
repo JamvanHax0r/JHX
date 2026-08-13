@@ -903,6 +903,15 @@ function jhPrefix(ref) {
   return 'JHIG';
 }
 
+async function pinProbe(u, hdrs) {
+  try {
+    const h = await axios.head(u, { headers: hdrs, timeout: 8000, maxRedirects: 3 });
+    const l = parseInt(h.headers['content-length'] || '0', 10);
+    if (!l) return null;
+    return { size: l, sizeHuman: l >= 1048576 ? (l / 1048576).toFixed(2) + ' MB' : Math.max(1, Math.round(l / 1024)) + ' KB' };
+  } catch (e) { return null; }
+}
+
 app.post('/pin-search', async (req, res) => {
   try {
     const q = (req.body && req.body.q) || '';
@@ -921,10 +930,12 @@ app.post('/pin-search', async (req, res) => {
     const regex = /<\s*(https:\/\/i\.pinimg\.com\/[^>]+)\s*>\s*;\s*rel=preload;\s*as=image/gi;
     const matches = [...new Set([...linkHeader.matchAll(regex)].map(v => v[1]))].slice(0, limit);
     if (!matches.length) return res.json({ Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: false, error: 'Zonk wak! Gak nemu image dari Pinterest.' });
-    const images = matches.map(imgUrl => {
+    const probes = await Promise.all(matches.map(u => pinProbe(u, jantung)));
+    const images = matches.map((imgUrl, idx) => {
       const code = makeCode();
+      const pr = probes[idx] || null;
       storeSet('resimg:' + code, { u: imgUrl, k: 'img', p: 'JHPIN', ref: 'https://www.pinterest.com/' }, 3600);
-      return { url: 'https://api.jhx.my.id/resimg/' + code + '.jpg', original: imgUrl };
+      return { url: 'https://api.jhx.my.id/resimg/' + code + '.jpg', original: imgUrl, size: pr ? pr.size : null, sizeHuman: pr ? pr.sizeHuman : null };
     });
     res.json({ Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: true, type: 'search', data: { query: q, total: images.length, images } });
   } catch (e) { res.status(500).json({ Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: false, error: e.message }); }
@@ -992,8 +1003,9 @@ app.post('/pin-download', async (req, res) => {
       };
       const chosen = pickBestMp4(mp4Matches);
       const code = makeCode();
+      const probeVid = await pinProbe(chosen, jantung);
       storeSet('resvid:' + code, { u: chosen, k: 'vid', p: 'JHPIN', fn: 'JHPIN_' + safeName, ref: 'https://www.pinterest.com/' }, 3600);
-      return res.json({ Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: true, type: 'download', data: { type: 'video', title, quality: inferQuality(chosen), url: 'https://api.jhx.my.id/resvid/' + code + '.mp4', filename: 'JHPIN_' + safeName + '.mp4', source: pageUrl } });
+      return res.json({ Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: true, type: 'download', data: { type: 'video', title, quality: inferQuality(chosen), url: 'https://api.jhx.my.id/resvid/' + code + '.mp4', filename: 'JHPIN_' + safeName + '.mp4', source: pageUrl, size: probeVid ? probeVid.size : null, sizeHuman: probeVid ? probeVid.sizeHuman : null } });
     }
     const primaryImage = cleanMediaUrl(extractMeta(decoded, 'og:image') || extractMeta(decoded, 'twitter:image') || '');
     let rawImageMatches = [...new Set([
@@ -1022,9 +1034,10 @@ app.post('/pin-download', async (req, res) => {
     }
     const finalImage = images[0];
     if (!finalImage) return res.json({ Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: false, error: 'Zonk wak! Gak nemu media valid.' });
+    const probeImg = await pinProbe(finalImage, jantung);
     const code = makeCode();
     storeSet('resimg:' + code, { u: finalImage, k: 'img', p: 'JHPIN', fn: 'JHPIN_' + safeName, ref: 'https://www.pinterest.com/' }, 3600);
-    res.json({ Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: true, type: 'download', data: { type: 'image', title, url: 'https://api.jhx.my.id/resimg/' + code + '.jpg', filename: 'JHPIN_' + safeName + '.jpg', source: pageUrl } });
+    res.json({ Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: true, type: 'download', data: { type: 'image', title, url: 'https://api.jhx.my.id/resimg/' + code + '.jpg', filename: 'JHPIN_' + safeName + '.jpg', source: pageUrl, size: probeImg ? probeImg.size : null, sizeHuman: probeImg ? probeImg.sizeHuman : null } });
   } catch (e) { res.status(500).json({ Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: false, error: e.message }); }
 });
 
