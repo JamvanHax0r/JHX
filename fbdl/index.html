@@ -239,7 +239,7 @@ function openPreview(i){
   $('pm-name').textContent = m.filename;
   $('pm-size').textContent = m.size ? ('SIZE · ' + m.size) : 'SIZE · —';
   $('pm-dl').href = m.url;
-  $('pm-body').innerHTML = '<video controls playsinline preload="auto" class="w-full max-h-[70vh] rounded-lg bg-black" src="' + m.url + '"></video>';
+  $('pm-body').innerHTML = '<video controls playsinline preload="auto" class="w-full max-h-[70vh] rounded-lg bg-black" src="' + m.url + '#t=0.7" onloadedmetadata="this.currentTime=0.7"></video>';
   $('pmodal').classList.add('open');
   document.body.style.overflow = 'hidden';
 }
