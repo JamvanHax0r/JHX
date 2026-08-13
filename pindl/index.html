@@ -285,11 +285,12 @@ async function runSearch(){
     if (!j.Status) throw new Error(j.error || 'Zonk wak! Gagal nemu image dari Pinterest.');
     $('status').textContent = '✓ selesai — ' + j.data.total + ' pin ditemukan';
     $('sinfo').textContent = 'Query: ' + j.data.query;
-    lastMedia = j.data.images.map(img => ({ type:'image', url: img.url, filename: 'JHPIN_' + ((img.url.match(/resimg\/([A-Za-z0-9]+)/)||[])[1] || 'img') + '.jpg' }));
+    lastMedia = j.data.images.map(img => ({ type:'image', url: img.url, filename: 'JHPIN_' + ((img.url.match(/resimg\/([A-Za-z0-9]+)/)||[])[1] || 'img') + '.jpg', sizeHuman: img.sizeHuman || null }));
     $('sgal').innerHTML = lastMedia.map((m, i) => `
       <div class="card rounded-xl overflow-hidden group">
         <div class="relative cursor-pointer" onclick="openPreview(${i})">
           <img src="${m.url}" loading="lazy" class="w-full block transition-transform duration-500 group-hover:scale-[1.03]" alt="">
+          ${m.sizeHuman ? `<span class="absolute top-2.5 right-2.5 font-mono text-[10px] text-white bg-black/70 border border-line rounded px-2 py-1">${m.sizeHuman}</span>` : '' }
           <span class="absolute inset-0 items-center justify-center hidden group-hover:flex bg-black/40 backdrop-blur-[2px]">
             <span class="w-11 h-11 rounded-full bg-white/15 border border-white/30 flex items-center justify-center text-white text-sm">🔍</span>
           </span>
@@ -318,7 +319,7 @@ async function runDl(){
     $('status').textContent = '✓ selesai — ' + d.type + ' siap diunduh';
     $('dbadge').innerHTML = d.type === 'video' ? ('● VIDEO · ' + (d.quality || 'auto')) : '● IMAGE';
     $('dtitle').textContent = d.title || 'Pinterest Media';
-    lastMedia = [{ type: d.type, url: d.url, filename: d.filename, thumb: d.type === 'image' ? d.url : '' }];
+    lastMedia = [{ type: d.type, url: d.url, filename: d.filename, thumb: d.type === 'image' ? d.url : '', sizeHuman: d.sizeHuman || null }];
     $('dgrid').innerHTML = `
       <div class="card rounded-xl overflow-hidden group">
         <div class="relative h-40 bg-black/60 cursor-pointer" onclick="openPreview(0)">
@@ -327,6 +328,7 @@ async function runDl(){
             : `<div class="w-full h-full flex items-center justify-center text-3xl">🎬</div>`}
           <span class="absolute top-2.5 left-2.5 font-mono text-[10px] uppercase tracking-wider text-white bg-black/70 border border-line rounded px-2 py-1">${d.type}</span>
           ${d.quality ? `<span class="absolute top-2.5 right-2.5 font-mono text-[10px] text-white bg-black/70 border border-line rounded px-2 py-1">${d.quality}</span>` : ''}
+          ${d.sizeHuman ? `<span class="absolute bottom-2.5 right-2.5 font-mono text-[10px] text-white bg-black/70 border border-line rounded px-2 py-1">${d.sizeHuman}</span>` : ''}
         </div>
         <div class="p-4 space-y-3">
           <p class="font-mono text-[11px] text-slate-400 truncate">${d.filename}</p>
