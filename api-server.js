@@ -1073,6 +1073,59 @@ app.post('/fb-downloader', async (req, res) => {
 });
 
 
+app.post('/ads-skipper', async (req, res) => {
+  try {
+    const url = (req.body && req.body.url) || '';
+    if (!url || !/^https?:\/\//i.test(url)) return res.status(400).json({ Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: false, error: 'URL tidak valid!' });
+    const izenUrl = 'https://izen.lol';
+    const siteKey = '0x4AAAAAADNEi_2N24gpQqY0';
+    const sleep = ms => new Promise(r => setTimeout(r, ms));
+    const capHeaders = { 'Content-Type': 'application/json' };
+    let capInit;
+    try {
+      capInit = await axios.post('https://cap.jhx.my.id/api/createTask', { url: izenUrl, type: 'turnstile-min', sitekey: siteKey }, { headers: capHeaders, timeout: 30000 });
+    } catch (e) {
+      return res.status(502).json({ Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: false, error: 'Solver captcha tidak reachable: ' + e.message });
+    }
+    const jobId = capInit.data && capInit.data.jobId;
+    if (!jobId) return res.status(502).json({ Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: false, error: 'Solver gagal buat task (jobId kosong).' });
+    let cfToken = null, ua = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36';
+    for (let i = 0; i < 40; i++) {
+      await sleep(3000);
+      let poll;
+      try { poll = await axios.post('https://cap.jhx.my.id/api/getResult', { jobId }, { headers: capHeaders, timeout: 15000 }); } catch (e) { continue; }
+      const d = poll.data;
+      if (d && d.status === 'ready' && d.solution && d.solution.token) {
+        cfToken = d.solution.token;
+        if (d.solution.userAgent) ua = d.solution.userAgent;
+        break;
+      }
+    }
+    if (!cfToken) return res.status(504).json({ Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: false, error: 'Captcha solver timeout (>2 menit). Coba lagi.' });
+    const jantung = {
+      'Accept': 'application/json',
+      'Content-Type': 'application/json',
+      'Origin': izenUrl,
+      'Referer': izenUrl + '/',
+      'User-Agent': ua
+    };
+    let bypassRes;
+    try {
+      const br = await axios.post(izenUrl + '/api/bypass', { url, captchaToken: cfToken }, { headers: jantung, timeout: 60000 });
+      bypassRes = br.data;
+    } catch (e) {
+      return res.status(502).json({ Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: false, error: 'Izen bypass request gagal: ' + e.message });
+    }
+    if (!bypassRes || bypassRes.status !== 'success' || !bypassRes.result) {
+      return res.json({ Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: false, error: 'Bypass gagal: ' + JSON.stringify(bypassRes) });
+    }
+    res.json({ Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: true, type: 'bypass', data: { target_url: url, bypassed_url: bypassRes.result, time_taken: bypassRes.time || 0, is_cached: !!bypassRes.cached } });
+  } catch (e) {
+    res.status(500).json({ Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: false, error: e.message });
+  }
+});
+
+
 async function serveProxy(req, res) {
   const route = req.path.startsWith('/resvid') ? 'resvid' : req.path.startsWith('/resaud') ? 'resaud' : 'resimg';
   const code = String(req.params.code).split('.')[0];

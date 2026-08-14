@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Link Ads Skipper — JH-Tools</title>
+<meta name="description" content="Bypass link ads (work.ink, work.ing, safelink) otomatis. Cepat, privat, gratis.">
+<meta property="og:title" content="Link Ads Skipper — JH-Tools">
+<meta property="og:description" content="Skip link ads otomatis dengan captcha solver neural. Dapatkan URL asli dalam hitungan detik.">
+<meta property="og:image" content="https://jhax0r.my.id/logo.jpeg">
+<meta name="theme-color" content="#05060a">
+<link rel="icon" href="https://jhax0r.my.id/logo.jpeg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+tailwind.config = { theme: { extend: {
+  fontFamily: { sans:['Inter','sans-serif'], display:['Space Grotesk','sans-serif'], mono:['JetBrains Mono','monospace'] },
+  colors: { night:'#05060a', panel:'#0b0e14', line:'rgba(255,255,255,0.07)', cy:'#22d3ee', vi:'#8b5cf6', pk:'#ec4899', lm:'#a3e635', em:'#10B981' }
+}}}
+</script>
+<style>
+  body{background:#05060a;color:#e6e8ee;overflow-x:hidden}
+  .grid-bg{position:fixed;inset:0;z-index:-2;background-image:linear-gradient(rgba(255,255,255,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.035) 1px,transparent 1px);background-size:56px 56px;mask-image:radial-gradient(ellipse 80% 60% at 50% 0%,black 40%,transparent 100%)}
+  .orb{position:fixed;border-radius:9999px;filter:blur(110px);z-index:-1}
+  .orb-1{width:420px;height:420px;background:#10B981;top:-140px;right:-120px;opacity:.18}
+  .orb-2{width:380px;height:380px;background:#0e7490;bottom:-120px;left:-120px;opacity:.15}
+  .tgrad{background:linear-gradient(90deg,#10B981,#22d3ee,#8b5cf6,#10B981);background-size:300% 100%;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;animation:flow 7s linear infinite}
+  @keyframes flow{0%{background-position:0% 50%}100%{background-position:300% 50%}}
+  .card{background:rgba(11,14,20,.7);border:1px solid rgba(255,255,255,.07);backdrop-filter:blur(14px)}
+  .beat{display:inline-block;animation:beat 1.3s ease-in-out infinite}
+  @keyframes beat{0%,100%{transform:scale(1)}12%{transform:scale(1.25)}24%{transform:scale(1)}36%{transform:scale(1.2)}48%{transform:scale(1)}}
+  ::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:#05060a}::-webkit-scrollbar-thumb{background:#334155;border-radius:3px}
+  ::selection{background:#10B981;color:#05060a}
+  .pulse-ring{position:relative;display:inline-block}
+  .pulse-ring::before{content:'';position:absolute;inset:-4px;border-radius:9999px;border:2px solid #10B981;animation:pulse-ring 1.5s ease-out infinite;opacity:0}
+  @keyframes pulse-ring{0%{transform:scale(.8);opacity:.8}100%{transform:scale(1.4);opacity:0}}
+  .progress-bar{height:2px;background:rgba(16,185,129,.2);border-radius:1px;overflow:hidden;position:relative}
+  .progress-fill{height:100%;background:linear-gradient(90deg,#10B981,#22d3ee);animation:progress-anim 2s ease-in-out infinite;width:30%}
+  @keyframes progress-anim{0%{transform:translateX(-100%)}100%{transform:translateX(400%)}}
+</style>
+</head>
+<body class="font-sans antialiased">
+<div class="grid-bg"></div><div class="orb orb-1"></div><div class="orb orb-2"></div>
+
+<nav class="fixed w-full top-0 z-50 bg-night/75 backdrop-blur-xl border-b border-line">
+  <div class="max-w-5xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+    <div class="flex items-center gap-4">
+      <a href="/" class="font-mono text-xs text-slate-400 hover:text-cy transition-colors">← /</a>
+      <span class="w-px h-4 bg-line"></span>
+      <a href="/" class="flex items-center gap-2.5">
+        <img src="https://jhax0r.my.id/logo.jpeg" class="h-8 w-8 rounded-lg border border-line" alt="JH-Tools">
+        <span class="font-display font-bold text-white">JH-<span class="tgrad">TOOLS</span></span>
+      </a>
+    </div>
+    <span class="flex items-center gap-2 font-mono text-[10px] text-lm border border-lm/25 bg-lm/5 rounded-full px-3 py-1">
+      <span class="w-1.5 h-1.5 rounded-full bg-lm animate-pulse"></span>STABLE · v2.4
+    </span>
+  </div>
+</nav>
+
+<main class="max-w-5xl mx-auto px-4 sm:px-6 pt-28 pb-20">
+  <p class="font-mono text-xs text-slate-600 mb-4">~/modules/<span class="text-em">ads-skipper</span></p>
+  <h1 class="font-display font-bold text-4xl sm:text-5xl text-white mb-4">Link Ads <span class="tgrad">Skipper</span></h1>
+  <p class="text-slate-400 max-w-2xl leading-relaxed mb-10">Bypass link ads otomatis (work.ink, work.ing, safelink, dll). Sistem mengekstrak URL asli dengan captcha solver neural, tanpa perlu klik manual. Hasil instan, tanpa watermark.</p>
+
+  <div class="card rounded-2xl p-6 sm:p-8 border-t-2 border-t-em/60">
+    <label class="font-mono text-[11px] text-slate-500 tracking-widest block mb-3">ADS LINK URL</label>
+    <div class="flex flex-col sm:flex-row gap-3">
+      <input id="url" type="text" placeholder="https://work.ink/…" class="flex-1 bg-black/50 border border-line rounded-lg px-5 py-4 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-em/60 focus:ring-1 focus:ring-em/40 transition-all font-mono">
+      <div class="flex gap-3">
+        <button onclick="pasteUrl()" class="px-5 py-4 rounded-lg border border-line font-mono text-xs text-slate-300 hover:border-cy/50 hover:text-cy transition-colors">PASTE</button>
+        <button id="btn" onclick="run()" class="px-8 py-4 rounded-lg bg-gradient-to-r from-em to-cy text-white font-semibold text-sm hover:shadow-[0_0_30px_rgba(16,185,129,.35)] transition-shadow disabled:opacity-40 disabled:cursor-not-allowed whitespace-nowrap">BYPASS ⏎</button>
+      </div>
+    </div>
+    <div id="status" class="hidden mt-5">
+      <div class="flex items-center gap-3 mb-2">
+        <span class="pulse-ring"><span class="w-2 h-2 rounded-full bg-em"></span></span>
+        <p id="status-msg" class="font-mono text-[11px] text-em tracking-wider">MEMPROSES CAPTCHA…</p>
+      </div>
+      <div class="progress-bar"><div class="progress-fill"></div></div>
+    </div>
+    <div id="err" class="hidden mt-5 p-4 rounded-lg bg-red-500/10 border border-red-500/30 text-red-400 text-sm"></div>
+
+    <div id="res" class="hidden mt-8 border-t border-line pt-7">
+      <div class="flex items-start gap-4 mb-6">
+        <span class="w-12 h-12 shrink-0 rounded-xl bg-em/10 border border-em/25 flex items-center justify-center shadow-[0_0_18px_rgba(16,185,129,.25)]"><svg class="w-5 h-5 text-em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg></span>
+        <div class="min-w-0 flex-1">
+          <p class="font-display font-bold text-lg text-white mb-1">Bypass Berhasil!</p>
+          <div id="rmeta" class="flex items-center gap-2 flex-wrap font-mono text-[10px]"></div>
+        </div>
+      </div>
+      <div class="space-y-4">
+        <div>
+          <label class="font-mono text-[10px] text-slate-500 tracking-wider block mb-1.5">TARGET URL (ADS)</label>
+          <div class="flex gap-2">
+            <input id="target-url" type="text" readonly class="flex-1 bg-black/50 border border-line rounded-lg px-4 py-2.5 text-xs text-slate-400 font-mono">
+            <button onclick="cp('target-url')" class="px-4 py-2.5 rounded-lg border border-line font-mono text-[10px] text-slate-300 hover:border-em/50 hover:text-em transition-colors">COPY</button>
+          </div>
+        </div>
+        <div>
+          <label class="font-mono text-[10px] text-em tracking-wider block mb-1.5">BYPASSED URL (ASLI)</label>
+          <div class="flex gap-2">
+            <input id="bypassed-url" type="text" readonly class="flex-1 bg-black/50 border border-em/30 rounded-lg px-4 py-2.5 text-xs text-em font-mono">
+            <button onclick="cp('bypassed-url')" class="px-4 py-2.5 rounded-lg bg-gradient-to-r from-em to-cy font-mono text-[10px] text-white hover:shadow-[0_0_20px_rgba(16,185,129,.35)] transition-shadow">COPY</button>
+          </div>
+        </div>
+        <a id="open-link" href="#" target="_blank" rel="noopener" class="block text-center w-full font-mono text-xs tracking-[.25em] font-semibold py-3 rounded-xl bg-gradient-to-r from-em to-cy text-white hover:opacity-90 transition-opacity mt-2">⤓ BUKA LINK ASLI</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="mt-12">
+    <p class="font-mono text-xs text-em mb-3">DEVELOPER REFERENCE</p>
+    <h2 class="font-display font-bold text-2xl text-white mb-6">Pakai Lewat Kode.</h2>
+    <div class="grid lg:grid-cols-2 gap-5">
+      <div class="card rounded-xl overflow-hidden">
+        <div class="px-5 py-3 border-b border-line flex items-center justify-between">
+          <div class="flex items-center gap-2"><span class="font-mono text-[10px] font-bold text-lm bg-lm/10 border border-lm/25 rounded px-2 py-0.5">POST</span><span class="font-mono text-xs text-white">/ads-skipper</span></div>
+          <button class="font-mono text-[10px] text-cy hover:text-white" onclick="cp('ads-req')">copy</button>
+        </div>
+        <pre id="ads-req" class="p-4 font-mono text-[11.5px] leading-relaxed text-slate-300 overflow-x-auto">curl -X POST https://api.jhx.my.id/ads-skipper \
+  -H "Content-Type: application/json" \
+  -d '{"url":"https://work.ink/..."}'</pre>
+      </div>
+      <div class="card rounded-xl overflow-hidden">
+        <div class="px-5 py-3 border-b border-line flex items-center justify-between">
+          <span class="font-mono text-[10px] text-slate-500">RESPONSE · 200 OK</span>
+          <button class="font-mono text-[10px] text-cy hover:text-white" onclick="cp('ads-res')">copy</button>
+        </div>
+        <pre id="ads-res" class="p-4 font-mono text-[11.5px] leading-relaxed text-slate-300 overflow-x-auto">{
+  "Developer": "JH a.k.a Dhika",
+  "Kesayangan": "Fiony Alveria♡",
+  "Status": true,
+  "type": "bypass",
+  "data": {
+    "target_url": "https://work.ink/...",
+    "bypassed_url": "https://getvelocity.llc/...",
+    "time_taken": 0,
+    "is_cached": true
+  }
+}</pre>
+      </div>
+    </div>
+    <div class="mt-4 card rounded-xl overflow-hidden">
+      <div class="px-5 py-3 border-b border-line flex items-center justify-between">
+        <span class="font-mono text-[10px] text-slate-500">NODE.JS EXAMPLE</span>
+        <button class="font-mono text-[10px] text-cy hover:text-white" onclick="cp('ads-node')">copy</button>
+      </div>
+      <pre id="ads-node" class="p-4 font-mono text-[11.5px] leading-relaxed text-slate-300 overflow-x-auto">const res = await fetch('https://api.jhx.my.id/ads-skipper', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({ url: 'https://work.ink/...' })
+});
+const json = await res.json();
+if (json.Status) {
+  console.log('Bypassed:', json.data.bypassed_url);
+}</pre>
+    </div>
+  </div>
+
+  <div class="grid lg:grid-cols-2 gap-5 mt-10">
+    <div class="card rounded-xl overflow-hidden">
+      <div class="px-5 py-3 border-b border-line font-mono text-xs text-slate-500">endpoints</div>
+      <div class="p-5 font-mono text-sm space-y-2.5">
+        <p><span class="text-lm bg-lm/10 border border-lm/25 rounded px-2 py-0.5 text-[10px] font-semibold">POST</span> <span class="text-white">/ads-skipper</span> <span class="text-slate-600 text-xs">— { url }</span></p>
+      </div>
+    </div>
+    <div class="card rounded-xl overflow-hidden">
+      <div class="px-5 py-3 border-b border-line font-mono text-xs text-slate-500">catatan</div>
+      <ul class="p-5 text-sm text-slate-400 space-y-2.5">
+        <li><span class="text-em">→</span> Support work.ink, work.ing, safelink, dan sejenisnya.</li>
+        <li><span class="text-em">→</span> Proses bypass memakan waktu 5-60 detik (captcha solver).</li>
+        <li><span class="text-em">→</span> Hasil bypass bisa di-copy atau dibuka langsung.</li>
+        <li><span class="text-em">→</span> Powered by <span class="text-cy">cap.jhx.my.id</span> neural solver.</li>
+      </ul>
+    </div>
+  </div>
+</main>
+
+<footer class="border-t border-line bg-panel/60 py-9 px-4 text-center space-y-2.5">
+  <p class="text-sm text-slate-400">Made with <span class="beat text-pk">❤</span> by <span class="tgrad font-display font-bold text-base">JamvanHax0r</span></p>
+  <p class="text-sm text-slate-500">Supported by: <span class="text-cy font-medium">BCCTeam</span> <span class="text-slate-700">—</span> <span class="text-vi font-medium">FLMGroup</span> <span class="text-slate-700">—</span> <span class="text-pk font-medium">Fiony Bot</span></p>
+  <p class="font-mono text-xs text-slate-600">© <span id="yr"></span> — All Rights Reserved</p>
+</footer>
+
+<script>
+document.getElementById('yr').textContent = new Date().getFullYear();
+const $ = id => document.getElementById(id);
+
+async function pasteUrl(){ try { $('url').value = await navigator.clipboard.readText(); } catch(e){ $('url').focus(); } }
+
+async function run(){
+  const url = $('url').value.trim();
+  $('err').classList.add('hidden'); $('res').classList.add('hidden');
+  if (!url || !/^https?:\/\//i.test(url)) { showErr('URL tidak valid.'); return; }
+
+  $('btn').disabled = true; $('status').classList.remove('hidden');
+  $('status-msg').textContent = 'MEMPROSES CAPTCHA…';
+
+  try {
+    const r = await fetch('https://api.jhx.my.id/ads-skipper', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ url }) });
+    const j = await r.json();
+    $('status').classList.add('hidden');
+    if (!j.Status) throw new Error(j.error || 'Bypass gagal.');
+    $('rmeta').innerHTML = '<span class="text-em bg-em/10 border border-em/25 rounded px-2 py-0.5">✓ BYPASSED</span><span class="text-white bg-white/5 border border-line rounded px-2 py-0.5">' + (j.data.is_cached ? 'CACHED' : 'FRESH') + '</span><span class="text-slate-500">' + (j.data.time_taken || 0) + 's</span>';
+    $('target-url').value = j.data.target_url;
+    $('bypassed-url').value = j.data.bypassed_url;
+    $('open-link').href = j.data.bypassed_url;
+    $('res').classList.remove('hidden');
+  } catch(e){ $('status').classList.add('hidden'); showErr(e.message); }
+  finally { $('btn').disabled = false; }
+}
+
+function showErr(msg){ if (!msg) { $('err').classList.add('hidden'); return; } $('err').textContent = '✗ ' + msg; $('err').classList.remove('hidden'); }
+
+function cp(id){
+  const el = document.getElementById(id);
+  if (!el) return;
+  navigator.clipboard.writeText(el.value).then(() => {
+    const btn = el.parentElement.querySelector('button');
+    const orig = btn.textContent;
+    btn.textContent = 'copied ✓';
+    setTimeout(() => btn.textContent = orig, 1500);
+  });
+}
+
+$('url').addEventListener('keydown', e => { if (e.key === 'Enter') run(); });
+</script>
+</body>
+</html>
