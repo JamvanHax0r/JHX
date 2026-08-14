@@ -167,7 +167,7 @@ tailwind.config = {
         <span class="font-mono text-[10px] text-lm border border-lm/25 bg-lm/5 rounded-full px-2.5 py-1">● STABLE</span>
       </div>
       <h3 class="font-display font-bold text-xl text-white mb-2 group-hover:text-em transition-colors">Link Ads Skipper</h3>
-      <p class="text-sm text-slate-400 leading-relaxed mb-6">Bypass link ads otomatis (work.ink, work.ing, safelink). Ekstrak URL asli dengan captcha solver neural, tanpa klik manual.</p>
+      <p class="text-sm text-slate-400 leading-relaxed mb-6">Bypass link ads otomatis (work.ink, work.ing, safelink). Ekstrak URL tujuan secara instan tanpa klik manual.</p>
       <div class="flex items-center justify-between font-mono text-xs">
         <span class="text-slate-500">POST /api/ads-skipper</span>
         <span class="text-cy group-hover:translate-x-1 transition-transform">/adsdl/ →</span>
@@ -477,8 +477,8 @@ tailwind.config = {
     <div>
       <h4 class="font-mono text-xs text-slate-500 tracking-widest mb-4">MODULES</h4>
       <div class="space-y-2 text-sm text-slate-400">
-        <a href="/igdl/" class="block hover:text-pk transition-colors">Instagram Downloader</a>
-        <a href="/adsdl/" class="block hover:text-em transition-colors">Link Ads Skipper</a>
+
+
         <a href="/faceswap/" class="block hover:text-vi transition-colors">AI FaceSwap</a>
         <a href="/fbdl/" class="block hover:text-fb transition-colors">Facebook Downloader</a>
         <a href="/hdimg/" class="block hover:text-hd transition-colors">HD Image Upscaler</a>
@@ -598,7 +598,7 @@ const ENDPOINTS = [
   },
   {
     id: 'ads', method: 'POST', path: '/ads-skipper', title: 'Link Ads Skipper', color: 'em',
-    desc: 'Bypass link ads otomatis (work.ink, work.ing, safelink). Ekstrak URL asli dengan captcha solver neural.',
+    desc: 'Bypass link ads otomatis (work.ink, work.ing, safelink). Ekstrak URL tujuan secara instan tanpa klik manual.',
     body: { url: 'https://work.ink/1Yct/roblox-executor-checkpoint' },
     ok: { Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: true, type: 'bypass', data: { target_url: 'https://work.ink/...', bypassed_url: 'https://getvelocity.llc/...', time_taken: 0, is_cached: true } },
     err: { Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: false, error: 'URL tidak valid!' }

@@ -63,7 +63,7 @@ tailwind.config = { theme: { extend: {
 <main class="max-w-5xl mx-auto px-4 sm:px-6 pt-28 pb-20">
   <p class="font-mono text-xs text-slate-600 mb-4">~/modules/<span class="text-em">ads-skipper</span></p>
   <h1 class="font-display font-bold text-4xl sm:text-5xl text-white mb-4">Link Ads <span class="tgrad">Skipper</span></h1>
-  <p class="text-slate-400 max-w-2xl leading-relaxed mb-10">Bypass link ads otomatis (work.ink, work.ing, safelink, dll). Sistem mengekstrak URL asli dengan captcha solver neural, tanpa perlu klik manual. Hasil instan, tanpa watermark.</p>
+  <p class="text-slate-400 max-w-2xl leading-relaxed mb-10">Bypass link ads otomatis (work.ink, work.ing, safelink, dll). Sistem mengekstrak URL tujuan secara otomatis dalam hitungan detik — tanpa klik manual, tanpa antre, tanpa watermark.</p>
 
   <div class="card rounded-2xl p-6 sm:p-8 border-t-2 border-t-em/60">
     <label class="font-mono text-[11px] text-slate-500 tracking-widest block mb-3">ADS LINK URL</label>
@@ -77,7 +77,7 @@ tailwind.config = { theme: { extend: {
     <div id="status" class="hidden mt-5">
       <div class="flex items-center gap-3 mb-2">
         <span class="pulse-ring"><span class="w-2 h-2 rounded-full bg-em"></span></span>
-        <p id="status-msg" class="font-mono text-[11px] text-em tracking-wider">MEMPROSES CAPTCHA…</p>
+        <p id="status-msg" class="font-mono text-[11px] text-em tracking-wider">MENGEKSTRAK URL ASLI…</p>
       </div>
       <div class="progress-bar"><div class="progress-fill"></div></div>
     </div>
@@ -171,9 +171,9 @@ if (json.Status) {
       <div class="px-5 py-3 border-b border-line font-mono text-xs text-slate-500">catatan</div>
       <ul class="p-5 text-sm text-slate-400 space-y-2.5">
         <li><span class="text-em">→</span> Support work.ink, work.ing, safelink, dan sejenisnya.</li>
-        <li><span class="text-em">→</span> Proses bypass memakan waktu 5-60 detik (captcha solver).</li>
+        <li><span class="text-em">→</span> Proses bypass memakan waktu 5-60 detik tergantung antrean sistem.</li>
         <li><span class="text-em">→</span> Hasil bypass bisa di-copy atau dibuka langsung.</li>
-        <li><span class="text-em">→</span> Powered by <span class="text-cy">cap.jhx.my.id</span> neural solver.</li>
+        <li><span class="text-em">→</span> Diproses penuh di infrastruktur internal JH-Tools.</li>
       </ul>
     </div>
   </div>
@@ -197,7 +197,7 @@ async function run(){
   if (!url || !/^https?:\/\//i.test(url)) { showErr('URL tidak valid.'); return; }
 
   $('btn').disabled = true; $('status').classList.remove('hidden');
-  $('status-msg').textContent = 'MEMPROSES CAPTCHA…';
+  $('status-msg').textContent = 'MENGEKSTRAK URL ASLI…';
 
   try {
     const r = await fetch('https://api.jhx.my.id/ads-skipper', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ url }) });
