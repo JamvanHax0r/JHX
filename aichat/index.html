@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Assistant — JH-Tools</title>
+<meta name="description" content="Fiony — AI assistant personal JH-Tools. Chat, analisis gambar, review file, partner coding & curhat.">
+<meta property="og:title" content="AI Assistant — JH-Tools">
+<meta property="og:description" content="Ngobrol sama Fiony: coding, analisis gambar, review file, dan macem-macem.">
+<meta property="og:image" content="https://jhax0r.my.id/logo.jpeg">
+<meta name="theme-color" content="#05060a">
+<link rel="icon" href="https://jhax0r.my.id/logo.jpeg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+tailwind.config = { theme: { extend: {
+  fontFamily: { sans:['Inter','sans-serif'], display:['Space Grotesk','sans-serif'], mono:['JetBrains Mono','monospace'] },
+  colors: { night:'#05060a', panel:'#0b0e14', line:'rgba(255,255,255,0.07)', cy:'#22d3ee', vi:'#8b5cf6', pk:'#ec4899', lm:'#a3e635', ai:'#6366F1' }
+}}}
+</script>
+<style>
+  body{background:#05060a;color:#e6e8ee;overflow-x:hidden}
+  .grid-bg{position:fixed;inset:0;z-index:-2;background-image:linear-gradient(rgba(255,255,255,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.035) 1px,transparent 1px);background-size:56px 56px;mask-image:radial-gradient(ellipse 80% 60% at 50% 0%,black 40%,transparent 100%)}
+  .orb{position:fixed;border-radius:9999px;filter:blur(110px);z-index:-1}
+  .orb-1{width:420px;height:420px;background:#6366F1;top:-140px;right:-120px;opacity:.20}
+  .orb-2{width:380px;height:380px;background:#0e7490;bottom:-120px;left:-120px;opacity:.15}
+  .tgrad{background:linear-gradient(90deg,#6366F1,#22d3ee,#8b5cf6,#6366F1);background-size:300% 100%;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;animation:flow 7s linear infinite}
+  @keyframes flow{0%{background-position:0% 50%}100%{background-position:300% 50%}}
+  .card{background:rgba(11,14,20,.7);border:1px solid rgba(255,255,255,.07);backdrop-filter:blur(14px)}
+  .beat{display:inline-block;animation:beat 1.3s ease-in-out infinite}
+  @keyframes beat{0%,100%{transform:scale(1)}12%{transform:scale(1.25)}24%{transform:scale(1)}36%{transform:scale(1.2)}48%{transform:scale(1)}}
+  ::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:#05060a}::-webkit-scrollbar-thumb{background:#334155;border-radius:3px}
+  ::selection{background:#6366F1;color:#fff}
+  .typing{display:inline-flex;gap:4px;align-items:center}
+  .typing i{width:6px;height:6px;border-radius:50%;background:#6366F1;animation:tp 1s infinite}
+  .typing i:nth-child(2){animation-delay:.2s}.typing i:nth-child(3){animation-delay:.4s}
+  @keyframes tp{0%,100%{opacity:.3;transform:translateY(0)}50%{opacity:1;transform:translateY(-3px)}}
+  #chat{height:440px;overflow-y:auto;scroll-behavior:smooth}
+</style>
+</head>
+<body class="font-sans antialiased">
+<div class="grid-bg"></div><div class="orb orb-1"></div><div class="orb orb-2"></div>
+
+<nav class="fixed w-full top-0 z-50 bg-night/75 backdrop-blur-xl border-b border-line">
+  <div class="max-w-5xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+    <div class="flex items-center gap-4">
+      <a href="/" class="font-mono text-xs text-slate-400 hover:text-cy transition-colors">← /</a>
+      <span class="w-px h-4 bg-line"></span>
+      <a href="/" class="flex items-center gap-2.5">
+        <img src="https://jhax0r.my.id/logo.jpeg" class="h-8 w-8 rounded-lg border border-line" alt="JH-Tools">
+        <span class="font-display font-bold text-white">JH-<span class="tgrad">TOOLS</span></span>
+      </a>
+    </div>
+    <span class="flex items-center gap-2 font-mono text-[10px] text-lm border border-lm/25 bg-lm/5 rounded-full px-3 py-1">
+      <span class="w-1.5 h-1.5 rounded-full bg-lm animate-pulse"></span>STABLE · v2.4
+    </span>
+  </div>
+</nav>
+
+<main class="max-w-5xl mx-auto px-4 sm:px-6 pt-28 pb-20">
+  <p class="font-mono text-xs text-slate-600 mb-4">~/modules/<span class="text-ai">ai-assistant</span></p>
+  <h1 class="font-display font-bold text-4xl sm:text-5xl text-white mb-4">AI <span class="tgrad">Assistant</span></h1>
+  <p class="text-slate-400 max-w-2xl leading-relaxed mb-10">Kenalin <span class="text-ai font-semibold">Fiony</span> — AI assistant personal JH-Tools. Partner coding, analisis gambar, review file, sampai temen curhat. Natural, ramah, dan serba bisa.</p>
+
+  <div class="card rounded-2xl overflow-hidden border-t-2 border-t-ai/60">
+    <div class="px-5 py-4 border-b border-line flex items-center gap-3">
+      <span class="w-10 h-10 rounded-full bg-ai/15 border border-ai/30 flex items-center justify-center text-lg">💜</span>
+      <div>
+        <p class="font-display font-bold text-white">Fiony</p>
+        <p class="font-mono text-[10px] text-lm flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-lm animate-pulse"></span>online · gpt-4.1</p>
+      </div>
+      <button onclick="resetChat()" class="ml-auto font-mono text-[10px] text-slate-500 hover:text-ai border border-line hover:border-ai/40 rounded-lg px-3 py-2 transition-colors">RESET CHAT</button>
+    </div>
+
+    <div id="chat" class="p-5 space-y-4 bg-black/30"></div>
+
+    <div id="pending" class="hidden px-5 pt-3 flex gap-2 flex-wrap items-center"></div>
+
+    <div class="p-4 border-t border-line">
+      <div class="flex gap-2 items-end">
+        <input type="file" id="img-in" accept="image/*" multiple class="hidden">
+        <input type="file" id="file-in" accept=".txt,.js,.json,.md,.csv,.html,.css,.py,.sh,.log" class="hidden">
+        <button onclick="document.getElementById('img-in').click()" title="Attach gambar (max 3, 2MB each)" class="w-11 h-11 shrink-0 rounded-xl border border-line font-mono text-sm text-slate-300 hover:border-ai/50 hover:text-ai transition-colors">📷</button>
+        <button onclick="document.getElementById('file-in').click()" title="Attach file teks (max 100KB)" class="w-11 h-11 shrink-0 rounded-xl border border-line font-mono text-sm text-slate-300 hover:border-ai/50 hover:text-ai transition-colors">📄</button>
+        <textarea id="msg" rows="1" placeholder="Tulis pesan buat Fiony…" class="flex-1 bg-black/50 border border-line rounded-xl px-4 py-3 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-ai/60 focus:ring-1 focus:ring-ai/40 transition-all resize-none max-h-32"></textarea>
+        <button id="send" onclick="send()" class="h-11 px-6 shrink-0 rounded-xl bg-gradient-to-r from-ai to-vi text-white font-mono text-xs tracking-widest hover:shadow-[0_0_25px_rgba(99,102,241,.4)] transition-shadow disabled:opacity-40">KIRIM ⏎</button>
+      </div>
+      <p class="font-mono text-[10px] text-slate-600 mt-2.5">rate limit: 10 req/menit · 50 req/hari — owner unlimited 💜</p>
+    </div>
+  </div>
+
+  <div class="mt-12">
+    <p class="font-mono text-xs text-ai mb-3">DEVELOPER REFERENCE</p>
+    <h2 class="font-display font-bold text-2xl text-white mb-6">Pakai Lewat Kode.</h2>
+    <div class="grid lg:grid-cols-2 gap-5">
+      <div class="card rounded-xl overflow-hidden">
+        <div class="px-5 py-3 border-b border-line flex items-center justify-between">
+          <div class="flex items-center gap-2"><span class="font-mono text-[10px] font-bold text-lm bg-lm/10 border border-lm/25 rounded px-2 py-0.5">POST</span><span class="font-mono text-xs text-white">/ai-chat</span></div>
+          <button class="font-mono text-[10px] text-cy hover:text-white" onclick="cp('ai-req')">copy</button>
+        </div>
+        <pre id="ai-req" class="p-4 font-mono text-[11.5px] leading-relaxed text-slate-300 overflow-x-auto">curl -X POST https://api.jhx.my.id/ai-chat \
+  -H "Content-Type: application/json" \
+  -d '{"message":"Halo Fio, kenalin dong!"}'</pre>
+      </div>
+      <div class="card rounded-xl overflow-hidden">
+        <div class="px-5 py-3 border-b border-line flex items-center justify-between">
+          <span class="font-mono text-[10px] text-slate-500">RESPONSE · 200 OK</span>
+          <button class="font-mono text-[10px] text-cy hover:text-white" onclick="cp('ai-res')">copy</button>
+        </div>
+        <pre id="ai-res" class="p-4 font-mono text-[11.5px] leading-relaxed text-slate-300 overflow-x-auto">{
+  "Developer": "JH a.k.a Dhika",
+  "Kesayangan": "Fiony Alveria♡",
+  "Status": true,
+  "type": "chat",
+  "data": {
+    "reply": "Hai Kak! Aku Fiony 💫 Ada yang bisa aku bantu?",
+    "model": "gpt-4.1",
+    "usage": { "prompt_tokens": 150, "completion_tokens": 40 }
+  }
+}</pre>
+      </div>
+    </div>
+    <div class="mt-4 card rounded-xl overflow-hidden">
+      <div class="px-5 py-3 border-b border-line flex items-center justify-between">
+        <span class="font-mono text-[10px] text-slate-500">NODE.JS EXAMPLE</span>
+        <button class="font-mono text-[10px] text-cy hover:text-white" onclick="cp('ai-node')">copy</button>
+      </div>
+      <pre id="ai-node" class="p-4 font-mono text-[11.5px] leading-relaxed text-slate-300 overflow-x-auto">const res = await fetch('https://api.jhx.my.id/ai-chat', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({ message: 'Review kode ini dong', files: [{ name: 'app.js', content: '...' }] })
+});
+const json = await res.json();
+if (json.Status) console.log(json.data.reply);</pre>
+    </div>
+  </div>
+
+  <div class="grid lg:grid-cols-2 gap-5 mt-10">
+    <div class="card rounded-xl overflow-hidden">
+      <div class="px-5 py-3 border-b border-line font-mono text-xs text-slate-500">endpoints</div>
+      <div class="p-5 font-mono text-sm space-y-2.5">
+        <p><span class="text-lm bg-lm/10 border border-lm/25 rounded px-2 py-0.5 text-[10px] font-semibold">POST</span> <span class="text-white">/ai-chat</span> <span class="text-slate-600 text-xs">— { message, history, images, files }</span></p>
+      </div>
+    </div>
+    <div class="card rounded-xl overflow-hidden">
+      <div class="px-5 py-3 border-b border-line font-mono text-xs text-slate-500">catatan</div>
+      <ul class="p-5 text-sm text-slate-400 space-y-2.5">
+        <li><span class="text-ai">→</span> Vision: maksimal 3 gambar per pesan (2MB each).</li>
+        <li><span class="text-ai">→</span> File teks: txt/js/json/md/csv/html/css/py (max 100KB).</li>
+        <li><span class="text-ai">→</span> History 10 pesan terakhir dipakai sebagai konteks.</li>
+        <li><span class="text-ai">→</span> Zero-retention: percakapan tidak disimpan di server.</li>
+      </ul>
+    </div>
+  </div>
+</main>
+
+<footer class="border-t border-line bg-panel/60 py-9 px-4 text-center space-y-2.5">
+  <p class="text-sm text-slate-400">Made with <span class="beat text-pk">❤</span> by <span class="tgrad font-display font-bold text-base">JamvanHax0r</span></p>
+  <p class="text-sm text-slate-500">Supported by: <span class="text-cy font-medium">BCCTeam</span> <span class="text-slate-700">—</span> <span class="text-vi font-medium">FLMGroup</span> <span class="text-slate-700">—</span> <span class="text-pk font-medium">Fiony Bot</span></p>
+  <p class="font-mono text-xs text-slate-600">© <span id="yr"></span> — All Rights Reserved</p>
+</footer>
+
+<script>
+document.getElementById('yr').textContent = new Date().getFullYear();
+const $ = id => document.getElementById(id);
+let history = [], pendingImages = [], pendingFiles = [], busy = false;
+
+const esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+const fmt = s => esc(s).replace(/\n/g,'<br>');
+
+function addBubble(role, html){
+  const wrap = document.createElement('div');
+  wrap.className = 'flex ' + (role === 'user' ? 'justify-end' : 'justify-start');
+  wrap.innerHTML = role === 'user'
+    ? '<div class="max-w-[85%] sm:max-w-[70%] rounded-2xl rounded-br-md px-4 py-3 text-sm leading-relaxed bg-gradient-to-r from-ai to-vi text-white shadow-[0_4px_20px_rgba(99,102,241,.25)]">' + html + '</div>'
+    : '<div class="flex items-start gap-2.5 max-w-[85%] sm:max-w-[75%]"><span class="w-8 h-8 shrink-0 rounded-full bg-ai/15 border border-ai/30 flex items-center justify-center text-sm">💜</span><div class="rounded-2xl rounded-bl-md px-4 py-3 text-sm leading-relaxed card text-slate-200">' + html + '</div></div>';
+  $('chat').appendChild(wrap);
+  $('chat').scrollTop = $('chat').scrollHeight;
+  return wrap;
+}
+
+function renderPending(){
+  const box = $('pending');
+  if (!pendingImages.length && !pendingFiles.length) { box.classList.add('hidden'); box.innerHTML = ''; return; }
+  box.classList.remove('hidden');
+  box.innerHTML = pendingImages.map((src, i) => '<span class="relative"><img src="' + src + '" class="w-14 h-14 object-cover rounded-lg border border-ai/40"><button onclick="rmImg(' + i + ')" class="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-red-500 text-white text-[10px]">✕</button></span>').join('') +
+    pendingFiles.map((f, i) => '<span class="relative font-mono text-[10px] bg-ai/10 border border-ai/30 rounded-lg px-2.5 py-2 text-slate-300">📄 ' + esc(f.name) + '<button onclick="rmFile(' + i + ')" class="ml-2 text-red-400">✕</button></span>').join('');
+}
+function rmImg(i){ pendingImages.splice(i, 1); renderPending(); }
+function rmFile(i){ pendingFiles.splice(i, 1); renderPending(); }
+
+$('img-in').addEventListener('change', e => {
+  [...e.target.files].forEach(f => {
+    if (pendingImages.length >= 3) return;
+    if (f.size > 2 * 1024 * 1024) { addBubble('ai', 'Eits, gambar maksimal 2MB ya 😅 (' + esc(f.name) + ')'); return; }
+    const rd = new FileReader();
+    rd.onload = () => { pendingImages.push(rd.result); renderPending(); };
+    rd.readAsDataURL(f);
+  });
+  e.target.value = '';
+});
+
+$('file-in').addEventListener('change', e => {
+  const f = e.target.files[0];
+  if (!f) return;
+  if (f.size > 100 * 1024) { addBubble('ai', 'File teks maksimal 100KB ya 😅 (' + esc(f.name) + ')'); e.target.value = ''; return; }
+  const rd = new FileReader();
+  rd.onload = () => { pendingFiles = [{ name: f.name, content: rd.result }]; renderPending(); };
+  rd.readAsText(f);
+  e.target.value = '';
+});
+
+async function send(){
+  if (busy) return;
+  const text = $('msg').value.trim();
+  if (!text && !pendingImages.length && !pendingFiles.length) return;
+  let html = '';
+  if (pendingImages.length) html += '<div class="flex gap-2 mb-2 flex-wrap">' + pendingImages.map(src => '<img src="' + src + '" class="w-16 h-16 object-cover rounded-lg border border-white/20">').join('') + '</div>';
+  if (pendingFiles.length) html += pendingFiles.map(f => '<div class="font-mono text-[10px] bg-white/10 rounded px-2 py-1 mb-2">📄 ' + esc(f.name) + '</div>').join('');
+  if (text) html += fmt(text);
+  addBubble('user', html);
+  history.push({ role: 'user', content: text || '[media dikirim]' });
+  history = history.slice(-10);
+  $('msg').value = '';
+  const imgs = pendingImages, fls = pendingFiles;
+  pendingImages = []; pendingFiles = []; renderPending();
+  busy = true; $('send').disabled = true;
+  const typing = addBubble('ai', '<span class="typing"><i></i><i></i><i></i></span>');
+  const box = typing.querySelector('.card');
+  try {
+    const r = await fetch('https://api.jhx.my.id/ai-chat', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ message: text, history: history.slice(0, -1), images: imgs, files: fls }) });
+    const j = await r.json();
+    if (!j.Status) throw new Error(j.error || 'Gagal menghubungi Fiony.');
+    box.innerHTML = fmt(j.data.reply);
+    history.push({ role: 'assistant', content: j.data.reply });
+    history = history.slice(-10);
+  } catch (e) {
+    box.innerHTML = '<span class="text-red-400">✗ ' + esc(e.message) + '</span>';
+  } finally {
+    busy = false; $('send').disabled = false;
+    $('chat').scrollTop = $('chat').scrollHeight;
+  }
+}
+
+function resetChat(){
+  history = [];
+  $('chat').innerHTML = '';
+  welcome();
+}
+function welcome(){
+  addBubble('ai', 'Hai! Aku <b class="text-ai">Fiony</b> 💫 Partner coding, analisis gambar, review file, atau sekadar temen ngobrol. Mau mulai dari mana?');
+}
+welcome();
+
+$('msg').addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(); } });
+
+function cp(id){
+  const el = document.getElementById(id);
+  if (!el) return;
+  navigator.clipboard.writeText(el.textContent).then(() => {
+    const btn = el.parentElement.querySelector('button');
+    const orig = btn.textContent;
+    btn.textContent = 'copied ✓';
+    setTimeout(() => btn.textContent = orig, 1500);
+  });
+}
+</script>
+</body>
+</html>

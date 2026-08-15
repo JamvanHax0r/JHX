@@ -1126,6 +1126,128 @@ app.post('/ads-skipper', async (req, res) => {
 });
 
 
+// Rate limiter: in-memory sliding window
+const rateLimitMap = new Map();
+const RATE_LIMIT = { perMinute: 10, perDay: 50 };
+
+function getRateLimitInfo(ip) {
+  const now = Date.now();
+  const oneMinAgo = now - 60000;
+  const todayStart = new Date().setHours(0, 0, 0, 0);
+  
+  if (!rateLimitMap.has(ip)) {
+    rateLimitMap.set(ip, { timestamps: [], dailyCount: 0, lastReset: todayStart });
+  }
+  
+  const data = rateLimitMap.get(ip);
+  
+  // Reset daily counter kalau udah ganti hari
+  if (data.lastReset < todayStart) {
+    data.dailyCount = 0;
+    data.lastReset = todayStart;
+  }
+  
+  // Sliding window: hapus timestamp yang udah >1 menit
+  data.timestamps = data.timestamps.filter(t => t > oneMinAgo);
+  
+  return {
+    perMinute: data.timestamps.length,
+    perDay: data.dailyCount,
+    record: () => {
+      data.timestamps.push(now);
+      data.dailyCount++;
+    }
+  };
+}
+
+function isOwnerRequest(req) {
+  // Check header khusus owner
+  if (req.headers['x-jh-owner'] === 'JH-OWNER-2026') return true;
+  // Check message content (kalau user自称 owner)
+  const msg = (req.body && req.body.message) || '';
+  if (/aku\s+(obengg|dhikuyy|dhika|owner)|i'?m\s+(obengg|dhikuyy|dhika|owner)|owner\s+here/i.test(msg)) return true;
+  return false;
+}
+
+app.post('/ai-chat', async (req, res) => {
+  try {
+    const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress || 'unknown';
+    const isOwner = isOwnerRequest(req);
+    
+    // Rate limit check (skip kalau owner)
+    if (!isOwner) {
+      const rl = getRateLimitInfo(ip);
+      if (rl.perMinute >= RATE_LIMIT.perMinute) {
+        return res.status(429).json({
+          Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: false,
+          error: 'Rate limit: maksimal ' + RATE_LIMIT.perMinute + ' request per menit. Coba lagi dalam beberapa detik.',
+          retryAfter: 60
+        });
+      }
+      if (rl.perDay >= RATE_LIMIT.perDay) {
+        return res.status(429).json({
+          Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: false,
+          error: 'Rate limit harian: maksimal ' + RATE_LIMIT.perDay + ' request per hari. Coba lagi besok.',
+          retryAfter: 86400
+        });
+      }
+      rl.record();
+    }
+    
+    const { message, history, images, files } = req.body || {};
+    if (!message && (!images || !images.length) && (!files || !files.length)) {
+      return res.status(400).json({ Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: false, error: 'Input kosong!' });
+    }
+    
+    const persona = require('./ai-persona.js');
+    if (!persona.apiKey || persona.apiKey === 'PASTE_TTAPI_KEY_LO_DISINI') {
+      return res.status(500).json({ Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: false, error: 'API-Key AI belum di-set di server!' });
+    }
+    
+    const messages = [{ role: 'system', content: persona.systemPrompt }];
+    if (history && Array.isArray(history)) {
+      messages.push(...history.slice(-20)); // max 20 pesan terakhir
+    }
+    
+    // Build user message (text + images + files)
+    let userContent = [];
+    if (message) userContent.push({ type: 'text', text: message });
+    if (images && images.length) {
+      images.slice(0, 3).forEach(img => { // max 3 images
+        const imgData = img.startsWith('data:') ? img : 'data:image/jpeg;base64,' + img;
+        userContent.push({ type: 'image_url', image_url: { url: imgData } });
+      });
+    }
+    if (files && files.length) {
+      files.slice(0, 1).forEach(file => { // max 1 file
+        const fileText = typeof file === 'string' ? file : (file.content || '');
+        const fileName = file.name || 'file.txt';
+        userContent.push({ type: 'text', text: '[FILE: ' + fileName + ']\n' + fileText.slice(0, 8000) }); // max 8KB
+      });
+    }
+    if (userContent.length === 0) userContent.push({ type: 'text', text: '...' });
+    messages.push({ role: 'user', content: userContent });
+    
+    // Call TTAPI (OpenAI-compatible)
+    const response = await axios.post(
+      'https://api.ttapi.io/v1/chat/completions',
+      { model: persona.model, messages, temperature: 0.7, max_tokens: 2000 },
+      { headers: { 'Authorization': 'Bearer ' + persona.apiKey, 'Content-Type': 'application/json' }, timeout: 120000 }
+    );
+    
+    const reply = response.data.choices[0].message.content;
+    const usage = response.data.usage || {};
+    res.json({
+      Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: true, type: 'chat',
+      data: { reply, model: persona.model, usage: { prompt_tokens: usage.prompt_tokens, completion_tokens: usage.completion_tokens }, isOwner }
+    });
+  } catch (e) {
+    const errMsg = e.response ? (e.response.data.error ? e.response.data.error.message : e.response.data) : e.message;
+    res.status(500).json({ Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: false, error: 'AI error: ' + errMsg });
+  }
+});
+
+
 async function serveProxy(req, res) {
   const route = req.path.startsWith('/resvid') ? 'resvid' : req.path.startsWith('/resaud') ? 'resaud' : 'resimg';
   const code = String(req.params.code).split('.')[0];
