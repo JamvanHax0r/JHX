@@ -266,6 +266,20 @@ $('msg').addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey
 $('msg').addEventListener('input', autoGrow);
 function autoGrow(){ const el = $('msg'); el.style.height = 'auto'; el.style.height = Math.min(el.scrollHeight, 240) + 'px'; }
 
+// === WebView hard-trigger: beberapa WebView fire 'input' doang, atau change-nya telat ===
+['img-in','file-in'].forEach(id => {
+  const el = $(id);
+  el.addEventListener('input', () => el.dispatchEvent(new Event('change')));
+});
+let _proc = { img: false, file: false };
+function pollInputs(){
+  const i = $('img-in'), f = $('file-in');
+  if (!_proc.img && i.files && i.files.length) { _proc.img = true; i.dispatchEvent(new Event('change')); setTimeout(() => _proc.img = false, 2000); }
+  if (!_proc.file && f.files && f.files.length) { _proc.file = true; f.dispatchEvent(new Event('change')); setTimeout(() => _proc.file = false, 2000); }
+}
+window.addEventListener('focus', pollInputs);
+document.addEventListener('visibilitychange', () => { if (!document.hidden) pollInputs(); });
+
 function cp(id){
   const el = document.getElementById(id);
   if (!el) return;
