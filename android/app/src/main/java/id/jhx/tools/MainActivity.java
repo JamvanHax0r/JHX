@@ -102,14 +102,13 @@ public class MainActivity extends Activity {
                 if (fileCallback != null) fileCallback.onReceiveValue(null);
                 fileCallback = cb;
                 try {
-                    boolean isImg = false;
-                    for (String t : p.getAcceptTypes()) { if (t != null && t.contains("image")) { isImg = true; break; } }
+                    android.widget.Toast.makeText(this, "DBG chooser open", android.widget.Toast.LENGTH_SHORT).show();
                     android.content.Intent pick = new android.content.Intent(Intent.ACTION_GET_CONTENT);
                     pick.addCategory(Intent.CATEGORY_OPENABLE);
-                    pick.setType(isImg ? "image/*" : "*/*");
+                    pick.setType("*/*");
                     pick.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
                     pick.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-                    startActivityForResult(pick, 1);
+                    startActivityForResult(android.content.Intent.createChooser(pick, "Pilih file"), 1);
                 } catch (Exception e) {
                     fileCallback = null;
                     return false;
@@ -182,6 +181,7 @@ public class MainActivity extends Activity {
         super.onActivityResult(rc, res, d);
         if (rc == 1 && fileCallback != null) {
             android.net.Uri[] picked = d == null ? null : WebChromeClient.FileChooserParams.parseResult(res, d);
+            android.widget.Toast.makeText(this, "DBG result=" + res + " picked=" + (picked == null ? "null" : String(picked.length)), android.widget.Toast.LENGTH_LONG).show();
             if (picked != null) for (android.net.Uri u : picked) { try { getContentResolver().takePersistableUriPermission(u, android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION); } catch (Exception ignored) {} }
             fileCallback.onReceiveValue(picked);
             fileCallback = null;

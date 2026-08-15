@@ -345,7 +345,7 @@ function cp(id){
     var d=document.getElementById('jhdbg');
     if(!el||!d) return;
     var sig='-';
-    try { sig=(typeof _lastSig!=='undefined'&&_lastSig.img)?_lastSig.img.slice(0,24):'no-engine'; } catch(e){ sig='err'; }
+    try { sig=(typeof _lastSig==='undefined')?'no-engine':((_lastSig.img||'').slice(0,24)||'idle'); } catch(e){ sig='err'; }
     var pend='?';
     try { pend=String(pendingImages.length); } catch(e){}
     d.textContent=B+'\nfiles='+(el.files?el.files.length:'null')+'\nev=['+evlog.join(',')+']\nsig='+sig+'\npend='+pend;
