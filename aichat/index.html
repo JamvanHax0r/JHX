@@ -296,5 +296,25 @@ function cp(id){
   });
 }
 </script>
+
+<div id="jhdbg" style="position:fixed;left:6px;bottom:6px;z-index:999;background:rgba(0,0,0,.85);color:#7CFC9A;font:10px/1.5 monospace;padding:6px 8px;border-radius:8px;max-width:92vw;white-space:pre-wrap;pointer-events:none"></div>
+<script>
+(function(){
+  var B='DBG6 build-0816';
+  var evlog=[];
+  function hook(id){ var el=document.getElementById(id); if(!el) return; ['input','change'].forEach(function(t){ el.addEventListener(t,function(){ evlog.push(t+':'+(el.files?el.files.length:'?')); if(evlog.length>6) evlog.shift(); },true); }); }
+  hook('img-in'); hook('file-in');
+  setInterval(function(){
+    var el=document.getElementById('img-in');
+    var d=document.getElementById('jhdbg');
+    if(!el||!d) return;
+    var sig='-';
+    try { sig=(typeof _lastSig!=='undefined'&&_lastSig.img)?_lastSig.img.slice(0,24):'no-engine'; } catch(e){ sig='err'; }
+    var pend='?';
+    try { pend=String(pendingImages.length); } catch(e){}
+    d.textContent=B+'\nfiles='+(el.files?el.files.length:'null')+'\nev=['+evlog.join(',')+']\nsig='+sig+'\npend='+pend;
+  },600);
+})();
+</script>
 </body>
 </html>
