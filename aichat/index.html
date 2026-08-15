@@ -40,7 +40,7 @@ tailwind.config = { theme: { extend: {
   #chat{height:440px;overflow-y:auto;scroll-behavior:smooth}
 
 /* === Fiony Markdown Styles === */
-.fio-msg code {
+#chat code {
   font-family: 'JetBrains Mono', 'Fira Code', Consolas, monospace;
   background: rgba(99, 102, 241, 0.15);
   color: #a78bfa;
@@ -48,7 +48,7 @@ tailwind.config = { theme: { extend: {
   border-radius: 4px;
   font-size: 0.85em;
 }
-.fio-msg pre {
+#chat pre {
   background: linear-gradient(135deg, rgba(99, 102, 241, 0.22), rgba(139, 92, 246, 0.14));
   border: 1px solid rgba(129, 140, 248, 0.5);
   box-shadow: 0 0 18px rgba(99, 102, 241, 0.18);
@@ -60,14 +60,14 @@ tailwind.config = { theme: { extend: {
   font-size: 12px;
   line-height: 1.5;
 }
-.fio-msg pre code {
+#chat pre code {
   background: transparent;
   padding: 0;
   color: #e0e7ff;
   text-shadow: 0 0 8px rgba(129, 140, 248, 0.35);
   white-space: pre;
 }
-.fio-msg pre .copy-btn {
+#chat pre .copy-btn {
   position: absolute;
   top: 6px;
   right: 6px;
@@ -81,56 +81,56 @@ tailwind.config = { theme: { extend: {
   font-family: monospace;
   transition: all 0.2s;
 }
-.fio-msg pre .copy-btn:hover {
+#chat pre .copy-btn:hover {
   background: rgba(99, 102, 241, 0.4);
   color: white;
 }
-.fio-msg pre .copy-btn.copied {
+#chat pre .copy-btn.copied {
   background: rgba(34, 197, 94, 0.3);
   border-color: rgba(34, 197, 94, 0.5);
   color: #86efac;
 }
-.fio-msg blockquote {
+#chat blockquote {
   border-left: 3px solid #6366f1;
   padding-left: 12px;
   margin: 8px 0;
   color: #cbd5e1;
   font-style: italic;
 }
-.fio-msg h3 {
+#chat h3 {
   color: #f1f5f9;
   font-weight: 600;
   font-size: 1.1em;
   margin: 10px 0 6px 0;
 }
-.fio-msg ul, .fio-msg ol {
+#chat ul, #chat ol {
   padding-left: 22px;
   margin: 6px 0;
 }
-.fio-msg li {
+#chat li {
   margin: 3px 0;
 }
-.fio-msg a {
+#chat a {
   color: #818cf8;
   text-decoration: underline;
   text-underline-offset: 2px;
 }
-.fio-msg a:hover { color: #a78bfa; }
-.fio-msg hr {
+#chat a:hover { color: #a78bfa; }
+#chat hr {
   border: none;
   border-top: 1px solid rgba(99, 102, 241, 0.2);
   margin: 10px 0;
 }
-.fio-msg table {
+#chat table {
   border-collapse: collapse;
   margin: 8px 0;
   font-size: 0.85em;
 }
-.fio-msg th, .fio-msg td {
+#chat th, #chat td {
   border: 1px solid rgba(99, 102, 241, 0.25);
   padding: 4px 10px;
 }
-.fio-msg th { background: rgba(99, 102, 241, 0.1); color: #a78bfa; }
+#chat th { background: rgba(99, 102, 241, 0.1); color: #a78bfa; }
 </style>
 </head>
 <body class="font-sans antialiased">
@@ -271,10 +271,20 @@ const esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>
 function fmt(s){
   if (!s) return '';
   const codeBlocks = [];
-  s = s.replace(/(^|\n)```([a-zA-Z0-9]*)[ \t]*\n([\s\S]*?)\n?```[ \t]*(?=\n|$)/g, (_, pre, lang, code) => {
-    codeBlocks.push({ code: code.replace(/\n$/, '') });
-    return pre + '@@CB' + (codeBlocks.length - 1) + '@@';
-  });
+  {
+    const lines = s.split('\n');
+    const out = [];
+    let inCode = false, buf = [];
+    for (let li = 0; li < lines.length; li++) {
+      const raw = lines[li].replace(/\r$/, '');
+      const t = raw.trim();
+      if (!inCode && t.indexOf('```') === 0) { inCode = true; buf = []; continue; }
+      if (inCode && t.indexOf('```') === 0 && t.replace(/`/g, '') === '') { inCode = false; codeBlocks.push({ code: buf.join('\n') }); out.push('@@CB' + (codeBlocks.length - 1) + '@@'); continue; }
+      if (inCode) buf.push(raw); else out.push(raw);
+    }
+    if (inCode && buf.length) { codeBlocks.push({ code: buf.join('\n') }); out.push('@@CB' + (codeBlocks.length - 1) + '@@'); }
+    s = out.join('\n');
+  }
   s = s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
   s = s.replace(/`([^`\n]+)`/g, '<code>$1</code>');
   s = s.replace(/\*\*\*([^\*\n]+)\*\*\*/g, '<strong><em>$1</em></strong>');
@@ -461,7 +471,7 @@ function welcome(){
 }
 function reRenderBubbles(){
   document.querySelectorAll('#chat > div').forEach(b => {
-    const msg = b.querySelector('.fio-msg');
+    const msg = b.querySelector('#chat');
     if (msg && msg.dataset.raw) msg.innerHTML = fmt(msg.dataset.raw);
   });
 }
