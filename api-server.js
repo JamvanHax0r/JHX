@@ -1231,7 +1231,7 @@ app.post('/ai-chat', async (req, res) => {
     // Call TTAPI (OpenAI-compatible)
     const response = await axios.post(
       'https://api.ttapi.io/v1/chat/completions',
-      { model: 'JH-Neural v1', messages, temperature: 0.7, max_tokens: 2000 },
+      { model: persona.model, messages, temperature: 0.7, max_tokens: 2000 },
       { headers: { 'Authorization': 'Bearer ' + persona.apiKey, 'Content-Type': 'application/json' }, timeout: 120000 }
     );
     
