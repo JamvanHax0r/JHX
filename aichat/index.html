@@ -166,6 +166,13 @@ if (json.Status) console.log(json.data.reply);</pre>
 document.getElementById('yr').textContent = new Date().getFullYear();
 const $ = id => document.getElementById(id);
 let history = [], pendingImages = [], pendingFiles = [], busy = false;
+let chatLog = [];
+const store = {
+  get(k){ try { return localStorage.getItem(k); } catch (e) { return null; } },
+  set(k, v){ try { localStorage.setItem(k, v); } catch (e) {} },
+  del(k){ try { localStorage.removeItem(k); } catch (e) {} }
+};
+function persist(){ store.set('jh_fiony_chat', JSON.stringify({ history: history, chatLog: chatLog.slice(-60) })); }
 
 const esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 const fmt = s => esc(s).replace(/\n/g,'<br>');
@@ -288,6 +295,12 @@ async function send(){
   history = history.slice(-10);
   $('msg').value = '';
   const imgs = pendingImages, fls = pendingFiles;
+  let logHtml = '';
+  if (fls.length) logHtml += fls.map(f => '<div class="font-mono text-[10px] bg-white/10 rounded px-2 py-1 mb-2">📄 ' + esc(f.name) + '</div>').join('');
+  if (imgs.length) logHtml += '<div class="font-mono text-[10px] bg-white/10 rounded px-2 py-1 mb-2">📷 ' + imgs.length + ' gambar</div>';
+  if (text) logHtml += fmt(text);
+  chatLog.push({ role: 'user', html: logHtml });
+  persist();
   pendingImages = []; pendingFiles = []; renderPending();
   busy = true; $('send').disabled = true;
   const typing = addBubble('ai', '<span class="typing"><i></i><i></i><i></i></span>');
@@ -299,6 +312,8 @@ async function send(){
     box.innerHTML = fmt(j.data.reply);
     history.push({ role: 'assistant', content: j.data.reply });
     history = history.slice(-10);
+    chatLog.push({ role: 'ai', html: fmt(j.data.reply) });
+    persist();
   } catch (e) {
     box.innerHTML = '<span class="text-red-400">✗ ' + esc(e.message) + '</span>';
   } finally {
@@ -309,13 +324,24 @@ async function send(){
 
 function resetChat(){
   history = [];
+  chatLog = [];
+  store.del('jh_fiony_chat');
   $('chat').innerHTML = '';
   welcome();
 }
 function welcome(){
   addBubble('ai', 'Hai! Aku <b class="text-ai">Fiony</b> 💫 Partner coding, analisis gambar, review file, atau sekadar temen ngobrol. Mau mulai dari mana?');
 }
-welcome();
+function restoreOrWelcome(){
+  let saved = null;
+  try { saved = JSON.parse(store.get('jh_fiony_chat') || 'null'); } catch (e) {}
+  if (saved && saved.chatLog && saved.chatLog.length) {
+    history = Array.isArray(saved.history) ? saved.history.slice(-10) : [];
+    saved.chatLog.slice(-60).forEach(en => addBubble(en.role === 'user' ? 'user' : 'ai', en.html || ''));
+    addBubble('ai', '💾 Sesi sebelumnya dipulihkan — lanjutin aja, aku masih nyimak kok 💜');
+  } else welcome();
+}
+restoreOrWelcome();
 
 $('msg').addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(); } });
 $('msg').addEventListener('input', autoGrow);
