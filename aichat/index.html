@@ -49,8 +49,9 @@ tailwind.config = { theme: { extend: {
   font-size: 0.85em;
 }
 .fio-msg pre {
-  background: rgba(5, 6, 10, 0.9);
-  border: 1px solid rgba(99, 102, 241, 0.3);
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.22), rgba(139, 92, 246, 0.14));
+  border: 1px solid rgba(129, 140, 248, 0.5);
+  box-shadow: 0 0 18px rgba(99, 102, 241, 0.18);
   border-radius: 8px;
   padding: 12px 14px 32px 14px;
   overflow-x: auto;
@@ -62,7 +63,8 @@ tailwind.config = { theme: { extend: {
 .fio-msg pre code {
   background: transparent;
   padding: 0;
-  color: #e2e8f0;
+  color: #e0e7ff;
+  text-shadow: 0 0 8px rgba(129, 140, 248, 0.35);
   white-space: pre;
 }
 .fio-msg pre .copy-btn {
@@ -269,9 +271,9 @@ const esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>
 function fmt(s){
   if (!s) return '';
   const codeBlocks = [];
-  s = s.replace(/```([a-zA-Z0-9]*)\n?([\s\S]*?)```/g, (_, lang, code) => {
+  s = s.replace(/(^|\n)```([a-zA-Z0-9]*)[ \t]*\n([\s\S]*?)\n?```[ \t]*(?=\n|$)/g, (_, pre, lang, code) => {
     codeBlocks.push({ code: code.replace(/\n$/, '') });
-    return '\n@@CB' + (codeBlocks.length - 1) + '@@\n';
+    return pre + '@@CB' + (codeBlocks.length - 1) + '@@';
   });
   s = s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
   s = s.replace(/`([^`\n]+)`/g, '<code>$1</code>');
