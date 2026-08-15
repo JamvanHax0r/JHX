@@ -102,7 +102,7 @@ public class MainActivity extends Activity {
                 if (fileCallback != null) fileCallback.onReceiveValue(null);
                 fileCallback = cb;
                 try {
-                    android.widget.Toast.makeText(this, "DBG chooser open", android.widget.Toast.LENGTH_SHORT).show();
+                    android.widget.Toast.makeText(MainActivity.this, "DBG chooser open", android.widget.Toast.LENGTH_SHORT).show();
                     android.content.Intent pick = new android.content.Intent(Intent.ACTION_GET_CONTENT);
                     pick.addCategory(Intent.CATEGORY_OPENABLE);
                     pick.setType("*/*");
@@ -181,7 +181,7 @@ public class MainActivity extends Activity {
         super.onActivityResult(rc, res, d);
         if (rc == 1 && fileCallback != null) {
             android.net.Uri[] picked = d == null ? null : WebChromeClient.FileChooserParams.parseResult(res, d);
-            android.widget.Toast.makeText(this, "DBG result=" + res + " picked=" + (picked == null ? "null" : String(picked.length)), android.widget.Toast.LENGTH_LONG).show();
+            android.widget.Toast.makeText(this, "DBG result=" + res + " picked=" + (picked == null ? "null" : String.valueOf(picked.length)), android.widget.Toast.LENGTH_LONG).show();
             if (picked != null) for (android.net.Uri u : picked) { try { getContentResolver().takePersistableUriPermission(u, android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION); } catch (Exception ignored) {} }
             fileCallback.onReceiveValue(picked);
             fileCallback = null;
