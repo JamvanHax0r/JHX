@@ -472,7 +472,10 @@ app.post('/yt-download', async (req, res) => {
           ext = 'mp4';
         }
         
-        exec(dlCmd, { timeout: 300000 }, (dlErr) => {
+        const ckFile = path.join(__dirname, 'yt-cookies.txt');
+     if (fs.existsSync(ckFile) && fs.statSync(ckFile).size > 10) dlCmd += ' --cookies "' + ckFile + '"';
+     dlCmd += ' --retries 10 --fragment-retries 10 --extractor-retries 10 --extractor-args "youtube:player_client=android_vr,web"';
+     exec(dlCmd, { timeout: 300000 }, (dlErr) => {
           if (dlErr) {
             fs.rmSync(tmpDir, { recursive: true, force: true });
             return res.status(500).json({ Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: false, error: 'Download gagal: ' + dlErr.message });
