@@ -192,6 +192,7 @@ function rmImg(i){ pendingImages.splice(i, 1); renderPending(); }
 function rmFile(i){ pendingFiles.splice(i, 1); renderPending(); }
 
 $('img-in').addEventListener('change', e => {
+  console.log('[IMG-CHANGE] files:', e.target.files.length, 'valid:', !!e.target.files);
   const files = Array.from(e.target.files || []);
   if (!files.length) return;
   let done = 0;
@@ -201,7 +202,7 @@ $('img-in').addEventListener('change', e => {
     if (!f || f.size > 2 * 1024 * 1024) { addBubble('ai', 'Eits, gambar maksimal 2MB ya 😅 (' + esc((f && f.name) || '?') + ')'); finish(); return; }
     try {
       const rd = new FileReader();
-      rd.onload = () => { pendingImages.push(rd.result); renderPending(); };
+      rd.onload = () => { console.log('[IMG-LOADED] size:', rd.result.length); pendingImages.push(rd.result); renderPending(); };
       rd.onerror = () => { addBubble('ai', 'Yah, gagal baca gambar di perangkat ini 😅 Coba lagi atau pakai gambar lain.'); };
       rd.onloadend = finish;
       rd.readAsDataURL(f);
@@ -210,11 +211,12 @@ $('img-in').addEventListener('change', e => {
 });
 
 $('file-in').addEventListener('change', e => {
+  console.log('[FILE-CHANGE] files:', e.target.files.length, 'valid:', !!e.target.files);
   const f = (e.target.files || [])[0];
   if (!f) return;
   if (f.size > 100 * 1024) { addBubble('ai', 'File teks maksimal 100KB ya 😅 (' + esc(f.name) + ')'); e.target.value = ''; return; }
   const rd = new FileReader();
-  rd.onload = () => { pendingFiles = [{ name: f.name, content: rd.result }]; renderPending(); };
+  rd.onload = () => { console.log('[FILE-LOADED] name:', f.name, 'size:', rd.result.length); pendingFiles = [{ name: f.name, content: rd.result }]; renderPending(); };
   rd.onerror = () => { addBubble('ai', 'Yah, gagal baca file di perangkat ini 😅 Coba lagi ya.'); };
   rd.onloadend = () => { e.target.value = ''; };
   rd.readAsText(f);
