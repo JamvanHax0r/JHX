@@ -1,50 +1,100 @@
 package id.jhx.tools;
 
-import android.Manifest;
 import android.app.Activity;
+import android.app.DownloadManager;
 import android.content.Intent;
-import android.content.pm.PackageManager;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
+import android.util.Log;
 import android.view.KeyEvent;
+import android.webkit.URLUtil;
 import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
+import android.webkit.WebResourceError;
+import android.webkit.WebResourceRequest;
+import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
-import android.webkit.WebSettings;
-import android.webkit.DownloadListener;
-import android.webkit.URLUtil;
 import android.widget.Toast;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
-import java.util.ArrayList;
-import java.util.List;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 public class MainActivity extends Activity {
     private WebView wv;
+    private SwipeRefreshLayout swipe;
     private ValueCallback<Uri[]> fileCallback;
-    private static final int FC_REQ = 1;
-    private static final int PERM_REQ = 100;
+    private boolean pageFailed = false;
+    private static final String TAG = "JHX";
+    private static final String LIVE_URL = "https://jhx.my.id/";
 
     @Override
     protected void onCreate(Bundle b) {
         super.onCreate(b);
         setContentView(R.layout.activity_main);
-        wv = findViewById(R.id.webview);
+
+        // AUTO-CLEAR CACHE on first install (fix WebView ke-cache JS lama)
+        if (b == null) {
+            try {
+                new WebView(this).clearCache(true);
+                Log.d(TAG, "Cache cleared on first install");
+            } catch (Exception e) {
+                Log.e(TAG, "Cache clear failed", e);
+            }
+        }
+
+        wv = findViewById(R.id.wv);
+        swipe = findViewById(R.id.swipe);
+        swipe.setColorSchemeColors(0xFFF59E0B, 0xFF22D3EE, 0xFF8B5CF6);
 
         WebSettings s = wv.getSettings();
         s.setJavaScriptEnabled(true);
         s.setDomStorageEnabled(true);
-        s.setAllowFileAccess(true);
-        s.setAllowContentAccess(true);
         s.setMediaPlaybackRequiresUserGesture(false);
-        s.setMixedContentMode(WebSettings.MIXED_CONTENT_ALWAYS_ALLOW);
         s.setLoadWithOverviewMode(true);
         s.setUseWideViewPort(true);
-        s.setDatabaseEnabled(true);
+        s.setCacheMode(WebSettings.LOAD_DEFAULT);
+        s.setUserAgentString(s.getUserAgentString() + " JHTools/2.0");
 
-        wv.setWebViewClient(new WebViewClient());
+        wv.setWebViewClient(new WebViewClient() {
+            @Override
+            public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest r) {
+                String h = r.getUrl().getHost();
+                if (h != null && (h.endsWith("jhx.my.id") || h.endsWith("jhax0r.my.id") || h.endsWith("api.jhx.my.id"))) {
+                    return false;
+                }
+                try {
+                    startActivity(new Intent(Intent.ACTION_VIEW, r.getUrl()));
+                } catch (Exception e) {
+                    Log.e(TAG, "External link failed", e);
+                }
+                return true;
+            }
+
+            @Override
+            public void onPageStarted(WebView view, String url, android.graphics.Bitmap favicon) {
+                pageFailed = false;
+                Log.d(TAG, "page-start: " + url);
+            }
+
+            @Override
+            public void onPageFinished(WebView view, String url) {
+                swipe.setRefreshing(false);
+                Log.d(TAG, "page-done: " + url);
+                if (!pageFailed && url.startsWith("file:///android_asset/offline.html")) {
+                    wv.loadUrl(LIVE_URL);
+                }
+            }
+
+            @Override
+            public void onReceivedError(WebView view, WebResourceRequest req, WebResourceError err) {
+                if (req.isForMainFrame()) {
+                    pageFailed = true;
+                    wv.loadUrl("file:///android_asset/offline.html");
+                }
+            }
+        });
 
         wv.setWebChromeClient(new WebChromeClient() {
             @Override
@@ -52,20 +102,12 @@ public class MainActivity extends Activity {
                 if (fileCallback != null) fileCallback.onReceiveValue(null);
                 fileCallback = cb;
                 try {
-                    if (!hasMediaPermission()) {
-                        requestMediaPermission();
-                        return true;
-                    }
-                    // Gunakan intent manual yang lebih universal (bukan createIntent yang ketat)
-                    Intent pickIntent = new Intent(Intent.ACTION_GET_CONTENT);
-                    pickIntent.addCategory(Intent.CATEGORY_OPENABLE);
-                    pickIntent.setType("image/*");
-                    pickIntent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
-                    pickIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-                    pickIntent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
-
-                    Intent chooser = Intent.createChooser(pickIntent, "Pilih gambar");
-                    startActivityForResult(chooser, FC_REQ);
+                    android.content.Intent pick = new android.content.Intent(android.content.Intent.ACTION_GET_CONTENT);
+                    pick.addCategory(android.content.Intent.CATEGORY_OPENABLE);
+                    pick.setType("*/*");
+                    pick.putExtra(android.content.Intent.EXTRA_ALLOW_MULTIPLE, true);
+                    pick.addFlags(android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                    startActivityForResult(android.content.Intent.createChooser(pick, "Pilih file"), 1);
                 } catch (Exception e) {
                     fileCallback = null;
                     return false;
@@ -75,6 +117,7 @@ public class MainActivity extends Activity {
         });
 
         wv.setDownloadListener((url, ua, cd, mime, len) -> {
+            // FIX .BIN: kalau Content-Disposition kosong atau filename .bin, fallback pakai URL path
             String filename = URLUtil.guessFileName(url, cd, mime);
             if (filename == null || filename.endsWith(".bin") || filename.equals("downloadfile")) {
                 try {
@@ -82,80 +125,63 @@ public class MainActivity extends Activity {
                     if (path != null && path.contains(".")) {
                         filename = path.substring(path.lastIndexOf('/') + 1);
                     }
-                } catch (Exception ignored) {}
+                } catch (Exception e) {
+                    Log.e(TAG, "filename-fallback", e);
+                }
             }
-            android.app.DownloadManager.Request req = new android.app.DownloadManager.Request(Uri.parse(url));
-            req.setMimeType(mime);
-            req.addRequestHeader("User-Agent", ua);
-            req.setDescription("Downloading...");
-            req.setTitle(filename);
-            req.allowScanningByMediaScanner();
-            req.setNotificationVisibility(android.app.DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
-            req.setDestinationInExternalPublicDir(android.os.Environment.DIRECTORY_DOWNLOADS, filename);
-            android.app.DownloadManager dm = (android.app.DownloadManager) getSystemService(DOWNLOAD_SERVICE);
-            dm.enqueue(req);
-            Toast.makeText(this, "⬇ " + filename, Toast.LENGTH_SHORT).show();
+            Log.d(TAG, "download: mime=" + mime + " cd=" + cd + " fn=" + filename);
+
+            try {
+                DownloadManager.Request rq = new DownloadManager.Request(Uri.parse(url));
+                rq.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
+                rq.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, filename);
+                ((DownloadManager) getSystemService(DOWNLOAD_SERVICE)).enqueue(rq);
+                Toast.makeText(this, "Download: " + filename, Toast.LENGTH_SHORT).show();
+            } catch (Exception e) {
+                Log.e(TAG, "download-fail", e);
+                try {
+                    startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(url)));
+                } catch (Exception e2) {
+                    Toast.makeText(this, "Download failed", Toast.LENGTH_SHORT).show();
+                }
+            }
         });
 
-        wv.loadUrl("https://jhx.my.id/");
-    }
-
-    private boolean hasMediaPermission() {
-        if (Build.VERSION.SDK_INT >= 33) {
-            return ContextCompat.checkSelfPermission(this, Manifest.permission.READ_MEDIA_IMAGES) == PackageManager.PERMISSION_GRANTED;
-        }
-        return ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED;
-    }
-
-    private void requestMediaPermission() {
-        if (Build.VERSION.SDK_INT >= 33) {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_MEDIA_IMAGES}, PERM_REQ);
-        } else {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, PERM_REQ);
-        }
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int rc, String[] perms, int[] res) {
-        super.onRequestPermissionsResult(rc, perms, res);
-        if (rc == PERM_REQ) {
-            if (res.length > 0 && res[0] == PackageManager.PERMISSION_GRANTED) {
-                Toast.makeText(this, "✓ Izin akses gambar diberikan", Toast.LENGTH_SHORT).show();
+        swipe.setOnRefreshListener(() -> {
+            if (isOnline()) {
+                if (wv.getUrl() != null && wv.getUrl().startsWith("file:")) {
+                    wv.loadUrl(LIVE_URL);
+                } else {
+                    // Cache-bust: clear cache + reload biar dapet web terbaru
+                    wv.clearCache(true);
+                    wv.reload();
+                }
             } else {
-                Toast.makeText(this, "✗ Izin ditolak — upload tidak bisa", Toast.LENGTH_LONG).show();
-                if (fileCallback != null) { fileCallback.onReceiveValue(null); fileCallback = null; }
+                wv.loadUrl("file:///android_asset/offline.html");
+                swipe.setRefreshing(false);
             }
+        });
+
+        wv.loadUrl(LIVE_URL);
+    }
+
+    private boolean isOnline() {
+        try {
+            ConnectivityManager cm = (ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
+            NetworkInfo n = cm.getActiveNetworkInfo();
+            return n != null && n.isConnected();
+        } catch (Exception e) {
+            return false;
         }
     }
 
     @Override
     protected void onActivityResult(int rc, int res, Intent d) {
         super.onActivityResult(rc, res, d);
-        if (rc == FC_REQ && fileCallback != null) {
-            Uri[] results = null;
-            if (res == Activity.RESULT_OK && d != null) {
-                // Handle multiple selection
-                String dataString = d.getDataString();
-                if (dataString != null) {
-                    results = new Uri[]{Uri.parse(dataString)};
-                } else if (d.getClipData() != null) {
-                    int count = d.getClipData().getItemCount();
-                    List<Uri> list = new ArrayList<>();
-                    for (int i = 0; i < count; i++) {
-                        list.add(d.getClipData().getItemAt(i).getUri());
-                    }
-                    results = list.toArray(new Uri[0]);
-                }
-            }
-            // Grant URI read permission ke WebView
-            if (results != null) {
-                for (Uri u : results) {
-                    try {
-                        getContentResolver().takePersistableUriPermission(u, Intent.FLAG_GRANT_READ_URI_PERMISSION);
-                    } catch (Exception ignored) {}
-                }
-            }
-            fileCallback.onReceiveValue(results);
+        if (rc == 1 && fileCallback != null) {
+            android.net.Uri[] picked = d == null ? null : WebChromeClient.FileChooserParams.parseResult(res, d);
+            if (picked != null) for (android.net.Uri u : picked) { try { getContentResolver().takePersistableUriPermission(u, android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION); } catch (Exception ignored) {} }
+            fileCallback.onReceiveValue(picked);
             fileCallback = null;
         }
     }
