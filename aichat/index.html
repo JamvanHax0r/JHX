@@ -271,7 +271,7 @@ function fmt(s){
   const codeBlocks = [];
   s = s.replace(/```([a-zA-Z0-9]*)\n?([\s\S]*?)```/g, (_, lang, code) => {
     codeBlocks.push({ code: code.replace(/\n$/, '') });
-    return '\n<!--CB' + (codeBlocks.length - 1) + '-->\n';
+    return '\n@@CB' + (codeBlocks.length - 1) + '@@\n';
   });
   s = s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
   s = s.replace(/`([^`\n]+)`/g, '<code>$1</code>');
@@ -284,13 +284,13 @@ function fmt(s){
   s = s.replace(/^---$/gm, '<hr>');
   s = s.replace(/^[\t ]*[-•] (.+)$/gm, '<li>$1</li>');
   s = s.replace(/^[\t ]*\d+\. (.+)$/gm, '<oli>$1</oli>');
-  s = s.replace(/((?:<oli>.*<\/oli><br>?)+)/g, x => '<ol>' + x.replace(/<br>/g, '') + '</ol>');
-  s = s.replace(/((?:<li>.*<\/li><br>?)+)/g, x => '<ul>' + x.replace(/<br>/g, '') + '</ul>');
+  s = s.replace(/((?:<oli>.*<\/oli>\n?)+)/g, x => '<ol>' + x.replace(/\n/g, '') + '</ol>');
+  s = s.replace(/((?:<li>.*<\/li>\n?)+)/g, x => '<ul>' + x.replace(/\n/g, '') + '</ul>');
   s = s.replace(/<oli>/g, '<li>').replace(/<\/oli>/g, '</li>');
   s = s.replace(/\n/g, '<br>');
   codeBlocks.forEach((cb, id) => {
     const html = '<pre><code>' + cb.code.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;') + '</code><button class="copy-btn" onclick="copyCode(this)">Copy</button></pre>';
-    s = s.replace('<!--CB' + id + '-->', html);
+    s = s.split('@@CB' + id + '@@').join(html);
   });
   s = s.replace(/(<br>){3,}/g, '<br><br>');
   return s;
