@@ -25,6 +25,7 @@ public class MainActivity extends Activity {
     private WebView wv;
     private SwipeRefreshLayout swipe;
     private ValueCallback<Uri[]> fileCallback;
+    private boolean fallbackUsed = false;
     private boolean pageFailed = false;
     private static final String TAG = "JHX";
     private static final String LIVE_URL = "https://jhx.my.id/";
@@ -195,8 +196,27 @@ public class MainActivity extends Activity {
     protected void onActivityResult(int rc, int res, Intent d) {
         super.onActivityResult(rc, res, d);
         if (rc == 1 && fileCallback != null) {
-            android.net.Uri[] picked = d == null ? null : WebChromeClient.FileChooserParams.parseResult(res, d);
-            android.widget.Toast.makeText(this, "DBG result=" + res + " picked=" + (picked == null ? "null" : String.valueOf(picked.length)), android.widget.Toast.LENGTH_LONG).show();
+            java.util.List<android.net.Uri> list = new java.util.ArrayList<>();
+            if (d != null) {
+                if (d.getClipData() != null) { for (int i = 0; i < d.getClipData().getItemCount(); i++) list.add(d.getClipData().getItemAt(i).getUri()); }
+                else if (d.getData() != null) { list.add(d.getData()); }
+            }
+            if (list.isEmpty() && d != null) {
+                android.net.Uri[] pr = WebChromeClient.FileChooserParams.parseResult(res, d);
+                if (pr != null) for (android.net.Uri u : pr) list.add(u);
+            }
+            if (list.isEmpty() && res == android.app.Activity.RESULT_OK && !fallbackUsed) {
+                fallbackUsed = true;
+                android.widget.Toast.makeText(this, "Galeri device ini gak ngirim file — pilih lewat sini ya 🙏", android.widget.Toast.LENGTH_LONG).show();
+                android.content.Intent fb = new android.content.Intent(android.content.Intent.ACTION_GET_CONTENT);
+                fb.addCategory(android.content.Intent.CATEGORY_OPENABLE);
+                fb.setType("*/*");
+                fb.putExtra(android.content.Intent.EXTRA_ALLOW_MULTIPLE, true);
+                startActivityForResult(android.content.Intent.createChooser(fb, "Pilih file"), 1);
+                return;
+            }
+            fallbackUsed = false;
+            android.net.Uri[] picked = list.isEmpty() ? null : list.toArray(new android.net.Uri[0]);
             if (picked != null) for (android.net.Uri u : picked) { try { getContentResolver().takePersistableUriPermission(u, android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION); } catch (Exception ignored) {} }
             fileCallback.onReceiveValue(picked);
             fileCallback = null;
