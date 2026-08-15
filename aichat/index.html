@@ -191,26 +191,29 @@ function renderPending(){
 function rmImg(i){ pendingImages.splice(i, 1); renderPending(); }
 function rmFile(i){ pendingFiles.splice(i, 1); renderPending(); }
 
-$('img-in').addEventListener('change', e => {
-  console.log('[IMG-CHANGE] files:', e.target.files.length, 'valid:', !!e.target.files);
-  const files = Array.from(e.target.files || []);
+function onImgSel(ev){
+  const el = ev.target;
+  if (el.dataset.busy === '1') return;
+  const files = Array.from(el.files || []);
   if (!files.length) return;
+  el.dataset.busy = '1';
   let done = 0;
-  const finish = () => { done++; if (done >= files.length) e.target.value = ''; };
+  const finish = () => { done++; if (done >= files.length) { try { el.value = ''; } catch (_) {} setTimeout(() => { el.dataset.busy = ''; }, 800); } };
   files.forEach(f => {
     if (pendingImages.length >= 3) { finish(); return; }
     if (!f || f.size > 2 * 1024 * 1024) { addBubble('ai', 'Eits, gambar maksimal 2MB ya 😅 (' + esc((f && f.name) || '?') + ')'); finish(); return; }
     try {
       const rd = new FileReader();
-      rd.onload = () => { console.log('[IMG-LOADED] size:', rd.result.length); pendingImages.push(rd.result); renderPending(); };
+      rd.onload = () => { pendingImages.push(rd.result); renderPending(); };
       rd.onerror = () => { addBubble('ai', 'Yah, gagal baca gambar di perangkat ini 😅 Coba lagi atau pakai gambar lain.'); };
       rd.onloadend = finish;
       rd.readAsDataURL(f);
     } catch (err) { addBubble('ai', 'Upload tidak didukung: ' + esc(err.message)); finish(); }
   });
-});
-
-$('file-in').addEventListener('change', e => {
+}
+$('img-in').addEventListener('input', onImgSel);
+$('img-in').addEventListener('change', onImgSel);
+$('file-in').addEventListener('input', e => {
   console.log('[FILE-CHANGE] files:', e.target.files.length, 'valid:', !!e.target.files);
   const f = (e.target.files || [])[0];
   if (!f) return;
