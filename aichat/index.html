@@ -69,7 +69,7 @@ tailwind.config = { theme: { extend: {
       <span class="w-10 h-10 rounded-full bg-ai/15 border border-ai/30 flex items-center justify-center text-lg">💜</span>
       <div>
         <p class="font-display font-bold text-white">Fiony</p>
-        <p class="font-mono text-[10px] text-lm flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-lm animate-pulse"></span>online · gpt-4.1</p>
+        <p class="font-mono text-[10px] text-lm flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-lm animate-pulse"></span>online · JH-Neural engine</p>
       </div>
       <button onclick="resetChat()" class="ml-auto font-mono text-[10px] text-slate-500 hover:text-ai border border-line hover:border-ai/40 rounded-lg px-3 py-2 transition-colors">RESET CHAT</button>
     </div>
@@ -79,15 +79,15 @@ tailwind.config = { theme: { extend: {
     <div id="pending" class="hidden px-5 pt-3 flex gap-2 flex-wrap items-center"></div>
 
     <div class="p-4 border-t border-line">
-      <div class="flex gap-2 items-end">
-        <input type="file" id="img-in" accept="image/*" multiple class="hidden">
-        <input type="file" id="file-in" accept=".txt,.js,.json,.md,.csv,.html,.css,.py,.sh,.log" class="hidden">
+      <input type="file" id="img-in" accept="image/*" multiple class="hidden">
+      <input type="file" id="file-in" accept=".txt,.js,.json,.md,.csv,.html,.css,.py,.sh,.log" class="hidden">
+      <textarea id="msg" rows="2" placeholder="Tulis pesan buat Fiony…" class="w-full bg-black/50 border border-line rounded-xl px-4 py-3 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-ai/60 focus:ring-1 focus:ring-ai/40 transition-all resize-none overflow-y-auto" style="min-height:56px;max-height:240px"></textarea>
+      <div class="flex gap-2 items-center mt-2.5">
         <button onclick="document.getElementById('img-in').click()" title="Attach gambar (max 3, 2MB each)" class="w-11 h-11 shrink-0 rounded-xl border border-line font-mono text-sm text-slate-300 hover:border-ai/50 hover:text-ai transition-colors">📷</button>
         <button onclick="document.getElementById('file-in').click()" title="Attach file teks (max 100KB)" class="w-11 h-11 shrink-0 rounded-xl border border-line font-mono text-sm text-slate-300 hover:border-ai/50 hover:text-ai transition-colors">📄</button>
-        <textarea id="msg" rows="1" placeholder="Tulis pesan buat Fiony…" class="flex-1 bg-black/50 border border-line rounded-xl px-4 py-3 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-ai/60 focus:ring-1 focus:ring-ai/40 transition-all resize-none max-h-32"></textarea>
-        <button id="send" onclick="send()" class="h-11 px-6 shrink-0 rounded-xl bg-gradient-to-r from-ai to-vi text-white font-mono text-xs tracking-widest hover:shadow-[0_0_25px_rgba(99,102,241,.4)] transition-shadow disabled:opacity-40">KIRIM ⏎</button>
+        <p class="font-mono text-[10px] text-slate-600 flex-1">10 req/menit · 50 req/hari — owner unlimited 💜</p>
+        <button id="send" onclick="send()" class="h-11 px-8 shrink-0 rounded-xl bg-gradient-to-r from-ai to-vi text-white font-mono text-xs tracking-widest hover:shadow-[0_0_25px_rgba(99,102,241,.4)] transition-shadow disabled:opacity-40">KIRIM ⏎</button>
       </div>
-      <p class="font-mono text-[10px] text-slate-600 mt-2.5">rate limit: 10 req/menit · 50 req/hari — owner unlimited 💜</p>
     </div>
   </div>
 
@@ -116,7 +116,7 @@ tailwind.config = { theme: { extend: {
   "type": "chat",
   "data": {
     "reply": "Hai Kak! Aku Fiony 💫 Ada yang bisa aku bantu?",
-    "model": "gpt-4.1",
+    "model": "JH-Neural v1",
     "usage": { "prompt_tokens": 150, "completion_tokens": 40 }
   }
 }</pre>
@@ -255,6 +255,8 @@ function welcome(){
 welcome();
 
 $('msg').addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(); } });
+$('msg').addEventListener('input', autoGrow);
+function autoGrow(){ const el = $('msg'); el.style.height = 'auto'; el.style.height = Math.min(el.scrollHeight, 240) + 'px'; }
 
 function cp(id){
   const el = document.getElementById(id);

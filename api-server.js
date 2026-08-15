@@ -1231,7 +1231,7 @@ app.post('/ai-chat', async (req, res) => {
     // Call TTAPI (OpenAI-compatible)
     const response = await axios.post(
       'https://api.ttapi.io/v1/chat/completions',
-      { model: persona.model, messages, temperature: 0.7, max_tokens: 2000 },
+      { model: 'JH-Neural v1', messages, temperature: 0.7, max_tokens: 2000 },
       { headers: { 'Authorization': 'Bearer ' + persona.apiKey, 'Content-Type': 'application/json' }, timeout: 120000 }
     );
     
@@ -1239,7 +1239,7 @@ app.post('/ai-chat', async (req, res) => {
     const usage = response.data.usage || {};
     res.json({
       Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: true, type: 'chat',
-      data: { reply, model: persona.model, usage: { prompt_tokens: usage.prompt_tokens, completion_tokens: usage.completion_tokens }, isOwner }
+      data: { reply, model: 'JH-Neural v1', usage: { prompt_tokens: usage.prompt_tokens, completion_tokens: usage.completion_tokens }, isOwner }
     });
   } catch (e) {
     const errMsg = e.response ? (e.response.data.error ? e.response.data.error.message : e.response.data) : e.message;
