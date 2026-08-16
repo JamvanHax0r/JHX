@@ -24,15 +24,15 @@ tailwind.config = { theme: { extend: {
   body{background:#05060a;color:#e6e8ee;overflow-x:hidden}
   .grid-bg{position:fixed;inset:0;z-index:-2;background-image:linear-gradient(rgba(255,255,255,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.035) 1px,transparent 1px);background-size:56px 56px;mask-image:radial-gradient(ellipse 80% 60% at 50% 0%,black 40%,transparent 100%)}
   .orb{position:fixed;border-radius:9999px;filter:blur(110px);z-index:-1}
-  .orb-1{width:420px;height:420px;background:#0e7490;top:-140px;right:-120px;opacity:.22}
-  .orb-2{width:380px;height:380px;background:#1e40af;bottom:-120px;left:-120px;opacity:.18}
-  .tgrad{background:linear-gradient(90deg,#22d3ee,#3b82f6,#1e40af,#22d3ee);background-size:300% 100%;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;animation:flow 7s linear infinite}
+  .orb-1{width:420px;height:420px;background:#9d174d;top:-140px;right:-120px;opacity:.22}
+  .orb-2{width:380px;height:380px;background:#0e7490;bottom:-120px;left:-120px;opacity:.18}
+  .tgrad{background:linear-gradient(90deg,#22d3ee,#8b5cf6,#ec4899,#22d3ee);background-size:300% 100%;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;animation:flow 7s linear infinite}
   @keyframes flow{0%{background-position:0% 50%}100%{background-position:300% 50%}}
   .card{background:rgba(11,14,20,.7);border:1px solid rgba(255,255,255,.07);backdrop-filter:blur(14px)}
   .beat{display:inline-block;animation:beat 1.3s ease-in-out infinite}
   @keyframes beat{0%,100%{transform:scale(1)}12%{transform:scale(1.25)}24%{transform:scale(1)}36%{transform:scale(1.2)}48%{transform:scale(1)}}
   ::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:#05060a}::-webkit-scrollbar-thumb{background:#334155;border-radius:3px}
-  ::selection{background:#22d3ee;color:#05060a}
+  ::selection{background:#8b5cf6;color:#fff}
 </style>
 </head>
 <body class="font-sans antialiased">
@@ -65,7 +65,7 @@ tailwind.config = { theme: { extend: {
       <input id="url" type="text" placeholder="https://www.mediafire.com/file/…" class="flex-1 bg-black/50 border border-line rounded-lg px-5 py-4 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-cy/60 focus:ring-1 focus:ring-cy/40 transition-all font-mono">
       <div class="flex gap-3">
         <button onclick="pasteUrl()" class="px-5 py-4 rounded-lg border border-line font-mono text-xs text-slate-300 hover:border-cy/50 hover:text-cy transition-colors">PASTE</button>
-        <button id="btn" onclick="run()" class="px-8 py-4 rounded-lg bg-gradient-to-r from-cy to-blue-600 text-white font-semibold text-sm hover:shadow-[0_0_30px_rgba(34,211,238,.35)] transition-shadow disabled:opacity-40 disabled:cursor-not-allowed whitespace-nowrap">EKSTRAK ⏎</button>
+        <button id="btn" onclick="run()" class="px-8 py-4 rounded-lg bg-gradient-to-r from-cy to-vi text-white font-semibold text-sm hover:shadow-[0_0_30px_rgba(34,211,238,.35)] transition-shadow disabled:opacity-40 disabled:cursor-not-allowed whitespace-nowrap">EKSTRAK ⏎</button>
       </div>
     </div>
     <p id="status" class="hidden font-mono text-[11px] text-cy mt-4"></p>
@@ -83,7 +83,7 @@ tailwind.config = { theme: { extend: {
         <div class="flex justify-between gap-4 font-mono text-xs"><span class="text-slate-500 shrink-0">FILENAME</span><span id="rfname" class="text-white text-right break-all"></span></div>
         <div class="flex justify-between gap-4 font-mono text-xs"><span class="text-slate-500 shrink-0">SIZE</span><span id="rfsize" class="text-cy"></span></div>
         <div class="flex justify-between gap-4 font-mono text-xs"><span class="text-slate-500 shrink-0">SOURCE</span><a id="rsrc" href="#" target="_blank" rel="noopener" class="text-slate-400 hover:text-cy transition-colors truncate">mediafire.com</a></div>
-        <a id="rdl" href="#" target="_blank" rel="noopener" class="block text-center font-mono text-sm bg-gradient-to-r from-cy to-blue-600 text-white py-3.5 rounded-lg hover:shadow-[0_0_30px_rgba(34,211,238,.35)] transition-shadow mt-2">⤓ DOWNLOAD FILE</a>
+        <a id="rdl" href="#" target="_blank" rel="noopener" class="block text-center font-mono text-sm bg-gradient-to-r from-cy to-vi text-white py-3.5 rounded-lg hover:shadow-[0_0_30px_rgba(34,211,238,.35)] transition-shadow mt-2">⤓ DOWNLOAD FILE</a>
       </div>
     </div>
   </div>
