@@ -434,6 +434,62 @@ app.post('/yt-search', async (req, res) => {
   }
 });
 
+// === MEDIAFIRE DOWNLOADER ===
+app.post('/mf-downloader', async (req, res) => {
+  try {
+    const { url } = req.body || {};
+    if (!url) return res.status(400).json({ Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: false, error: 'URL MediaFire wajib diisi' });
+
+    const valid = x => /^https?:\/\/(www\.)?mediafire\.com\/(file|download)\//i.test(x);
+    if (!valid(url)) return res.status(400).json({ Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: false, error: 'Link MediaFire tidak valid' });
+
+    const headers = {
+      'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+      'Accept-Language': 'id-ID,id;q=0.9,en-US;q=0.8',
+      'Cache-Control': 'max-age=0',
+      'Referer': 'https://www.mediafire.com/',
+      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+    };
+
+    const { data: html } = await axios.get(url, { headers, maxRedirects: 5, responseType: 'text', timeout: 30000 });
+    const $ = cheerio.load(html);
+
+    if (/File has been deleted|This file is currently unavailable|Permission Denied/i.test(html)) {
+      return res.status(410).json({ Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: false, error: 'File tidak tersedia (dihapus/private)' });
+    }
+
+    const downloadUrl = $('#downloadButton').attr('href');
+    if (!downloadUrl || !/^https?:\/\//.test(downloadUrl)) {
+      return res.status(404).json({ Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: false, error: 'Download URL tidak ditemukan' });
+    }
+
+    let fileName = $('div.dl-btn-label').attr('title') || $('.dl-info .filename').first().text() || $('meta[property="og:title"]').attr('content') || 'unknown';
+    fileName = String(fileName).replace(/\s+/g, ' ').trim();
+
+    let fileSize = '';
+    const btnMatch = $('#downloadButton').text().match(/\((.*?)\)/);
+    if (btnMatch && btnMatch[1]) fileSize = btnMatch[1].trim();
+    else fileSize = $('ul.details li').filter((i, el) => $(el).text().includes('File size:')).find('span').text().trim();
+
+    return res.json({
+      Developer: 'JH a.k.a Dhika',
+      Kesayangan: 'Fiony Alveria♡',
+      Status: true,
+      type: 'info',
+      data: {
+        file_name: fileName,
+        file_size: fileSize || 'Unknown',
+        download_url: downloadUrl,
+        source: url
+      }
+    });
+
+  } catch (e) {
+    console.error('[MF-ERROR]', e.message);
+    return res.status(500).json({ Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: false, error: 'Scraper gagal: ' + e.message });
+  }
+});
+
 app.post('/yt-download', async (req, res) => {
   try {
     const url = (req.body && req.body.url) || '';
