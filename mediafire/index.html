@@ -57,7 +57,7 @@ tailwind.config = { theme: { extend: {
 <main class="max-w-5xl mx-auto px-4 sm:px-6 pt-28 pb-20">
   <p class="font-mono text-xs text-slate-600 mb-4">~/modules/<span class="text-cy">mediafire-downloader</span></p>
   <h1 class="font-display font-bold text-4xl sm:text-5xl text-white mb-4">MediaFire <span class="tgrad">Downloader</span></h1>
-  <p class="text-slate-400 max-w-2xl leading-relaxed mb-10">Tempel link file MediaFire. Sistem mengekstrak nama, ukuran, dan direct link bersih — tanpa login, tanpa iklan, dalam hitungan detik. Langsung simpan dari server MediaFire.</p>
+  <p class="text-slate-400 max-w-2xl leading-relaxed mb-10">Tempel link file MediaFire. Sistem mengekstrak nama, ukuran, dan direct link bersih — tanpa login, tanpa iklan, dalam hitungan detik. Disajikan rapi via proxy JH — cepat, privat, dan bisa di-resume.</p>
 
   <div class="card rounded-2xl p-6 sm:p-8 border-t-2 border-t-cy/60">
     <label class="font-mono text-[11px] text-slate-500 tracking-widest block mb-3">MEDIAFIRE URL</label>
@@ -76,7 +76,7 @@ tailwind.config = { theme: { extend: {
         <div class="w-14 h-14 rounded-xl bg-cy/10 border border-cy/30 flex items-center justify-center text-2xl shadow-[0_0_18px_rgba(34,211,238,.25)]">📦</div>
         <div class="min-w-0">
           <p id="rname" class="font-display font-bold text-lg text-white truncate"></p>
-          <p class="font-mono text-[11px] text-lm">✓ direct link siap diunduh</p>
+          <p class="font-mono text-[11px] text-lm">✓ link proxy siap diunduh</p>
         </div>
       </div>
       <div class="card rounded-xl p-5 space-y-3">
@@ -114,7 +114,7 @@ tailwind.config = { theme: { extend: {
   "data": {
     "file_name": "cap-api.zip",
     "file_size": "1.64MB",
-    "download_url": "https://download1334.mediafire.com/…",
+    "download_url": "https://api.jhx.my.id/resfile/AB12.zip",
     "source": "https://www.mediafire.com/file/…"
   }
 }</pre>
@@ -143,7 +143,7 @@ if (json.Status) {
       <div class="px-5 py-3 border-b border-line font-mono text-xs text-slate-500">endpoints</div>
       <div class="p-5 font-mono text-sm space-y-2.5">
         <p><span class="text-lm bg-lm/10 border border-lm/25 rounded px-2 py-0.5 text-[10px] font-semibold">POST</span> <span class="text-white">/mf-downloader</span> <span class="text-slate-600 text-xs">— { url }</span></p>
-        <p><span class="text-cy bg-cy/10 border border-cy/25 rounded px-2 py-0.5 text-[10px] font-semibold">GET</span> <span class="text-white">download_url</span> <span class="text-slate-600 text-xs">— direct link MediaFire</span></p>
+        <p><span class="text-cy bg-cy/10 border border-cy/25 rounded px-2 py-0.5 text-[10px] font-semibold">GET</span> <span class="text-white">/resfile/:code.ext</span> <span class="text-slate-600 text-xs">— proxy file (range supported)</span></p>
         <p><span class="text-vi bg-vi/10 border border-vi/25 rounded px-2 py-0.5 text-[10px] font-semibold">GET</span> <span class="text-white">/mediafire/</span> <span class="text-slate-600 text-xs">— halaman ini</span></p>
       </div>
     </div>
@@ -152,7 +152,7 @@ if (json.Status) {
       <ul class="p-5 text-sm text-slate-400 space-y-2.5">
         <li><span class="text-cy">→</span> Tanpa login MediaFire, tanpa lewati iklan/redirect.</li>
         <li><span class="text-cy">→</span> Filename + ukuran auto-terbaca dari halaman file.</li>
-        <li><span class="text-cy">→</span> Direct link diunduh langsung dari server MediaFire (cepat & stabil).</li>
+        <li><span class="text-cy">→</span> Link unduhan via proxy JH — aktif ±2 jam & support resume.</li>
       </ul>
     </div>
   </div>
@@ -185,7 +185,7 @@ async function run(){
     const j = await r.json();
     clearInterval(iv);
     if (!j.Status) throw new Error(j.error || 'Gagal mengambil data.');
-    $('status').textContent = '✓ selesai — direct link siap diunduh';
+    $('status').textContent = '✓ selesai — link proxy siap diunduh';
     $('rname').textContent = j.data.file_name;
     $('rfname').textContent = j.data.file_name;
     $('rfsize').textContent = j.data.file_size;

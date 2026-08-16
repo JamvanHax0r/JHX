@@ -471,16 +471,21 @@ app.post('/mf-downloader', async (req, res) => {
     if (btnMatch && btnMatch[1]) fileSize = btnMatch[1].trim();
     else fileSize = $('ul.details li').filter((i, el) => $(el).text().includes('File size:')).find('span').text().trim();
 
+    const code = makeCode();
+    const fext = (fileName.match(/\.[a-z0-9]+$/i) || [''])[0];
+    storeSet('resfile:' + code, { u: downloadUrl, k: 'file', fn: fileName, ref: 'https://www.mediafire.com/' }, 7200);
     return res.json({
       Developer: 'JH a.k.a Dhika',
       Kesayangan: 'Fiony Alveria♡',
       Status: true,
-      type: 'info',
+      type: 'download',
       data: {
         file_name: fileName,
         file_size: fileSize || 'Unknown',
-        download_url: downloadUrl,
-        source: url
+        url: 'https://api.jhx.my.id/resfile/' + code + fext,
+        download_url: 'https://api.jhx.my.id/resfile/' + code + fext,
+        source: url,
+        expires: '±2 jam'
       }
     });
 
@@ -1380,6 +1385,24 @@ async function serveProxy(req, res) {
 app.get('/resimg/:code', serveProxy);
 app.get('/resvid/:code', serveProxy);
 app.get('/resaud/:code', serveProxy);
+app.get('/resfile/:code', async (req, res) => {
+  const code = String(req.params.code).split('.')[0];
+  const item = storeGet('resfile:' + code);
+  if (!item || !item.u) return res.status(410).json({ error: 'link expired' });
+  const fn = String(item.fn || ('JHMF_' + code)).replace(/[^\x20-\x7E]/g, '');
+  try {
+    const hdrs = { 'User-Agent': UA, 'Accept': '*/*', 'Referer': item.ref || 'https://www.mediafire.com/' };
+    if (req.headers.range) hdrs.Range = req.headers.range;
+    const up = await axios.get(item.u, { responseType: 'stream', timeout: 120000, headers: hdrs });
+    if (req.headers.range) { res.status(206); if (up.headers['content-range']) res.setHeader('Content-Range', up.headers['content-range']); }
+    res.setHeader('Accept-Ranges', 'bytes');
+    res.setHeader('Content-Type', up.headers['content-type'] || 'application/octet-stream');
+    if (up.headers['content-length']) res.setHeader('Content-Length', up.headers['content-length']);
+    res.setHeader('Content-Disposition', 'attachment; filename="' + encodeURIComponent(fn) + '"');
+    res.setHeader('Cache-Control', 'public, max-age=3600');
+    up.data.pipe(res);
+  } catch (e) { res.status(502).json({ error: 'upstream error' }); }
+});
 
 
 function garbageCollect() {
