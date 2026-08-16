@@ -473,6 +473,11 @@ tailwind.config = {
       <p class="font-display font-bold text-sm text-white group-hover:text-ly transition-colors">Lyrics</p>
       <p class="font-mono text-[10px] text-slate-500 mt-1.5 group-hover:text-ly">BUKA →</p>
     </a>
+    <a href="/mediafire/" class="card rounded-xl p-5 text-center group hover:border-cy/50 hover:-translate-y-1 transition-all">
+      <span class="mx-auto mb-3 w-11 h-11 rounded-lg bg-cy/10 border border-cy/25 flex items-center justify-center"><svg class="w-5 h-5 text-cy" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg></span>
+      <p class="font-display font-bold text-sm text-white group-hover:text-cy transition-colors">MediaFire</p>
+      <p class="font-mono text-[10px] text-slate-500 mt-1.5 group-hover:text-cy">BUKA →</p>
+    </a>
     <a href="/pindl/" class="card rounded-xl p-5 text-center group hover:border-pt/50 hover:-translate-y-1 transition-all">
       <span class="mx-auto mb-3 w-11 h-11 rounded-lg bg-pt/10 border border-pt/25 flex items-center justify-center"><svg class="w-5 h-5 text-pt" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0a12 12 0 0 0-4.37 23.17c-.1-.94-.2-2.4.04-3.44l1.4-5.96s-.36-.72-.36-1.78c0-1.66.96-2.9 2.16-2.9 1.02 0 1.52.76 1.52 1.68 0 1.02-.66 2.56-.98 3.98-.28 1.2.6 2.16 1.76 2.16 2.12 0 3.74-2.24 3.74-5.46 0-2.84-2.04-4.84-4.96-4.84-3.38 0-5.36 2.52-5.36 5.14 0 1.02.4 2.1.88 2.7.1.12.1.22.08.34l-.34 1.36c-.06.22-.18.26-.4.16-1.5-.7-2.44-2.9-2.44-4.66 0-3.8 2.76-7.28 7.96-7.28 4.18 0 7.42 2.98 7.42 6.96 0 4.16-2.62 7.5-6.26 7.5-1.22 0-2.36-.64-2.76-1.38l-.74 2.86c-.28 1.06-1.02 2.4-1.52 3.22A12 12 0 1 0 12 0Z"/></svg></span>
       <p class="font-display font-bold text-sm text-white group-hover:text-pt transition-colors">Pinterest</p>
@@ -741,8 +746,8 @@ const ENDPOINTS = [
   },
   { id: 'mf', method: 'POST', path: '/mf-downloader', title: 'MediaFire Downloader', color: 'cy',
       desc: 'Download file dari MediaFire tanpa login. Auto extract filename, size, dan direct link.',
-      example: { url: 'https://www.mediafire.com/file/xxxxx/file.zip' },
-      res: { Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: true, type: 'info', data: { file_name: 'example.zip', file_size: '1.64MB', download_url: 'https://...', source: '...' } },
+      body: { url: 'https://www.mediafire.com/file/dituvgfkyw2fknd/cap-api.zip/file' },
+      ok: { Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: true, type: 'info', data: { file_name: 'example.zip', file_size: '1.64MB', download_url: 'https://...', source: '...' } },
       err: { Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: false, error: 'URL MediaFire tidak valid!' }
     },
     {
