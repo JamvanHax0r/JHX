@@ -434,6 +434,102 @@ app.post('/yt-search', async (req, res) => {
   }
 });
 
+// === GDRIVE DOWNLOADER ===
+app.post('/gd-downloader', async (req, res) => {
+  try {
+    const { url } = req.body || {};
+    if (!url) return res.status(400).json({ Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: false, error: 'URL Google Drive wajib diisi' });
+    const idMatch = String(url).match(/(?:id=|\/d\/|folders\/)([a-zA-Z0-9_-]{15,})/);
+    if (!/(drive\.google\.com|drive\.usercontent\.google\.com|docs\.google\.com)/i.test(url) || !idMatch) {
+      return res.status(400).json({ Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: false, error: 'Link Google Drive tidak valid' });
+    }
+    const id = idMatch[1];
+    const jantung = {
+      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
+      'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+      'Accept-Language': 'en-US,en;q=0.9,id;q=0.8'
+    };
+
+    // filename dari og:title halaman view
+    let fileName = 'Unknown';
+    try {
+      const viewRes = await axios.get('https://drive.google.com/file/d/' + id + '/view', { headers: jantung, validateStatus: () => true, timeout: 20000 });
+      const $v = cheerio.load(viewRes.data);
+      const t = $v('meta[property="og:title"]').attr('content');
+      if (t) fileName = String(t).trim();
+    } catch (e) {}
+
+    // direct link + bypass halaman konfirmasi (virus-scan page)
+    const dlUrl = 'https://drive.google.com/uc?id=' + id + '&export=download';
+    const initRes = await axios.get(dlUrl, { headers: jantung, responseType: 'stream', validateStatus: () => true, timeout: 30000, maxRedirects: 5 });
+    let finalUrl = (initRes.request && initRes.request.res && initRes.request.res.responseUrl) || dlUrl;
+    let cookies = '';
+    if (initRes.headers['set-cookie']) cookies = initRes.headers['set-cookie'].map(c => c.split(';')[0]).join('; ');
+    const ct = initRes.headers['content-type'] || '';
+    if (ct.includes('text/html')) {
+      let html = '';
+      for await (const chunk of initRes.data) html += chunk;
+      const $ = cheerio.load(html);
+      const form = $('#download-form').length ? $('#download-form') : $('form').first();
+      if (form.length) {
+        const action = form.attr('action') || '';
+        if (action) {
+          const origin = new URL(finalUrl).origin;
+          const formUrl = action.startsWith('http') ? action : origin + (action.startsWith('/') ? action : '/' + action);
+          const urlObj = new URL(formUrl);
+          form.find('input[type="hidden"]').each((i, el) => {
+            const name = $(el).attr('name'), value = $(el).attr('value');
+            if (name && value) urlObj.searchParams.set(name, value);
+          });
+          finalUrl = urlObj.toString();
+        }
+      } else {
+        const m = html.match(/(?:href|action)="([^"]+confirm=[^"]+)"/i) || html.match(/(?:href|action)='([^']+confirm=[^']+)'/i);
+        if (m && m[1]) {
+          const extracted = m[1].replace(/&amp;/g, '&');
+          finalUrl = extracted.startsWith('http') ? extracted : new URL(finalUrl).origin + extracted;
+        }
+      }
+    } else {
+      initRes.data.destroy();
+    }
+
+    // probe ukuran (Range 0-0, langsung destroy — cepet)
+    let fileSize = null;
+    try {
+      const pr = await axios.get(finalUrl, { headers: { ...jantung, ...(cookies ? { Cookie: cookies } : {}), Range: 'bytes=0-0' }, responseType: 'stream', validateStatus: () => true, timeout: 15000 });
+      const cr = pr.headers['content-range'];
+      if (cr && cr.includes('/')) {
+        const total = parseInt(cr.split('/')[1], 10);
+        if (total > 0) fileSize = total;
+      } else if (pr.headers['content-length']) fileSize = parseInt(pr.headers['content-length'], 10);
+      pr.data.destroy();
+    } catch (e) {}
+
+    const code = makeCode();
+    const fext = (fileName.match(/\.[a-z0-9]+$/i) || [''])[0];
+    storeSet('resfile:' + code, { u: finalUrl, k: 'file', fn: fileName, ref: 'https://drive.google.com/', ck: cookies || null }, 7200);
+    return res.json({
+      Developer: 'JH a.k.a Dhika',
+      Kesayangan: 'Fiony Alveria♡',
+      Status: true,
+      type: 'download',
+      data: {
+        file_name: fileName,
+        file_id: id,
+        file_size: fileSize ? human(fileSize) : 'Unknown',
+        url: 'https://api.jhx.my.id/resfile/' + code + fext,
+        download_url: 'https://api.jhx.my.id/resfile/' + code + fext,
+        source: url,
+        expires: '±2 jam'
+      }
+    });
+  } catch (e) {
+    console.error('[GD-ERROR]', e.message);
+    return res.status(500).json({ Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: false, error: 'Scraper gagal: ' + e.message });
+  }
+});
+
 // === MEDIAFIRE DOWNLOADER ===
 app.post('/mf-downloader', async (req, res) => {
   try {
@@ -1396,6 +1492,7 @@ app.get('/resfile/:code', async (req, res) => {
   const fn = String(item.fn || ('JHMF_' + code)).replace(/[^\x20-\x7E]/g, '');
   try {
     const hdrs = { 'User-Agent': UA, 'Accept': '*/*', 'Referer': item.ref || 'https://www.mediafire.com/' };
+    if (item.ck) hdrs.Cookie = item.ck;
     if (req.headers.range) hdrs.Range = req.headers.range;
     const up = await axios.get(item.u, { responseType: 'stream', timeout: 120000, headers: hdrs });
     if (req.headers.range) { res.status(206); if (up.headers['content-range']) res.setHeader('Content-Range', up.headers['content-range']); }

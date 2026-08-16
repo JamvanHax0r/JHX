@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Google Drive Downloader — JH-Tools</title>
+<meta name="description" content="Ekstrak file Google Drive langsung — tanpa login, tanpa batas ukuran. Cepat, privat, gratis.">
+<meta property="og:title" content="Google Drive Downloader — JH-Tools">
+<meta property="og:description" content="Tempel link GDrive, dapet file bersih. Auto bypass virus scan warning.">
+<meta property="og:image" content="https://jhax0r.my.id/logo.jpeg">
+<meta name="theme-color" content="#05060a">
+<link rel="icon" href="https://jhax0r.my.id/logo.jpeg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+tailwind.config = { theme: { extend: {
+  fontFamily: { sans:['Inter','sans-serif'], display:['Space Grotesk','sans-serif'], mono:['JetBrains Mono','monospace'] },
+  colors: { night:'#05060a', panel:'#0b0e14', line:'rgba(255,255,255,0.07)',
+            cy:'#22d3ee', vi:'#8b5cf6', pk:'#ec4899', lm:'#a3e635',
+            gd:'#4285F4', gdr:'#EA4335', gdy:'#FBBC04', gdg:'#34A853' }
+}}}
+</script>
+<style>
+  body{background:#05060a;color:#e6e8ee;overflow-x:hidden}
+  .grid-bg{position:fixed;inset:0;z-index:-2;background-image:linear-gradient(rgba(255,255,255,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.035) 1px,transparent 1px);background-size:56px 56px;mask-image:radial-gradient(ellipse 80% 60% at 50% 0%,black 40%,transparent 100%)}
+  .orb{position:fixed;border-radius:9999px;filter:blur(110px);z-index:-1}
+  .orb-1{width:420px;height:420px;background:#4285F4;top:-140px;right:-120px;opacity:.22}
+  .orb-2{width:380px;height:380px;background:#34A853;bottom:-120px;left:-120px;opacity:.18}
+  .tgrad{background:linear-gradient(90deg,#4285F4,#EA4335,#FBBC04,#34A853,#4285F4);background-size:300% 100%;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;animation:flow 7s linear infinite}
+  @keyframes flow{0%{background-position:0% 50%}100%{background-position:300% 50%}}
+  .card{background:rgba(11,14,20,.7);border:1px solid rgba(255,255,255,.07);backdrop-filter:blur(14px)}
+  .beat{display:inline-block;animation:beat 1.3s ease-in-out infinite}
+  @keyframes beat{0%,100%{transform:scale(1)}12%{transform:scale(1.25)}24%{transform:scale(1)}36%{transform:scale(1.2)}48%{transform:scale(1)}}
+  .gdrive-triangle{position:relative}
+  .gdrive-triangle::before{content:'';position:absolute;inset:-1px;border-radius:1rem;padding:1px;background:linear-gradient(135deg,#4285F4,#EA4335,#FBBC04,#34A853);-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;opacity:.6;pointer-events:none}
+  ::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:#05060a}::-webkit-scrollbar-thumb{background:#334155;border-radius:3px}
+  ::selection{background:#4285F4;color:#fff}
+</style>
+</head>
+<body class="font-sans antialiased">
+<div class="grid-bg"></div><div class="orb orb-1"></div><div class="orb orb-2"></div>
+
+<nav class="fixed w-full top-0 z-50 bg-night/75 backdrop-blur-xl border-b border-line">
+  <div class="max-w-5xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+    <div class="flex items-center gap-4">
+      <a href="/" class="font-mono text-xs text-slate-400 hover:text-gd transition-colors">← /</a>
+      <span class="w-px h-4 bg-line"></span>
+      <a href="/" class="flex items-center gap-2.5">
+        <img src="https://jhax0r.my.id/logo.jpeg" class="h-8 w-8 rounded-lg border border-line" alt="JH-Tools">
+        <span class="font-display font-bold text-white">JH-<span class="tgrad">TOOLS</span></span>
+      </a>
+    </div>
+    <span class="flex items-center gap-2 font-mono text-[10px] text-lm border border-lm/25 bg-lm/5 rounded-full px-3 py-1">
+      <span class="w-1.5 h-1.5 rounded-full bg-lm animate-pulse"></span>STABLE · v2.4
+    </span>
+  </div>
+</nav>
+
+<main class="max-w-5xl mx-auto px-4 sm:px-6 pt-28 pb-20">
+  <p class="font-mono text-xs text-slate-600 mb-4">~/modules/<span class="text-gd">gd-downloader</span> <span class="text-gdy/60">·</span> <span class="text-gd">☁ cloud module</span></p>
+  <h1 class="font-display font-bold text-4xl sm:text-5xl text-white mb-4">Google <span class="tgrad">Drive</span></h1>
+  <p class="text-slate-400 max-w-2xl leading-relaxed mb-10">Tempel link file Google Drive — sistem otomatis bypass halaman konfirmasi, ekstrak nama & ukuran, dan menyiapkan link unduhan bersih. Support file besar tanpa batas.</p>
+
+  <div class="gdrive-triangle">
+    <div class="card rounded-2xl p-6 sm:p-8">
+      <label class="font-mono text-[11px] text-slate-500 tracking-widest block mb-3">GOOGLE DRIVE URL</label>
+      <div class="flex flex-col sm:flex-row gap-3">
+        <input id="url" type="text" placeholder="https://drive.google.com/file/d/…/view" class="flex-1 bg-black/50 border border-line rounded-lg px-5 py-4 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-gd/60 focus:ring-1 focus:ring-gd/40 transition-all font-mono">
+        <div class="flex gap-3">
+          <button onclick="pasteUrl()" class="px-5 py-4 rounded-lg border border-line font-mono text-xs text-slate-300 hover:border-gd/50 hover:text-gd transition-colors">PASTE</button>
+          <button id="btn" onclick="run()" class="px-8 py-4 rounded-lg bg-gradient-to-r from-gd to-gdg text-white font-semibold text-sm hover:shadow-[0_0_30px_rgba(66,133,244,.45)] transition-shadow disabled:opacity-40 disabled:cursor-not-allowed whitespace-nowrap">EKSTRAK ⏎</button>
+        </div>
+      </div>
+      <p id="status" class="hidden font-mono text-[11px] text-gd mt-4"></p>
+      <div id="err" class="hidden mt-5 p-4 rounded-lg bg-red-500/10 border border-red-500/30 text-red-400 text-sm"></div>
+
+      <div id="res" class="hidden mt-8 border-t border-line pt-7">
+        <div class="flex items-center gap-4 mb-6">
+          <div class="w-14 h-14 rounded-xl bg-gradient-to-br from-gd via-gdr to-gdg flex items-center justify-center shadow-[0_0_22px_rgba(66,133,244,.35)]">
+            <svg class="w-7 h-7 text-white" viewBox="0 0 87.3 78" fill="none">
+              <path d="m6.6 66.85 3.85 6.65c.8 1.4 1.95 2.5 3.3 3.3l13.75-23.8h-27.5c0 1.55.4 3.1 1.2 4.5z" fill="#0066DA"/>
+              <path d="m43.65 25-13.75-23.8c-1.35.8-2.5 1.9-3.3 3.3l-25.4 44a9.06 9.06 0 0 0 -1.2 4.5h27.5z" fill="#00AC47"/>
+              <path d="m73.55 76.8c1.35-.8 2.5-1.9 3.3-3.3l3.85-6.65a9.06 9.06 0 0 0 1.2-4.5h-27.5l13.75 23.8c1.35-.8 2.5-1.9 3.3-3.3z" fill="#EA4335"/>
+              <path d="m43.65 25 13.75-23.8a9.06 9.06 0 0 0 -4.5-1.2h-18.5c-1.55 0-3.1.4-4.5 1.2z" fill="#00832D"/>
+              <path d="m54.4 53h-27.5l-13.75 23.8a9.06 9.06 0 0 0 4.5 1.2h51.9a9.06 9.06 0 0 0 4.5-1.2z" fill="#2684FC"/>
+              <path d="m73.4 26.5-12.7-22a9.06 9.06 0 0 0 -3.3-3.3l-13.75 23.8 16.15 28 13.6-26.5z" fill="#FFBA00"/>
+            </svg>
+          </div>
+          <div class="min-w-0 flex-1">
+            <p id="rname" class="font-display font-bold text-lg text-white truncate"></p>
+            <p class="font-mono text-[11px] text-lm flex items-center gap-2">
+              <span class="w-1.5 h-1.5 rounded-full bg-lm animate-pulse"></span>
+              link unduhan siap · aktif ±2 jam
+            </p>
+          </div>
+        </div>
+        <div class="card rounded-xl p-5 space-y-3">
+          <div class="flex justify-between gap-4 font-mono text-xs"><span class="text-slate-500 shrink-0">FILENAME</span><span id="rfname" class="text-white text-right break-all"></span></div>
+          <div class="flex justify-between gap-4 font-mono text-xs"><span class="text-slate-500 shrink-0">FILE ID</span><span id="rfid" class="text-slate-400 text-right break-all"></span></div>
+          <div class="flex justify-between gap-4 font-mono text-xs"><span class="text-slate-500 shrink-0">SIZE</span><span id="rfsize" class="text-gd"></span></div>
+          <div class="flex justify-between gap-4 font-mono text-xs"><span class="text-slate-500 shrink-0">SOURCE</span><a id="rsrc" href="#" target="_blank" rel="noopener" class="text-slate-400 hover:text-gd transition-colors truncate">drive.google.com</a></div>
+          <a id="rdl" href="#" target="_blank" rel="noopener" class="block text-center font-mono text-sm bg-gradient-to-r from-gd to-gdg text-white py-3.5 rounded-lg hover:shadow-[0_0_30px_rgba(66,133,244,.45)] transition-shadow mt-3">⤓ DOWNLOAD FILE</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="mt-12">
+    <p class="font-mono text-xs text-gd mb-3">DEVELOPER REFERENCE</p>
+    <h2 class="font-display font-bold text-2xl text-white mb-6">Pakai Lewat Kode.</h2>
+    <div class="grid lg:grid-cols-2 gap-5">
+      <div class="card rounded-xl overflow-hidden">
+        <div class="px-5 py-3 border-b border-line flex items-center justify-between">
+          <div class="flex items-center gap-2"><span class="font-mono text-[10px] font-bold text-lm bg-lm/10 border border-lm/25 rounded px-2 py-0.5">POST</span><span class="font-mono text-xs text-white">/gd-downloader</span></div>
+          <button class="font-mono text-[10px] text-cy hover:text-white" onclick="cp('gd-req')">copy</button>
+        </div>
+        <pre id="gd-req" class="p-4 font-mono text-[11.5px] leading-relaxed text-slate-300 overflow-x-auto">curl -X POST https://api.jhx.my.id/gd-downloader \
+  -H "Content-Type: application/json" \
+  -d '{"url":"https://drive.google.com/file/d/…/view"}'</pre>
+      </div>
+      <div class="card rounded-xl overflow-hidden">
+        <div class="px-5 py-3 border-b border-line flex items-center justify-between">
+          <span class="font-mono text-[10px] text-slate-500">RESPONSE · 200 OK</span>
+          <button class="font-mono text-[10px] text-cy hover:text-white" onclick="cp('gd-res')">copy</button>
+        </div>
+        <pre id="gd-res" class="p-4 font-mono text-[11.5px] leading-relaxed text-slate-300 overflow-x-auto">{
+  "Developer": "JH a.k.a Dhika",
+  "Kesayangan": "Fiony Alveria♡",
+  "Status": true,
+  "type": "download",
+  "data": {
+    "file_name": "document.pdf",
+    "file_id": "1BZrDE4St7_uJv_sy1s8hsGvVW9QBGQ0t",
+    "file_size": "321.65 MB",
+    "download_url": "https://api.jhx.my.id/resfile/HVQU.mp4",
+    "source": "https://drive.google.com/file/d/…/view"
+  }
+}</pre>
+      </div>
+    </div>
+    <div class="mt-4 card rounded-xl overflow-hidden">
+      <div class="px-5 py-3 border-b border-line flex items-center justify-between">
+        <span class="font-mono text-[10px] text-slate-500">NODE.JS EXAMPLE</span>
+        <button class="font-mono text-[10px] text-cy hover:text-white" onclick="cp('gd-node')">copy</button>
+      </div>
+      <pre id="gd-node" class="p-4 font-mono text-[11.5px] leading-relaxed text-slate-300 overflow-x-auto">const res = await fetch('https://api.jhx.my.id/gd-downloader', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({ url: 'https://drive.google.com/file/d/…/view' })
+});
+const json = await res.json();
+if (json.Status) {
+  console.log(json.data.file_name, json.data.file_size);
+  console.log(json.data.download_url);
+}</pre>
+    </div>
+  </div>
+
+  <div class="grid lg:grid-cols-2 gap-5 mt-10">
+    <div class="card rounded-xl overflow-hidden">
+      <div class="px-5 py-3 border-b border-line font-mono text-xs text-slate-500">endpoints</div>
+      <div class="p-5 font-mono text-sm space-y-2.5">
+        <p><span class="text-lm bg-lm/10 border border-lm/25 rounded px-2 py-0.5 text-[10px] font-semibold">POST</span> <span class="text-white">/gd-downloader</span> <span class="text-slate-600 text-xs">— { url }</span></p>
+        <p><span class="text-gd bg-gd/10 border border-gd/25 rounded px-2 py-0.5 text-[10px] font-semibold">GET</span> <span class="text-white">/resfile/:code.ext</span> <span class="text-slate-600 text-xs">— link unduhan file (resume supported)</span></p>
+        <p><span class="text-cy bg-cy/10 border border-cy/25 rounded px-2 py-0.5 text-[10px] font-semibold">GET</span> <span class="text-white">/gdrive/</span> <span class="text-slate-600 text-xs">— halaman ini</span></p>
+      </div>
+    </div>
+    <div class="card rounded-xl overflow-hidden">
+      <div class="px-5 py-3 border-b border-line font-mono text-xs text-slate-500">catatan</div>
+      <ul class="p-5 text-sm text-slate-400 space-y-2.5">
+        <li><span class="text-gd">☁</span> Support link file sharing publik (bukan folder).</li>
+        <li><span class="text-gd">☁</span> Auto bypass halaman konfirmasi "virus scan" GDrive.</li>
+        <li><span class="text-gd">☁</span> Filename + ukuran auto-terbaca dari metadata GDrive.</li>
+        <li><span class="text-gd">☁</span> Link unduhan aktif ±2 jam & support resume (lanjut unduh).</li>
+      </ul>
+    </div>
+  </div>
+</main>
+
+<footer class="border-t border-line bg-panel/60 py-9 px-4 text-center space-y-2.5">
+  <p class="text-sm text-slate-400">Made with <span class="beat text-pk">❤</span> by <span class="tgrad font-display font-bold text-base">JamvanHax0r</span></p>
+  <p class="text-sm text-slate-500">Supported by: <span class="text-cy font-medium">BCCTeam</span> <span class="text-slate-700">—</span> <span class="text-vi font-medium">FLMGroup</span> <span class="text-slate-700">—</span> <span class="text-pk font-medium">Fiony Bot</span></p>
+  <p class="font-mono text-xs text-slate-600">© <span id="yr"></span> — All Rights Reserved</p>
+</footer>
+
+<script>
+document.getElementById('yr').textContent = new Date().getFullYear();
+const $ = id => document.getElementById(id);
+
+async function pasteUrl(){ try { $('url').value = await navigator.clipboard.readText(); } catch(e){ $('url').focus(); } }
+
+const steps = ['[1/2] ☁ membaca metadata GDrive…','[2/2] ☁ menyiapkan link unduhan…'];
+async function run(){
+  const url = $('url').value.trim();
+  $('err').classList.add('hidden'); $('res').classList.add('hidden');
+  if (!/drive\.google\.com|docs\.google\.com/i.test(url)) { showErr('URL Google Drive tidak valid.'); return; }
+
+  $('btn').disabled = true; $('status').classList.remove('hidden');
+  let s = 0; $('status').textContent = steps[0];
+  const iv = setInterval(() => { s = Math.min(s+1, 1); $('status').textContent = steps[s]; }, 4000);
+
+  try {
+    const r = await fetch('https://api.jhx.my.id/gd-downloader', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ url }) });
+    const j = await r.json();
+    clearInterval(iv);
+    if (!j.Status) throw new Error(j.error || 'Gagal mengambil data.');
+    $('status').innerHTML = '✓ selesai — link unduhan siap';
+    $('rname').textContent = j.data.file_name;
+    $('rfname').textContent = j.data.file_name;
+    $('rfid').textContent = j.data.file_id;
+    $('rfsize').textContent = j.data.file_size;
+    $('rsrc').href = j.data.source;
+    $('rdl').href = j.data.download_url || j.data.url;
+    $('res').classList.remove('hidden');
+  } catch(e){ clearInterval(iv); $('status').classList.add('hidden'); showErr(e.message); }
+  finally { $('btn').disabled = false; }
+}
+
+function showErr(msg){ if (!msg) { $('err').classList.add('hidden'); return; } $('err').textContent = '✗ ' + msg; $('err').classList.remove('hidden'); }
+
+function cp(id){
+  const el = document.getElementById(id);
+  if (!el) return;
+  navigator.clipboard.writeText(el.textContent).then(() => {
+    const btn = el.parentElement.querySelector('button');
+    const orig = btn.textContent;
+    btn.textContent = 'copied ✓';
+    setTimeout(() => btn.textContent = orig, 1500);
+  });
+}
+
+$('url').addEventListener('keydown', e => { if (e.key === 'Enter') run(); });
+</script>
+</body>
+</html>
