@@ -17,31 +17,38 @@
 <script>
 tailwind.config = { theme: { extend: {
   fontFamily: { sans:['Inter','sans-serif'], display:['Space Grotesk','sans-serif'], mono:['JetBrains Mono','monospace'] },
-  colors: { night:'#05060a', panel:'#0b0e14', line:'rgba(255,255,255,0.07)', cy:'#22d3ee', vi:'#8b5cf6', pk:'#ec4899', lm:'#a3e635' }
+  colors: { night:'#05060a', panel:'#0b0e14', line:'rgba(255,255,255,0.07)',
+            cy:'#22d3ee', vi:'#8b5cf6', pk:'#ec4899', lm:'#a3e635',
+            mf:'#0073e6', mfb:'#005bb5', am:'#f59e0b', fr:'#ef4444' }
 }}}
 </script>
 <style>
   body{background:#05060a;color:#e6e8ee;overflow-x:hidden}
   .grid-bg{position:fixed;inset:0;z-index:-2;background-image:linear-gradient(rgba(255,255,255,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.035) 1px,transparent 1px);background-size:56px 56px;mask-image:radial-gradient(ellipse 80% 60% at 50% 0%,black 40%,transparent 100%)}
   .orb{position:fixed;border-radius:9999px;filter:blur(110px);z-index:-1}
-  .orb-1{width:420px;height:420px;background:#9d174d;top:-140px;right:-120px;opacity:.22}
-  .orb-2{width:380px;height:380px;background:#0e7490;bottom:-120px;left:-120px;opacity:.18}
-  .tgrad{background:linear-gradient(90deg,#22d3ee,#8b5cf6,#ec4899,#22d3ee);background-size:300% 100%;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;animation:flow 7s linear infinite}
+  .orb-1{width:420px;height:420px;background:#0073e6;top:-140px;right:-120px;opacity:.22}
+  .orb-2{width:380px;height:380px;background:#f59e0b;bottom:-120px;left:-120px;opacity:.15}
+  .orb-3{width:300px;height:300px;background:#22d3ee;top:40%;left:-80px;opacity:.10}
+  .tgrad{background:linear-gradient(90deg,#0073e6,#22d3ee,#f59e0b,#0073e6);background-size:300% 100%;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;animation:flow 7s linear infinite}
   @keyframes flow{0%{background-position:0% 50%}100%{background-position:300% 50%}}
   .card{background:rgba(11,14,20,.7);border:1px solid rgba(255,255,255,.07);backdrop-filter:blur(14px)}
   .beat{display:inline-block;animation:beat 1.3s ease-in-out infinite}
   @keyframes beat{0%,100%{transform:scale(1)}12%{transform:scale(1.25)}24%{transform:scale(1)}36%{transform:scale(1.2)}48%{transform:scale(1)}}
+  .flicker{animation:flicker 2.8s ease-in-out infinite}
+  @keyframes flicker{0%,100%{opacity:1;transform:translateY(0) scale(1)}25%{opacity:.85;transform:translateY(-1px) scale(1.04)}50%{opacity:1;transform:translateY(0) scale(.98)}75%{opacity:.9;transform:translateY(-2px) scale(1.02)}}
+  .fire-border{background:linear-gradient(90deg,#0073e6,#22d3ee,#f59e0b,#ef4444);background-size:300% 100%;animation:flow 5s linear infinite}
   ::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:#05060a}::-webkit-scrollbar-thumb{background:#334155;border-radius:3px}
-  ::selection{background:#8b5cf6;color:#fff}
+  ::selection{background:#0073e6;color:#fff}
 </style>
 </head>
 <body class="font-sans antialiased">
-<div class="grid-bg"></div><div class="orb orb-1"></div><div class="orb orb-2"></div>
+<div class="grid-bg"></div>
+<div class="orb orb-1"></div><div class="orb orb-2"></div><div class="orb orb-3"></div>
 
 <nav class="fixed w-full top-0 z-50 bg-night/75 backdrop-blur-xl border-b border-line">
   <div class="max-w-5xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
     <div class="flex items-center gap-4">
-      <a href="/" class="font-mono text-xs text-slate-400 hover:text-cy transition-colors">← /</a>
+      <a href="/" class="font-mono text-xs text-slate-400 hover:text-mf transition-colors">← /</a>
       <span class="w-px h-4 bg-line"></span>
       <a href="/" class="flex items-center gap-2.5">
         <img src="https://jhax0r.my.id/logo.jpeg" class="h-8 w-8 rounded-lg border border-line" alt="JH-Tools">
@@ -55,41 +62,52 @@ tailwind.config = { theme: { extend: {
 </nav>
 
 <main class="max-w-5xl mx-auto px-4 sm:px-6 pt-28 pb-20">
-  <p class="font-mono text-xs text-slate-600 mb-4">~/modules/<span class="text-cy">mediafire-downloader</span></p>
-  <h1 class="font-display font-bold text-4xl sm:text-5xl text-white mb-4">MediaFire <span class="tgrad">Downloader</span></h1>
-  <p class="text-slate-400 max-w-2xl leading-relaxed mb-10">Tempel link file MediaFire. Sistem mengekstrak nama, ukuran, dan direct link bersih — tanpa login, tanpa iklan, dalam hitungan detik. Disajikan rapi via proxy JH — cepat, privat, dan bisa di-resume.</p>
+  <p class="font-mono text-xs text-slate-600 mb-4">~/modules/<span class="text-mf">mediafire-downloader</span> <span class="text-am/60">·</span> <span class="flicker text-am">🔥 hot module</span></p>
+  <h1 class="font-display font-bold text-4xl sm:text-5xl text-white mb-4">Media<span class="text-am">Fire</span> <span class="tgrad">Downloader</span></h1>
+  <p class="text-slate-400 max-w-2xl leading-relaxed mb-10">Tempel link file MediaFire. Sistem mengekstrak nama, ukuran, dan direct link bersih — tanpa login, tanpa iklan, dalam hitungan detik. Langsung simpan dari server MediaFire, disajikan rapi lewat proxy JH.</p>
 
-  <div class="card rounded-2xl p-6 sm:p-8 border-t-2 border-t-cy/60">
-    <label class="font-mono text-[11px] text-slate-500 tracking-widest block mb-3">MEDIAFIRE URL</label>
-    <div class="flex flex-col sm:flex-row gap-3">
-      <input id="url" type="text" placeholder="https://www.mediafire.com/file/…" class="flex-1 bg-black/50 border border-line rounded-lg px-5 py-4 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-cy/60 focus:ring-1 focus:ring-cy/40 transition-all font-mono">
-      <div class="flex gap-3">
-        <button onclick="pasteUrl()" class="px-5 py-4 rounded-lg border border-line font-mono text-xs text-slate-300 hover:border-cy/50 hover:text-cy transition-colors">PASTE</button>
-        <button id="btn" onclick="run()" class="px-8 py-4 rounded-lg bg-gradient-to-r from-cy to-vi text-white font-semibold text-sm hover:shadow-[0_0_30px_rgba(34,211,238,.35)] transition-shadow disabled:opacity-40 disabled:cursor-not-allowed whitespace-nowrap">EKSTRAK ⏎</button>
+  <div class="relative rounded-2xl p-[1px] fire-border">
+    <div class="card rounded-2xl p-6 sm:p-8 bg-panel/90">
+      <div class="flex items-center justify-between mb-5">
+        <label class="font-mono text-[11px] text-slate-500 tracking-widest">MEDIAFIRE URL</label>
+        <span class="flex items-center gap-1.5 font-mono text-[10px] text-am">
+          <span class="flicker">🔥</span>
+          <span class="uppercase tracking-widest">instant extract</span>
+        </span>
       </div>
-    </div>
-    <p id="status" class="hidden font-mono text-[11px] text-cy mt-4"></p>
-    <div id="err" class="hidden mt-5 p-4 rounded-lg bg-red-500/10 border border-red-500/30 text-red-400 text-sm"></div>
-
-    <div id="res" class="hidden mt-8 border-t border-line pt-7">
-      <div class="flex items-center gap-4 mb-6">
-        <div class="w-14 h-14 rounded-xl bg-cy/10 border border-cy/30 flex items-center justify-center text-2xl shadow-[0_0_18px_rgba(34,211,238,.25)]">📦</div>
-        <div class="min-w-0">
-          <p id="rname" class="font-display font-bold text-lg text-white truncate"></p>
-          <p class="font-mono text-[11px] text-lm">✓ link proxy siap diunduh</p>
+      <div class="flex flex-col sm:flex-row gap-3">
+        <input id="url" type="text" placeholder="https://www.mediafire.com/file/…" class="flex-1 bg-black/50 border border-line rounded-lg px-5 py-4 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-mf/60 focus:ring-1 focus:ring-mf/40 transition-all font-mono">
+        <div class="flex gap-3">
+          <button onclick="pasteUrl()" class="px-5 py-4 rounded-lg border border-line font-mono text-xs text-slate-300 hover:border-mf/50 hover:text-mf transition-colors">PASTE</button>
+          <button id="btn" onclick="run()" class="px-8 py-4 rounded-lg bg-gradient-to-r from-mf to-cy text-white font-semibold text-sm hover:shadow-[0_0_30px_rgba(0,115,230,.45)] transition-shadow disabled:opacity-40 disabled:cursor-not-allowed whitespace-nowrap">EKSTRAK ⏎</button>
         </div>
       </div>
-      <div class="card rounded-xl p-5 space-y-3">
-        <div class="flex justify-between gap-4 font-mono text-xs"><span class="text-slate-500 shrink-0">FILENAME</span><span id="rfname" class="text-white text-right break-all"></span></div>
-        <div class="flex justify-between gap-4 font-mono text-xs"><span class="text-slate-500 shrink-0">SIZE</span><span id="rfsize" class="text-cy"></span></div>
-        <div class="flex justify-between gap-4 font-mono text-xs"><span class="text-slate-500 shrink-0">SOURCE</span><a id="rsrc" href="#" target="_blank" rel="noopener" class="text-slate-400 hover:text-cy transition-colors truncate">mediafire.com</a></div>
-        <a id="rdl" href="#" target="_blank" rel="noopener" class="block text-center font-mono text-sm bg-gradient-to-r from-cy to-vi text-white py-3.5 rounded-lg hover:shadow-[0_0_30px_rgba(34,211,238,.35)] transition-shadow mt-2">⤓ DOWNLOAD FILE</a>
+      <p id="status" class="hidden font-mono text-[11px] text-mf mt-4"></p>
+      <div id="err" class="hidden mt-5 p-4 rounded-lg bg-red-500/10 border border-red-500/30 text-red-400 text-sm"></div>
+
+      <div id="res" class="hidden mt-8 border-t border-line pt-7">
+        <div class="flex items-center gap-4 mb-6">
+          <div class="w-14 h-14 rounded-xl bg-gradient-to-br from-mf to-cy flex items-center justify-center text-2xl shadow-[0_0_22px_rgba(0,115,230,.35)]">📦</div>
+          <div class="min-w-0 flex-1">
+            <p id="rname" class="font-display font-bold text-lg text-white truncate"></p>
+            <p class="font-mono text-[11px] text-lm flex items-center gap-2">
+              <span class="w-1.5 h-1.5 rounded-full bg-lm animate-pulse"></span>
+              proxy link siap diunduh · aktif ±2 jam
+            </p>
+          </div>
+        </div>
+        <div class="card rounded-xl p-5 space-y-3">
+          <div class="flex justify-between gap-4 font-mono text-xs"><span class="text-slate-500 shrink-0">FILENAME</span><span id="rfname" class="text-white text-right break-all"></span></div>
+          <div class="flex justify-between gap-4 font-mono text-xs"><span class="text-slate-500 shrink-0">SIZE</span><span id="rfsize" class="text-mf"></span></div>
+          <div class="flex justify-between gap-4 font-mono text-xs"><span class="text-slate-500 shrink-0">SOURCE</span><a id="rsrc" href="#" target="_blank" rel="noopener" class="text-slate-400 hover:text-mf transition-colors truncate">mediafire.com</a></div>
+          <a id="rdl" href="#" target="_blank" rel="noopener" class="block text-center font-mono text-sm bg-gradient-to-r from-mf to-cy text-white py-3.5 rounded-lg hover:shadow-[0_0_30px_rgba(0,115,230,.45)] transition-shadow mt-3">⤓ DOWNLOAD FILE</a>
+        </div>
       </div>
     </div>
   </div>
 
   <div class="mt-12">
-    <p class="font-mono text-xs text-cy mb-3">DEVELOPER REFERENCE</p>
+    <p class="font-mono text-xs text-mf mb-3">DEVELOPER REFERENCE</p>
     <h2 class="font-display font-bold text-2xl text-white mb-6">Pakai Lewat Kode.</h2>
     <div class="grid lg:grid-cols-2 gap-5">
       <div class="card rounded-xl overflow-hidden">
@@ -110,11 +128,11 @@ tailwind.config = { theme: { extend: {
   "Developer": "JH a.k.a Dhika",
   "Kesayangan": "Fiony Alveria♡",
   "Status": true,
-  "type": "info",
+  "type": "download",
   "data": {
     "file_name": "cap-api.zip",
     "file_size": "1.64MB",
-    "download_url": "https://api.jhx.my.id/resfile/AB12.zip",
+    "url": "https://api.jhx.my.id/resfile/AB12.zip",
     "source": "https://www.mediafire.com/file/…"
   }
 }</pre>
@@ -133,7 +151,7 @@ tailwind.config = { theme: { extend: {
 const json = await res.json();
 if (json.Status) {
   console.log(json.data.file_name, json.data.file_size);
-  console.log(json.data.download_url);
+  console.log(json.data.url); // proxy link — langsung unduh
 }</pre>
     </div>
   </div>
@@ -143,16 +161,17 @@ if (json.Status) {
       <div class="px-5 py-3 border-b border-line font-mono text-xs text-slate-500">endpoints</div>
       <div class="p-5 font-mono text-sm space-y-2.5">
         <p><span class="text-lm bg-lm/10 border border-lm/25 rounded px-2 py-0.5 text-[10px] font-semibold">POST</span> <span class="text-white">/mf-downloader</span> <span class="text-slate-600 text-xs">— { url }</span></p>
-        <p><span class="text-cy bg-cy/10 border border-cy/25 rounded px-2 py-0.5 text-[10px] font-semibold">GET</span> <span class="text-white">/resfile/:code.ext</span> <span class="text-slate-600 text-xs">— proxy file (range supported)</span></p>
-        <p><span class="text-vi bg-vi/10 border border-vi/25 rounded px-2 py-0.5 text-[10px] font-semibold">GET</span> <span class="text-white">/mediafire/</span> <span class="text-slate-600 text-xs">— halaman ini</span></p>
+        <p><span class="text-mf bg-mf/10 border border-mf/25 rounded px-2 py-0.5 text-[10px] font-semibold">GET</span> <span class="text-white">/resfile/:code.ext</span> <span class="text-slate-600 text-xs">— proxy file (range supported)</span></p>
+        <p><span class="text-cy bg-cy/10 border border-cy/25 rounded px-2 py-0.5 text-[10px] font-semibold">GET</span> <span class="text-white">/mediafire/</span> <span class="text-slate-600 text-xs">— halaman ini</span></p>
       </div>
     </div>
     <div class="card rounded-xl overflow-hidden">
       <div class="px-5 py-3 border-b border-line font-mono text-xs text-slate-500">catatan</div>
       <ul class="p-5 text-sm text-slate-400 space-y-2.5">
-        <li><span class="text-cy">→</span> Tanpa login MediaFire, tanpa lewati iklan/redirect.</li>
-        <li><span class="text-cy">→</span> Filename + ukuran auto-terbaca dari halaman file.</li>
-        <li><span class="text-cy">→</span> Link unduhan via proxy JH — aktif ±2 jam & support resume.</li>
+        <li><span class="text-mf">→</span> Tanpa login MediaFire, tanpa lewati iklan/redirect.</li>
+        <li><span class="text-mf">→</span> Filename + ukuran auto-terbaca dari halaman file.</li>
+        <li><span class="text-mf">→</span> Link unduhan via proxy JH — aktif ±2 jam & support resume.</li>
+        <li><span class="text-am">🔥</span> Direct link MediaFire tidak bocor ke user — aman & privat.</li>
       </ul>
     </div>
   </div>
@@ -170,7 +189,7 @@ const $ = id => document.getElementById(id);
 
 async function pasteUrl(){ try { $('url').value = await navigator.clipboard.readText(); } catch(e){ $('url').focus(); } }
 
-const steps = ['[1/2] mengambil halaman MediaFire…','[2/2] mengekstrak direct link…'];
+const steps = ['[1/2] 🔥 mengambil halaman MediaFire…','[2/2] 🔥 mengekstrak proxy link…'];
 async function run(){
   const url = $('url').value.trim();
   $('err').classList.add('hidden'); $('res').classList.add('hidden');
@@ -185,12 +204,12 @@ async function run(){
     const j = await r.json();
     clearInterval(iv);
     if (!j.Status) throw new Error(j.error || 'Gagal mengambil data.');
-    $('status').textContent = '✓ selesai — link proxy siap diunduh';
+    $('status').innerHTML = '✓ selesai — <span class="text-am">🔥 proxy link siap diunduh</span>';
     $('rname').textContent = j.data.file_name;
     $('rfname').textContent = j.data.file_name;
     $('rfsize').textContent = j.data.file_size;
     $('rsrc').href = j.data.source;
-    $('rdl').href = j.data.download_url;
+    $('rdl').href = j.data.download_url || j.data.url;
     $('res').classList.remove('hidden');
   } catch(e){ clearInterval(iv); $('status').classList.add('hidden'); showErr(e.message); }
   finally { $('btn').disabled = false; }
