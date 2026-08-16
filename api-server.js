@@ -502,12 +502,16 @@ app.post('/yt-download', async (req, res) => {
     if (!url || !/youtube\.com|youtu\.be/.test(url)) return res.status(400).json({ Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: false, error: 'URL YouTube tidak valid!' });
     
     const isAudio = format === 'audio';
+ // KEEPALIVE anti-timeout: kirim spasi tiap 30 dtk selama proses panjang (valid JSON = spasi boleh di depan)
+ res.setHeader('Content-Type', 'application/json');
+ const ka = setInterval(() => { try { res.write(' '); } catch (e) {} }, 30000);
+ res.json = (o) => { clearInterval(ka); try { res.end(JSON.stringify(o)); } catch (e) {} };
     const code = makeCode();
     const tmpDir = path.join(__dirname, 'tmp', 'jh-yt-' + code);
     fs.mkdirSync(tmpDir, { recursive: true });
     
     const metaCmd = 'yt-dlp -J --no-warnings "' + url + '"';
-    exec(metaCmd, { maxBuffer: 1024 * 1024 * 15, timeout: 60000 }, (err, stdout) => {
+    exec(metaCmd, { maxBuffer: 1024 * 1024 * 15, timeout: 120000 }, (err, stdout) => {
       if (err) {
         fs.rmSync(tmpDir, { recursive: true, force: true });
         return res.status(500).json({ Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: false, error: 'Gagal metadata: ' + err.message });
@@ -536,7 +540,7 @@ app.post('/yt-download', async (req, res) => {
         const ckFile = path.join(__dirname, 'yt-cookies.txt');
      if (fs.existsSync(ckFile) && fs.statSync(ckFile).size > 10) dlCmd += ' --cookies "' + ckFile + '"';
      dlCmd += ' --retries 10 --fragment-retries 10 --extractor-retries 10 --extractor-args "youtube:player_client=android_vr,web"';
-     exec(dlCmd, { timeout: 300000 }, (dlErr) => {
+     exec(dlCmd, { timeout: 900000 }, (dlErr) => {
           if (dlErr) {
             fs.rmSync(tmpDir, { recursive: true, force: true });
             return res.status(500).json({ Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: false, error: 'Download gagal: ' + dlErr.message });
