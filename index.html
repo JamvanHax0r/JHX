@@ -520,6 +520,7 @@ tailwind.config = {
         <a href="/igdl/" class="block hover:text-pk transition-colors">Instagram Downloader</a>
         <a href="/adsdl/" class="block hover:text-em transition-colors">Link Ads Skipper</a>
         <a href="/lyrics/" class="block hover:text-ly transition-colors">Lyrics Finder</a>
+        <a href="/mediafire/" class="block hover:text-cy transition-colors">MediaFire Downloader</a>
         <a href="/pindl/" class="block hover:text-pt transition-colors">Pinterest Downloader</a>
         <a href="/spdl/" class="block hover:text-lm transition-colors">Spotify Downloader</a>
         <a href="/thdl/" class="block hover:text-th transition-colors">Threads Downloader</a>
@@ -722,7 +723,13 @@ const ENDPOINTS = [
     ok: { Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: true, type: 'search', data: { query: 'Fiony JKT48', total: 5, images: [ { url: 'https://api.jhx.my.id/resimg/PIN01.jpg', original: 'https://i.pinimg.com/originals/5b/de/3f/5bde3f.png' } ] } },
     err: { Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: false, error: 'Query kosong!' }
   },
-  {
+  { id: 'mf', method: 'POST', path: '/mf-downloader', title: 'MediaFire Downloader', color: 'cy',
+      desc: 'Download file dari MediaFire tanpa login. Auto extract filename, size, dan direct link.',
+      example: { url: 'https://www.mediafire.com/file/xxxxx/file.zip' },
+      res: { Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: true, type: 'info', data: { file_name: 'example.zip', file_size: '1.64MB', download_url: 'https://...', source: '...' } },
+      err: { Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: false, error: 'URL MediaFire tidak valid!' }
+    },
+    {
     id: 'pin-dl', method: 'POST', path: '/pin-download', title: 'Pinterest Downloader', color: 'pt',
     desc: 'Download image atau video dari URL Pinterest. Auto detect type + quality video (1080p → 480p).',
     body: { url: 'https://pin.it/5xBzbdKFA' },
