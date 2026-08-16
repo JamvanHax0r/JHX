@@ -64,7 +64,7 @@ tailwind.config = { theme: { extend: {
 <main class="max-w-5xl mx-auto px-4 sm:px-6 pt-28 pb-20">
   <p class="font-mono text-xs text-slate-600 mb-4">~/modules/<span class="text-mf">mediafire-downloader</span> <span class="text-am/60">·</span> <span class="flicker text-am">🔥 hot module</span></p>
   <h1 class="font-display font-bold text-4xl sm:text-5xl text-white mb-4">Media<span class="text-am">Fire</span> <span class="tgrad">Downloader</span></h1>
-  <p class="text-slate-400 max-w-2xl leading-relaxed mb-10">Tempel link file MediaFire. Sistem mengekstrak nama, ukuran, dan direct link bersih — tanpa login, tanpa iklan, dalam hitungan detik. Langsung simpan dari server MediaFire, disajikan rapi lewat proxy JH.</p>
+  <p class="text-slate-400 max-w-2xl leading-relaxed mb-10">Tempel link file MediaFire. Sistem mengekstrak nama, ukuran, dan direct link bersih — tanpa login, tanpa iklan, dalam hitungan detik. Langsung simpan dari server MediaFire, disajikan rapi lewat server JH.</p>
 
   <div class="relative rounded-2xl p-[1px] fire-border">
     <div class="card rounded-2xl p-6 sm:p-8 bg-panel/90">
@@ -92,7 +92,7 @@ tailwind.config = { theme: { extend: {
             <p id="rname" class="font-display font-bold text-lg text-white truncate"></p>
             <p class="font-mono text-[11px] text-lm flex items-center gap-2">
               <span class="w-1.5 h-1.5 rounded-full bg-lm animate-pulse"></span>
-              proxy link siap diunduh · aktif ±2 jam
+              link unduhan siap · aktif ±2 jam
             </p>
           </div>
         </div>
@@ -151,7 +151,7 @@ tailwind.config = { theme: { extend: {
 const json = await res.json();
 if (json.Status) {
   console.log(json.data.file_name, json.data.file_size);
-  console.log(json.data.url); // proxy link — langsung unduh
+  console.log(json.data.url); // link unduhan — langsung simpan
 }</pre>
     </div>
   </div>
@@ -161,7 +161,7 @@ if (json.Status) {
       <div class="px-5 py-3 border-b border-line font-mono text-xs text-slate-500">endpoints</div>
       <div class="p-5 font-mono text-sm space-y-2.5">
         <p><span class="text-lm bg-lm/10 border border-lm/25 rounded px-2 py-0.5 text-[10px] font-semibold">POST</span> <span class="text-white">/mf-downloader</span> <span class="text-slate-600 text-xs">— { url }</span></p>
-        <p><span class="text-mf bg-mf/10 border border-mf/25 rounded px-2 py-0.5 text-[10px] font-semibold">GET</span> <span class="text-white">/resfile/:code.ext</span> <span class="text-slate-600 text-xs">— proxy file (range supported)</span></p>
+        <p><span class="text-mf bg-mf/10 border border-mf/25 rounded px-2 py-0.5 text-[10px] font-semibold">GET</span> <span class="text-white">/resfile/:code.ext</span> <span class="text-slate-600 text-xs">— link unduhan file (resume supported)</span></p>
         <p><span class="text-cy bg-cy/10 border border-cy/25 rounded px-2 py-0.5 text-[10px] font-semibold">GET</span> <span class="text-white">/mediafire/</span> <span class="text-slate-600 text-xs">— halaman ini</span></p>
       </div>
     </div>
@@ -170,7 +170,7 @@ if (json.Status) {
       <ul class="p-5 text-sm text-slate-400 space-y-2.5">
         <li><span class="text-mf">→</span> Tanpa login MediaFire, tanpa lewati iklan/redirect.</li>
         <li><span class="text-mf">→</span> Filename + ukuran auto-terbaca dari halaman file.</li>
-        <li><span class="text-mf">→</span> Link unduhan via proxy JH — aktif ±2 jam & support resume.</li>
+        <li><span class="text-mf">→</span> Link unduhan aktif ±2 jam & bisa di-resume (lanjut unduh).</li>
         <li><span class="text-am">🔥</span> Direct link MediaFire tidak bocor ke user — aman & privat.</li>
       </ul>
     </div>
@@ -189,7 +189,7 @@ const $ = id => document.getElementById(id);
 
 async function pasteUrl(){ try { $('url').value = await navigator.clipboard.readText(); } catch(e){ $('url').focus(); } }
 
-const steps = ['[1/2] 🔥 mengambil halaman MediaFire…','[2/2] 🔥 mengekstrak proxy link…'];
+const steps = ['[1/2] 🔥 mengambil halaman MediaFire…','[2/2] 🔥 menyiapkan link unduhan…'];
 async function run(){
   const url = $('url').value.trim();
   $('err').classList.add('hidden'); $('res').classList.add('hidden');
@@ -204,7 +204,7 @@ async function run(){
     const j = await r.json();
     clearInterval(iv);
     if (!j.Status) throw new Error(j.error || 'Gagal mengambil data.');
-    $('status').innerHTML = '✓ selesai — <span class="text-am">🔥 proxy link siap diunduh</span>';
+    $('status').innerHTML = '✓ selesai — <span class="text-am">🔥 link unduhan siap</span>';
     $('rname').textContent = j.data.file_name;
     $('rfname').textContent = j.data.file_name;
     $('rfsize').textContent = j.data.file_size;
