@@ -1412,6 +1412,46 @@ app.post('/ai-chat', async (req, res) => {
 });
 
 
+// === AI VOICE (TERMAI TTS — ELEVENLABS BELLA) ===
+app.post('/ai-voice', async (req, res) => {
+  try {
+    const { text, voice, pitch, speed } = req.body || {};
+    if (!text) return res.status(400).json({ Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: false, error: 'Teks wajib diisi!' });
+    if (String(text).length > 600) return res.status(400).json({ Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: false, error: 'Maksimal 600 karakter!' });
+    let tpersona;
+    try { tpersona = require('./termai-persona.js'); } catch (e) {
+      return res.status(500).json({ Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: false, error: 'API-Key TTS belum di-set di server!' });
+    }
+    const params = { key: tpersona.apiKey, text, voice: voice || tpersona.voice || 'bella' };
+    if (pitch) params.pitch = pitch;
+    if (speed) params.speed = speed;
+    const r = await axios.get(tpersona.endpoint || 'https://api.termai.cc/api/text2speech/elevenlabs', {
+      params, responseType: 'arraybuffer', timeout: 90000, validateStatus: () => true
+    });
+    const ct = r.headers['content-type'] || '';
+    if (r.status !== 200 || !/audio/.test(ct) || r.data.length < 500) {
+      return res.status(502).json({ Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: false, error: 'TTS gagal: HTTP ' + r.status });
+    }
+    const code = makeCode();
+    const prettyName = 'JHFIO_voice_' + code;
+    storeSet('resaud:' + code, { b64: Buffer.from(r.data).toString('base64'), ct: 'audio/mpeg', k: 'aud', p: prettyName, fn: prettyName }, 3600);
+    return res.json({
+      Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: true, type: 'audio',
+      data: {
+        url: 'https://api.jhx.my.id/resaud/' + code + '.mp3',
+        play_url: 'https://api.jhx.my.id/resaud/' + code + '.mp3?play=1',
+        filename: prettyName + '.mp3',
+        voice: voice || tpersona.voice || 'bella',
+        size: r.data.length,
+        sizeHuman: human(r.data.length),
+        expires: '±1 jam'
+      }
+    });
+  } catch (e) {
+    return res.status(500).json({ Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: false, error: 'TTS error: ' + e.message });
+  }
+});
+
 async function serveProxy(req, res) {
   const route = req.path.startsWith('/resvid') ? 'resvid' : req.path.startsWith('/resaud') ? 'resaud' : 'resimg';
   const code = String(req.params.code).split('.')[0];
@@ -1436,7 +1476,7 @@ async function serveProxy(req, res) {
       const stat = fs.statSync(actualPath);
       const ct = kind === 'vid' ? 'video/mp4' : kind === 'aud' ? 'audio/mpeg' : 'image/jpeg';
       res.setHeader('Content-Type', ct);
-      res.setHeader('Content-Disposition', 'attachment; filename="' + baseName + '.' + ext + '"');
+      res.setHeader('Content-Disposition', (req.query.play === '1' ? 'inline' : 'attachment') + '; filename="' + baseName + '.' + ext + '"');
       res.setHeader('Cache-Control', 'public, max-age=86400');
       res.setHeader('Accept-Ranges', 'bytes');
       if (req.headers.range) {
@@ -1459,7 +1499,7 @@ async function serveProxy(req, res) {
     const bin = Buffer.from(item.b64, 'base64');
     res.setHeader('Content-Type', item.ct || 'image/jpeg');
     res.setHeader('Content-Length', bin.length);
-    res.setHeader('Content-Disposition', 'attachment; filename="' + baseName + '.' + ext + '"');
+    res.setHeader('Content-Disposition', (req.query.play === '1' ? 'inline' : 'attachment') + '; filename="' + baseName + '.' + ext + '"');
     res.setHeader('Cache-Control', 'public, max-age=86400');
     return res.send(bin);
   }
@@ -1474,7 +1514,7 @@ async function serveProxy(req, res) {
     const fallbackType = kind === 'vid' ? 'video/mp4' : kind === 'aud' ? 'audio/mpeg' : 'image/jpeg';
     res.setHeader('Content-Type', up.headers['content-type'] || fallbackType);
     if (up.headers['content-length']) res.setHeader('Content-Length', up.headers['content-length']);
-    res.setHeader('Content-Disposition', 'attachment; filename="' + baseName + '.' + ext + '"');
+    res.setHeader('Content-Disposition', (req.query.play === '1' ? 'inline' : 'attachment') + '; filename="' + baseName + '.' + ext + '"');
     res.setHeader('Cache-Control', 'public, max-age=86400');
     up.data.pipe(res);
   } catch (e) { res.status(502).json({ error: 'upstream error' }); }
@@ -1499,7 +1539,7 @@ app.get('/resfile/:code', async (req, res) => {
     res.setHeader('Accept-Ranges', 'bytes');
     res.setHeader('Content-Type', up.headers['content-type'] || 'application/octet-stream');
     if (up.headers['content-length']) res.setHeader('Content-Length', up.headers['content-length']);
-    res.setHeader('Content-Disposition', 'attachment; filename="' + encodeURIComponent(fn) + '"');
+    res.setHeader('Content-Disposition', (req.query.play === '1' ? 'inline' : 'attachment') + '; filename="' + encodeURIComponent(fn) + '"');
     res.setHeader('Cache-Control', 'public, max-age=3600');
     up.data.pipe(res);
   } catch (e) { res.status(502).json({ error: 'upstream error' }); }
