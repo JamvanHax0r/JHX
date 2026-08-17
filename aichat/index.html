@@ -169,7 +169,7 @@ tailwind.config = { theme: { extend: {
       <span class="w-10 h-10 rounded-full bg-ai/15 border border-ai/30 flex items-center justify-center text-lg">💜</span>
       <div>
         <p class="font-display font-bold text-white">Fiony</p>
-        <p class="font-mono text-[10px] text-lm flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-lm animate-pulse"></span>online · JH-Neural engine</p>
+        <p class="font-mono text-[10px] text-lm flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-lm animate-pulse"></span>online</p>
       </div>
       <button onclick="resetChat()" class="ml-auto font-mono text-[10px] text-slate-500 hover:text-ai border border-line hover:border-ai/40 rounded-lg px-3 py-2 transition-colors">RESET CHAT</button>
         <button id="fullbtn" onclick="toggleFull()" style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.1em;color:#a78bfa;border:1px solid rgba(139,92,246,.3);border-radius:8px;padding:10px 14px;background:rgba(139,92,246,.08);cursor:pointer">⛶ FULL</button>
@@ -572,6 +572,18 @@ function cp(id){
     setTimeout(() => btn.textContent = orig, 1500);
   });
 }
+
+(function(){
+  const s2 = document.createElement('style');
+  s2.textContent = '#chat>div{margin-bottom:30px}.bubcopy{bottom:-22px}';
+  document.head.appendChild(s2);
+  const cand = [...document.querySelectorAll('p,span,div')].filter(e => e.childElementCount <= 2 && /\bonline\b/.test(e.textContent) && e.textContent.trim().length < 20);
+  const el = cand.sort((a,b) => a.textContent.length - b.textContent.length)[0];
+  if (el) {
+    el.style.color = '#22c55e';
+    el.querySelectorAll('span,i,b').forEach(d => { if (!d.textContent.trim()) { d.style.background = '#22c55e'; d.style.boxShadow = '0 0 8px rgba(34,197,94,.55)'; } });
+  }
+})();
 </script>
 
 </body>
