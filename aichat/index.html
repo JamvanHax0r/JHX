@@ -322,31 +322,41 @@ function copyCode(btn){
   else { const t = document.createElement('textarea'); t.value = code; document.body.appendChild(t); t.select(); try { document.execCommand('copy'); } catch (e) {} t.remove(); done(); }
 }
 
-function addBubble(role, html){
-  addBubbleCore(role, html);
-  try {
-    if (role === 'user') return;
-    const ch = $('chat');
-    const last = ch.children[ch.children.length - 1];
-    if (!last || last.querySelector('.bubcopy')) return;
-    const ICON = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="11" height="11" rx="2"></rect><path d="M5 15V5a2 2 0 0 1 2-2h10"></path></svg>';
-    const btn = document.createElement('button');
-    btn.className = 'bubcopy';
-    btn.title = 'Salin jawaban';
-    btn.innerHTML = ICON;
-    btn.onclick = (ev) => {
-      ev.stopPropagation();
-      const clone = last.cloneNode(true);
-      clone.querySelectorAll('.bubcopy').forEach(x => x.remove());
-      clone.querySelectorAll('div,span').forEach(el => { if ((el.innerText || '').trim() === '💜') el.remove(); });
-      const txt = (clone.innerText || '').replace(/\n{3,}/g, '\n\n').trim();
-      const done = () => { btn.classList.add('ok'); btn.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"></path></svg>'; setTimeout(() => { btn.classList.remove('ok'); btn.innerHTML = ICON; }, 1500); };
-      if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(txt).then(done).catch(done);
-      else { const t = document.createElement('textarea'); t.value = txt; document.body.appendChild(t); t.select(); try { document.execCommand('copy'); } catch (e) {} t.remove(); done(); }
-    };
-    last.appendChild(btn);
-  } catch (e) {}
-}
+function addBubble(role, html){ return addBubbleCore(role, html); }
+(function(){
+  const st = document.createElement('style');
+  st.textContent = '.bubcopy{margin:8px 0 0 0 !important;display:inline-flex !important}';
+  document.head.appendChild(st);
+  const ICON = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="11" height="11" rx="2"></rect><path d="M5 15V5a2 2 0 0 1 2-2h10"></path></svg>';
+  const CHECK = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"></path></svg>';
+  let tm = null;
+  function attach(){
+    const ch = $('chat'); if (!ch) return;
+    for (const w of Array.from(ch.children)) {
+      if (w.querySelector('.bubcopy')) continue;
+      if (!(w.innerText || '').includes('💜')) continue;
+      let best = null;
+      w.querySelectorAll('div, p').forEach(el => {
+        const len = (el.innerText || '').length;
+        if (len > 0 && (!best || len > best._l)) { best = el; best._l = len; }
+      });
+      if (!best) continue;
+      const btn = document.createElement('button');
+      btn.className = 'bubcopy'; btn.title = 'Salin jawaban'; btn.innerHTML = ICON;
+      btn.onclick = (ev) => {
+        ev.stopPropagation();
+        const txt = (best.innerText || '').trim();
+        const done = () => { btn.classList.add('ok'); btn.innerHTML = CHECK; setTimeout(() => { btn.classList.remove('ok'); btn.innerHTML = ICON; }, 1500); };
+        if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(txt).then(done).catch(done);
+        else { const t = document.createElement('textarea'); t.value = txt; document.body.appendChild(t); t.select(); try { document.execCommand('copy'); } catch (e) {} t.remove(); done(); }
+      };
+      best.appendChild(btn);
+    }
+  }
+  const mo = new MutationObserver(() => { clearTimeout(tm); tm = setTimeout(attach, 400); });
+  const start = () => { const ch = $('chat'); if (ch) { mo.observe(ch, { childList: true, subtree: true, characterData: true }); attach(); } else setTimeout(start, 500); };
+  start();
+})();
 function addBubbleCore(role, html){
   const wrap = document.createElement('div');
   wrap.className = 'flex ' + (role === 'user' ? 'justify-end' : 'justify-start');
