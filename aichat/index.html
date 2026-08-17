@@ -329,23 +329,22 @@ function addBubble(role, html){
     const ch = $('chat');
     const last = ch.children[ch.children.length - 1];
     if (!last || last.querySelector('.bubcopy')) return;
-    let best = null;
-    last.querySelectorAll('div, p').forEach(el => {
-      const len = (el.innerText || '').length;
-      if (!best || len > best._l) { best = el; best._l = len; }
-    });
-    const target = best || last;
+    const ICON = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="11" height="11" rx="2"></rect><path d="M5 15V5a2 2 0 0 1 2-2h10"></path></svg>';
     const btn = document.createElement('button');
     btn.className = 'bubcopy';
-    btn.textContent = '⧉ copy';
+    btn.title = 'Salin jawaban';
+    btn.innerHTML = ICON;
     btn.onclick = (ev) => {
       ev.stopPropagation();
-      const txt = (target.innerText || '').trim();
-      const done = () => { btn.textContent = '✓ copied'; setTimeout(() => { btn.textContent = '⧉ copy'; }, 1500); };
+      const clone = last.cloneNode(true);
+      clone.querySelectorAll('.bubcopy').forEach(x => x.remove());
+      clone.querySelectorAll('div,span').forEach(el => { if ((el.innerText || '').trim() === '💜') el.remove(); });
+      const txt = (clone.innerText || '').replace(/\n{3,}/g, '\n\n').trim();
+      const done = () => { btn.classList.add('ok'); btn.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"></path></svg>'; setTimeout(() => { btn.classList.remove('ok'); btn.innerHTML = ICON; }, 1500); };
       if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(txt).then(done).catch(done);
       else { const t = document.createElement('textarea'); t.value = txt; document.body.appendChild(t); t.select(); try { document.execCommand('copy'); } catch (e) {} t.remove(); done(); }
     };
-    target.appendChild(btn);
+    last.appendChild(btn);
   } catch (e) {}
 }
 function addBubbleCore(role, html){
@@ -509,6 +508,26 @@ function reRenderBubbles(){
     const msg = b.querySelector('#chat');
     if (msg && msg.dataset.raw) msg.innerHTML = fmt(msg.dataset.raw);
   });
+}
+(function(){
+  const st = document.createElement('style');
+  st.textContent = '#chat>div{flex-wrap:wrap}.bubcopy{flex-basis:100%;width:fit-content;display:inline-flex;align-items:center;margin:6px 0 0 3.4rem;padding:4px;background:transparent;border:none;color:#64748b;cursor:pointer;opacity:.75;transition:all .2s}.bubcopy:hover{color:#a5b4fc;opacity:1}.bubcopy.ok{color:#86efac}body.fio-full #fiowrap{position:fixed;inset:0;z-index:95;overflow-y:auto;background:#05060a;border-radius:0;border:none;height:100vh;max-height:100vh;padding:16px;box-shadow:none}body.fio-full #chat{max-height:none!important;height:auto!important}';
+  document.head.appendChild(st);
+})();
+let _fioFull = false;
+function fioWrap(){
+  let w = $('chat').parentElement;
+  while (w && w !== document.body) { if (w.querySelector('textarea') || w.querySelector('#msg')) return w; w = w.parentElement; }
+  return $('chat').parentElement;
+}
+function toggleFull(){
+  _fioFull = !_fioFull;
+  const w = fioWrap();
+  if (w) w.id = 'fiowrap';
+  document.body.classList.toggle('fio-full', _fioFull);
+  const b = document.getElementById('fullbtn');
+  if (b) b.textContent = _fioFull ? '✕ EXIT' : '⛶ FULL';
+  setTimeout(() => { const c = $('chat'); c.scrollTop = c.scrollHeight; }, 60);
 }
 function restoreOrWelcome(){
   let saved = null;
