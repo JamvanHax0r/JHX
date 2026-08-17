@@ -1,3 +1,5 @@
 node_modules
 .env
 ai-persona.js
+tabi-persona.js
+orca-persona.js
