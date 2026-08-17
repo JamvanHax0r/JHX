@@ -172,6 +172,7 @@ tailwind.config = { theme: { extend: {
         <p class="font-mono text-[10px] text-lm flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-lm animate-pulse"></span>online · JH-Neural engine</p>
       </div>
       <button onclick="resetChat()" class="ml-auto font-mono text-[10px] text-slate-500 hover:text-ai border border-line hover:border-ai/40 rounded-lg px-3 py-2 transition-colors">RESET CHAT</button>
+        <button id="fullbtn" onclick="toggleFull()" style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.1em;color:#a78bfa;border:1px solid rgba(139,92,246,.3);border-radius:8px;padding:10px 14px;background:rgba(139,92,246,.08);cursor:pointer">⛶ FULL</button>
     </div>
 
     <div id="chat" class="p-5 space-y-4 bg-black/30"></div>
@@ -272,7 +273,7 @@ const store = {
   set(k, v){ try { localStorage.setItem(k, v); } catch (e) {} },
   del(k){ try { localStorage.removeItem(k); } catch (e) {} }
 };
-function persist(){ store.set('jh_fiony_chat', JSON.stringify({ history: history, chatLog: chatLog.slice(-60) })); }
+function persist(){ store.set('jh_fiony_chat', JSON.stringify({ history: history, chatLog: chatLog.slice(-500) })); }
 
 const esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 function fmt(s){
@@ -322,6 +323,32 @@ function copyCode(btn){
 }
 
 function addBubble(role, html){
+  addBubbleCore(role, html);
+  try {
+    if (role === 'user') return;
+    const ch = $('chat');
+    const last = ch.children[ch.children.length - 1];
+    if (!last || last.querySelector('.bubcopy')) return;
+    let best = null;
+    last.querySelectorAll('div, p').forEach(el => {
+      const len = (el.innerText || '').length;
+      if (!best || len > best._l) { best = el; best._l = len; }
+    });
+    const target = best || last;
+    const btn = document.createElement('button');
+    btn.className = 'bubcopy';
+    btn.textContent = '⧉ copy';
+    btn.onclick = (ev) => {
+      ev.stopPropagation();
+      const txt = (target.innerText || '').trim();
+      const done = () => { btn.textContent = '✓ copied'; setTimeout(() => { btn.textContent = '⧉ copy'; }, 1500); };
+      if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(txt).then(done).catch(done);
+      else { const t = document.createElement('textarea'); t.value = txt; document.body.appendChild(t); t.select(); try { document.execCommand('copy'); } catch (e) {} t.remove(); done(); }
+    };
+    target.appendChild(btn);
+  } catch (e) {}
+}
+function addBubbleCore(role, html){
   const wrap = document.createElement('div');
   wrap.className = 'flex ' + (role === 'user' ? 'justify-end' : 'justify-start');
   wrap.innerHTML = role === 'user'
@@ -438,6 +465,7 @@ async function send(){
   history.push({ role: 'user', content: text || '[media dikirim]' });
   history = history.slice(-10);
   $('msg').value = '';
+  $('msg').style.height = '';
   const imgs = pendingImages, fls = pendingFiles;
   let logHtml = '';
   if (fls.length) logHtml += fls.map(f => '<div class="font-mono text-[10px] bg-white/10 rounded px-2 py-1 mb-2">📄 ' + esc(f.name) + '</div>').join('');
@@ -487,7 +515,7 @@ function restoreOrWelcome(){
   try { saved = JSON.parse(store.get('jh_fiony_chat') || 'null'); } catch (e) {}
   if (saved && saved.chatLog && saved.chatLog.length) {
     history = Array.isArray(saved.history) ? saved.history.slice(-10) : [];
-    saved.chatLog.slice(-60).forEach(en => addBubble(en.role === 'user' ? 'user' : 'ai', en.html || ''));
+    saved.chatLog.slice(-500).forEach(en => addBubble(en.role === 'user' ? 'user' : 'ai', en.html || ''));
     addBubble('ai', '💾 Sesi sebelumnya dipulihkan — lanjutin aja, aku masih nyimak kok 💜');
   } else welcome();
 }
