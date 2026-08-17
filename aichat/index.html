@@ -548,8 +548,12 @@ function restoreOrWelcome(){
   try { saved = JSON.parse(store.get('jh_fiony_chat') || 'null'); } catch (e) {}
   if (saved && saved.chatLog && saved.chatLog.length) {
     history = Array.isArray(saved.history) ? saved.history.slice(-10) : [];
-    saved.chatLog.slice(-500).forEach(en => addBubble(en.role === 'user' ? 'user' : 'ai', en.html || ''));
-    addBubble('ai', '💾 Sesi sebelumnya dipulihkan — lanjutin aja, aku masih nyimak kok 💜');
+    if (!chatLog.length && saved.chatLog && saved.chatLog.length) {
+      saved.chatLog.slice(-500).forEach(en => chatLog.push(en));
+    }
+    chatLog.slice(-500).forEach(en => addBubble(en.role === 'user' ? 'user' : 'ai', en.html || ''));
+    persist();
+addBubble('ai', '💾 Sesi sebelumnya dipulihkan — lanjutin aja, aku masih nyimak kok 💜');
   } else welcome();
 }
 restoreOrWelcome();
