@@ -1441,7 +1441,7 @@ app.post('/ai-voice', async (req, res) => {
         url: 'https://api.jhx.my.id/resaud/' + code + '.mp3',
         play_url: 'https://api.jhx.my.id/resaud/' + code + '.mp3?play=1',
         filename: prettyName + '.mp3',
-        voice: voice || tpersona.voice || 'bella',
+        voice: 'fiony',
         size: r.data.length,
         sizeHuman: human(r.data.length),
         expires: '±1 jam'
