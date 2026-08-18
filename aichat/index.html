@@ -329,7 +329,7 @@ function copyCode(btn){
 
 function fioAttachVoice(){
   const vd = window._fioVoiceData;
-  if (!vd) return;
+  if (!vd || !vd.url) return;
   window._fioVoiceData = null;
   const ch = document.getElementById('chat');
   if (!ch) return;
@@ -441,10 +441,6 @@ function addBubble(role, html){
             const r = await fetch('https://api.jhx.my.id/ai-voice', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ text: txt.slice(0, 600) }) });
             const j = await r.json();
     // === FIONY VOICE AUTO-PLAY (fixed: window scope + deferred attach) ===
-    if (j.Status && j.data && j.data.isVoice && j.data.voice_url) {
-      window._fioVoiceData = { url: j.data.voice_url };
-      setTimeout(fioAttachVoice, 700);
-    }
             if (!j.Status || !j.data || !j.data.play_url) throw new Error(j.error || 'gagal');
             if (window._fioAudio) { try { window._fioAudio.pause(); } catch (e) {} }
             document.querySelectorAll('.bubvoice.playing').forEach(b => { b.classList.remove('playing'); b.innerHTML = VICON; });
@@ -688,6 +684,32 @@ function cp(id){
     el.style.color = '#22c55e';
     el.querySelectorAll('span,i,b').forEach(d => { if (!d.textContent.trim()) { d.style.background = '#22c55e'; d.style.boxShadow = '0 0 8px rgba(34,197,94,.55)'; } });
   }
+})();
+
+(function(){
+  if (window._fioFetchPatched) return;
+  window._fioFetchPatched = true;
+  const _origFetch = window.fetch;
+  window.fetch = function(){
+    const args = arguments;
+    const respPromise = _origFetch.apply(this, args);
+    try {
+      const u = typeof args[0] === 'string' ? args[0] : ((args[0] && args[0].url) || '');
+      if (u.indexOf('/ai-chat') !== -1) {
+        respPromise.then(function(resp){
+          try {
+            resp.clone().json().then(function(j){
+              if (j && j.Status && j.data && j.data.isVoice && j.data.voice_url) {
+                window._fioVoiceData = { url: j.data.voice_url };
+                setTimeout(fioAttachVoice, 900);
+              }
+            }).catch(function(){});
+          } catch(e){}
+        }).catch(function(){});
+      }
+    } catch(e){}
+    return respPromise;
+  };
 })();
 </script>
 
