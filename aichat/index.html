@@ -598,10 +598,6 @@ async function send(){
     const r = await fetch('https://api.jhx.my.id/ai-chat', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ message: text, history: history.slice(0, -1), images: imgs, files: fls }) });
     const j = await r.json();
     // === FIONY VOICE AUTO-PLAY (fixed: window scope + deferred attach) ===
-    if (j.Status && j.data && j.data.isVoice && j.data.voice_url) {
-      window._fioVoiceData = { url: j.data.voice_url };
-      setTimeout(fioAttachVoice, 700);
-    }
     if (!j.Status) throw new Error(j.error || 'Gagal menghubungi Fiony.');
     box.innerHTML = fmt(j.data.reply);
     history.push({ role: 'assistant', content: j.data.reply });
