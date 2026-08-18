@@ -1324,6 +1324,22 @@ function getRateLimitInfo(ip) {
   };
 }
 
+function detectVoiceTrigger(msg) {
+  const m = String(msg || '').toLowerCase();
+  const triggers = [
+    /bales\s*(pake|pakai|dengan|lewat|via)?\s*(suara|voice|vn|audio|ngomong|omong)/i,
+    /(kirim|kasih|beri|bikin)\s*(suara|voice|vn|audio|voice\s*note)/i,
+    /(omongin|ngomong|bilang)\s*(pake|pakai|lewat|via)?\s*(suara|voice|vn)/i,
+    /jawab\s*(pake|pakai|dengan|lewat|via)?\s*(suara|voice|vn|audio)/i,
+    /voice\s*(note|nya|in|ku)/i,
+    /vn\s*(aja|saja|dong|ya|nih)/i,
+    /(aku|saya|gue|gw|ana)\s*(mau|pengen|pingin)\s*(denger|dengar|dengerin)\s*(suara|voice)/i,
+    /bisa\s*(ngomong|omong|bales|balas)\s*(pake|pakai|lewat|via)?\s*(suara|voice|vn)/i,
+    /read\s*(aloud|out|it)/i,
+    /speak\s*(it|this|that)?/i
+  ];
+  return triggers.some(r => r.test(m));
+}
 function isOwnerRequest(req) {
   // Check header khusus owner
   if (req.headers['x-jh-owner'] === 'JH-OWNER-2026') return true;
@@ -1400,11 +1416,34 @@ app.post('/ai-chat', async (req, res) => {
     );
     
     const reply = response.data.choices[0].message.content;
-    const usage = response.data.usage || {};
-    res.json({
-      Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: true, type: 'chat',
-      data: { reply, model: 'JH-Neural v1', usage: { prompt_tokens: usage.prompt_tokens, completion_tokens: usage.completion_tokens }, isOwner }
-    });
+ const usage = response.data.usage || {};
+
+ // SMART VOICE TRIGGER: detect natural language → generate suara Fiony
+ let voiceUrl = null, voiceGen = false;
+ if (detectVoiceTrigger(message)) {
+   try {
+     let tpersona = null;
+     try { tpersona = require('./termai-persona.js'); } catch (e) {}
+     if (tpersona && tpersona.apiKey && !String(tpersona.apiKey).includes('PASTE')) {
+       const vr = await axios.get(tpersona.endpoint || 'https://api.termai.cc/api/text2speech/elevenlabs', {
+         params: { key: tpersona.apiKey, text: String(reply).slice(0, 600), voice: tpersona.voice || 'bella' },
+         responseType: 'arraybuffer', timeout: 90000, validateStatus: () => true
+       });
+       const vct = vr.headers['content-type'] || '';
+       if (vr.status === 200 && /audio/.test(vct) && vr.data.length > 500) {
+         const vcode = makeCode();
+         storeSet('resaud:' + vcode, { b64: Buffer.from(vr.data).toString('base64'), ct: 'audio/mpeg', k: 'aud', p: 'JHFIO_voice_' + vcode, fn: 'JHFIO_voice_' + vcode }, 3600);
+         voiceUrl = 'https://api.jhx.my.id/resaud/' + vcode + '.mp3?play=1';
+         voiceGen = true;
+       }
+     }
+   } catch (e) { console.error('[VOICE-GEN]', e.message); }
+ }
+
+ res.json({
+   Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: true, type: 'chat',
+   data: { reply, model: 'JH-Neural v1', usage: { prompt_tokens: usage.prompt_tokens, completion_tokens: usage.completion_tokens }, isOwner, isVoice: voiceGen, voice_url: voiceUrl }
+ });
   } catch (e) {
     const errMsg = e.response ? (e.response.data.error ? e.response.data.error.message : e.response.data) : e.message;
     res.status(500).json({ Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: false, error: 'AI error: ' + errMsg });
