@@ -327,6 +327,27 @@ function copyCode(btn){
   else { const t = document.createElement('textarea'); t.value = code; document.body.appendChild(t); t.select(); try { document.execCommand('copy'); } catch (e) {} t.remove(); done(); }
 }
 
+function fioAttachVoice(){
+  const vd = window._fioVoiceData;
+  if (!vd) return;
+  window._fioVoiceData = null;
+  const ch = document.getElementById('chat');
+  if (!ch) return;
+  const wraps = Array.from(ch.children);
+  const last = wraps[wraps.length - 1];
+  if (!last || last.querySelector('.fio-audio-wrap')) return;
+  const holder = last.querySelector('div, p') || last;
+  const wrap = document.createElement('div');
+  wrap.className = 'fio-audio-wrap';
+  wrap.innerHTML = '<span class="fio-voice-tag">🎤 SUARA FIONY</span>';
+  const au = document.createElement('audio');
+  au.controls = true;
+  au.preload = 'metadata';
+  au.src = vd.url;
+  wrap.appendChild(au);
+  holder.appendChild(wrap);
+  setTimeout(() => { au.play().catch(() => {}); }, 300);
+}
 function addBubble(role, html){
   const result = addBubbleCore(role, html);
   try {
@@ -412,10 +433,10 @@ function addBubble(role, html){
             if (!txt) throw new Error('empty');
             const r = await fetch('https://api.jhx.my.id/ai-voice', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ text: txt.slice(0, 600) }) });
             const j = await r.json();
-    // === FIONY VOICE AUTO-PLAY ===
-    let _fioVoiceData = null;
+    // === FIONY VOICE AUTO-PLAY (fixed: window scope + deferred attach) ===
     if (j.Status && j.data && j.data.isVoice && j.data.voice_url) {
-      _fioVoiceData = { url: j.data.voice_url, filename: (j.data.filename || 'Fiony-Voice') };
+      window._fioVoiceData = { url: j.data.voice_url };
+      setTimeout(fioAttachVoice, 700);
     }
             if (!j.Status || !j.data || !j.data.play_url) throw new Error(j.error || 'gagal');
             if (window._fioAudio) { try { window._fioAudio.pause(); } catch (e) {} }
@@ -569,10 +590,10 @@ async function send(){
   try {
     const r = await fetch('https://api.jhx.my.id/ai-chat', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ message: text, history: history.slice(0, -1), images: imgs, files: fls }) });
     const j = await r.json();
-    // === FIONY VOICE AUTO-PLAY ===
-    let _fioVoiceData = null;
+    // === FIONY VOICE AUTO-PLAY (fixed: window scope + deferred attach) ===
     if (j.Status && j.data && j.data.isVoice && j.data.voice_url) {
-      _fioVoiceData = { url: j.data.voice_url, filename: (j.data.filename || 'Fiony-Voice') };
+      window._fioVoiceData = { url: j.data.voice_url };
+      setTimeout(fioAttachVoice, 700);
     }
     if (!j.Status) throw new Error(j.error || 'Gagal menghubungi Fiony.');
     box.innerHTML = fmt(j.data.reply);
