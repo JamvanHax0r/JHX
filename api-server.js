@@ -393,6 +393,7 @@ app.post('/faceswap', async (req, res) => {
 });
 
 app.post('/yt-search', async (req, res) => {
+  return res.status(503).json({ Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: false, error: 'YouTube sedang maintenance — tim JH-Tools lagi research sumber yang lebih baik. Coba fitur lain dulu ya (Spotify, TikTok, IG, Twitter, AI Chat) 💜' });
   try {
     const q = (req.body && req.body.q) || '';
     if (!q) return res.status(400).json({ Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: false, error: 'Kata kunci pencarian kosong!' });
@@ -592,6 +593,7 @@ app.post('/mf-downloader', async (req, res) => {
 });
 
 app.post('/yt-download', async (req, res) => {
+  return res.status(503).json({ Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: false, error: 'YouTube sedang maintenance — tim JH-Tools lagi research sumber yang lebih baik. Coba fitur lain dulu ya 💜' });
   try {
     const url = (req.body && req.body.url) || '';
     const format = (req.body && req.body.format) || 'best';
@@ -634,10 +636,27 @@ app.post('/yt-download', async (req, res) => {
         }
         
         const ckFile = path.join(__dirname, 'yt-cookies.txt');
-     if (fs.existsSync(ckFile) && fs.statSync(ckFile).size > 10) dlCmd += ' --cookies "' + ckFile + '"';
-     dlCmd += ' --retries 10 --fragment-retries 10 --extractor-retries 10 --extractor-args "youtube:player_client=android_vr,web"';
-     exec(dlCmd, { timeout: 900000 }, (dlErr) => {
-          if (dlErr) {
+     const ckOpt = (fs.existsSync(ckFile) && fs.statSync(ckFile).size > 10) ? ' --cookies "' + ckFile + '"' : '';
+     const dlBase = dlCmd;
+  const dlFlags = ' --retries 5 --fragment-retries 5 --extractor-retries 5';
+  const dlConfigs = [
+    ckOpt + dlFlags + ' --extractor-args "youtube:player_client=ios,android_vr,web"',
+    ckOpt + dlFlags + ' --extractor-args "youtube:player_client=mweb,web"',
+    dlFlags + ' --extractor-args "youtube:player_client=tv,web"',
+    ckOpt + dlFlags,
+    dlFlags
+  ];
+  (async () => {
+       let dlErr = null;
+       {
+         let dlOk = false;
+         for (const cfg of dlConfigs) {
+           const ok = await new Promise(rsv => exec(dlBase + cfg, { timeout: 900000 }, e => rsv(!e)));
+           if (ok && fs.existsSync(outputFile)) { dlOk = true; break; }
+         }
+         if (!dlOk) dlErr = new Error('YouTube 403: semua player_client ditolak. Coba lagi nanti atau ganti format.');
+       }
+       if (dlErr) {
             fs.rmSync(tmpDir, { recursive: true, force: true });
             return res.status(500).json({ Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: false, error: 'Download gagal: ' + dlErr.message });
           }
@@ -675,7 +694,7 @@ app.post('/yt-download', async (req, res) => {
               available_qualities: isAudio ? ['audio'] : availableQualities
             }
           });
-        });
+        })();
       } catch (e) {
         fs.rmSync(tmpDir, { recursive: true, force: true });
         res.status(500).json({ Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: false, error: 'Parse error: ' + e.message });
