@@ -1326,19 +1326,12 @@ function getRateLimitInfo(ip) {
 
 function detectVoiceTrigger(msg) {
   const m = String(msg || '').toLowerCase();
-  const triggers = [
-    /bales\s*(pake|pakai|dengan|lewat|via)?\s*(suara|voice|vn|audio|ngomong|omong)/i,
-    /(kirim|kasih|beri|bikin)\s*(suara|voice|vn|audio|voice\s*note)/i,
-    /(omongin|ngomong|bilang)\s*(pake|pakai|lewat|via)?\s*(suara|voice|vn)/i,
-    /jawab\s*(pake|pakai|dengan|lewat|via)?\s*(suara|voice|vn|audio)/i,
-    /voice\s*(note|nya|in|ku)/i,
-    /vn\s*(aja|saja|dong|ya|nih)/i,
-    /(aku|saya|gue|gw|ana)\s*(mau|pengen|pingin)\s*(denger|dengar|dengerin)\s*(suara|voice)/i,
-    /bisa\s*(ngomong|omong|bales|balas)\s*(pake|pakai|lewat|via)?\s*(suara|voice|vn)/i,
-    /read\s*(aloud|out|it)/i,
-    /speak\s*(it|this|that)?/i
-  ];
-  return triggers.some(r => r.test(m));
+  if (/\bvn\b/.test(m)) return true;
+  if (/\bvoice\b/.test(m)) return true;
+  if (/(suara|ngomong|omong|bersuara|bicara)/.test(m)) return true;
+  if (/(denger|dengar|read aloud|speak|talk)/.test(m)) return true;
+  if (/(kirim|bales|balas|jawab)[^a-z0-9]{0,12}(audio|vn|voice)/.test(m)) return true;
+  return false;
 }
 function isOwnerRequest(req) {
   // Check header khusus owner
