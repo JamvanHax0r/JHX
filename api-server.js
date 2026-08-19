@@ -592,117 +592,92 @@ app.post('/mf-downloader', async (req, res) => {
 });
 
 app.post('/yt-download', async (req, res) => {
-  return res.status(503).json({ Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: false, error: 'YouTube sedang maintenance — tim JH-Tools lagi research sumber yang lebih baik. Coba fitur lain dulu ya 💜' });
+try {
+const url = (req.body && req.body.url) || '';
+const format = (req.body && req.body.format) || 'best';
+if (!url || !/youtube.com|youtu.be/.test(url)) return res.status(400).json({ Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: false, error: 'URL YouTube tidak valid!' });
+
+const audioFormats = ["mp3", "m4a", "webm", "aac", "flac", "opus", "ogg", "wav"];
+const isAudio = format === 'audio' || audioFormats.includes(format);
+
+let formatQuality = 'mp3';
+if (isAudio) {
+  formatQuality = (format === 'audio') ? 'mp3' : format;
+} else {
+  const h = parseInt(format) || 720;
+  if (h >= 2160) formatQuality = '4k';
+  else if (h >= 1440) formatQuality = '1440';
+  else if (h >= 1080) formatQuality = '1080';
+  else if (h >= 720) formatQuality = '720';
+  else if (h >= 480) formatQuality = '480';
+  else if (h >= 360) formatQuality = '320';
+  else if (h >= 240) formatQuality = '240';
+  else formatQuality = '144';
+}
+
+const jantung = {
+  'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:146.0) Gecko/20100101 Firefox/146.0',
+  'Accept': '*/*', 'Accept-Language': 'en-US,en;q=0.5',
+  'Referer': 'https://y2down.cc/', 'Origin': 'https://y2down.cc',
+  'Sec-Fetch-Dest': 'empty', 'Sec-Fetch-Mode': 'cors', 'Sec-Fetch-Site': 'cross-site',
+  'Priority': 'u=4', 'Pragma': 'no-cache', 'Cache-Control': 'no-cache'
+};
+
+// KEEPALIVE anti-timeout
+res.setHeader('Content-Type', 'application/json');
+const ka = setInterval(() => { try { res.write(' '); } catch (e) {} }, 30000);
+const origJson = res.json.bind(res);
+res.json = (o) => { clearInterval(ka); return origJson(o); };
+
+// 1. Init download via y2down
+const initRes = await axios.get('https://p.savenow.to/ajax/download.php', {
+  params: { copyright: "0", format: formatQuality, url: url, api: "dfcb6d76f2f6a9894gjkege8a4ab232222" },
+  headers: jantung, timeout: 30000, validateStatus: () => true
+});
+const progressUrl = initRes.data.progress_url;
+if (!progressUrl) return res.status(500).json({ Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: false, error: 'Gagal dapet progress_url dari y2down' });
+const title = initRes.data.info?.title || 'Unknown';
+const image = initRes.data.info?.image || null;
+
+// 2. Poll progress until download_url
+let downloadUrl = null;
+let attempts = 0;
+while (attempts < 60) {
   try {
-    const url = (req.body && req.body.url) || '';
-    const format = (req.body && req.body.format) || 'best';
-    if (!url || !/youtube\.com|youtu\.be/.test(url)) return res.status(400).json({ Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: false, error: 'URL YouTube tidak valid!' });
-    
-    const isAudio = format === 'audio';
- // KEEPALIVE anti-timeout: kirim spasi tiap 30 dtk selama proses panjang (valid JSON = spasi boleh di depan)
- res.setHeader('Content-Type', 'application/json');
- const ka = setInterval(() => { try { res.write(' '); } catch (e) {} }, 30000);
- res.json = (o) => { clearInterval(ka); try { res.end(JSON.stringify(o)); } catch (e) {} };
-    const code = makeCode();
-    const tmpDir = path.join(__dirname, 'tmp', 'jh-yt-' + code);
-    fs.mkdirSync(tmpDir, { recursive: true });
-    
-    const metaCmd = 'yt-dlp -J --no-warnings "' + url + '"';
-    exec(metaCmd, { maxBuffer: 1024 * 1024 * 15, timeout: 120000 }, (err, stdout) => {
-      if (err) {
-        fs.rmSync(tmpDir, { recursive: true, force: true });
-        return res.status(500).json({ Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: false, error: 'Gagal metadata: ' + err.message });
-      }
-      
-      try {
-        const meta = JSON.parse(stdout);
-        const title = meta.title || 'Unknown';
-        const formats = meta.formats || [];
-        const prettyName = 'JHYT_' + cleanTitle(title);
-        
-        let dlCmd, outputFile, route, ext;
-        if (isAudio) {
-          outputFile = path.join(tmpDir, 'audio.mp3');
-          dlCmd = 'yt-dlp --extract-audio --audio-format mp3 --audio-quality 0 --no-warnings -o "' + outputFile + '" "' + url + '"';
-          route = 'resaud';
-          ext = 'mp3';
-        } else {
-          const targetHeight = parseInt(format) || 720;
-          outputFile = path.join(tmpDir, 'video.mp4');
-          dlCmd = 'yt-dlp -f "bv*[height<=' + targetHeight + ']+ba/b[height<=' + targetHeight + ']/best[height<=' + targetHeight + ']/best" --merge-output-format mp4 --no-warnings -o "' + outputFile + '" "' + url + '"';
-          route = 'resvid';
-          ext = 'mp4';
-        }
-        
-        const ckFile = path.join(__dirname, 'yt-cookies.txt');
-     const ckOpt = (fs.existsSync(ckFile) && fs.statSync(ckFile).size > 10) ? ' --cookies "' + ckFile + '"' : '';
-     const dlBase = dlCmd;
-  const dlFlags = ' --retries 5 --fragment-retries 5 --extractor-retries 5';
-  const dlConfigs = [
-    ckOpt + dlFlags + ' --extractor-args "youtube:player_client=ios,android_vr,web"',
-    ckOpt + dlFlags + ' --extractor-args "youtube:player_client=mweb,web"',
-    dlFlags + ' --extractor-args "youtube:player_client=tv,web"',
-    ckOpt + dlFlags,
-    dlFlags
-  ];
-  (async () => {
-       let dlErr = null;
-       {
-         let dlOk = false;
-         for (const cfg of dlConfigs) {
-           const ok = await new Promise(rsv => exec(dlBase + cfg, { timeout: 900000 }, e => rsv(!e)));
-           if (ok && fs.existsSync(outputFile)) { dlOk = true; break; }
-         }
-         if (!dlOk) dlErr = new Error('YouTube 403: semua player_client ditolak. Coba lagi nanti atau ganti format.');
-       }
-       if (dlErr) {
-            fs.rmSync(tmpDir, { recursive: true, force: true });
-            return res.status(500).json({ Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: false, error: 'Download gagal: ' + dlErr.message });
-          }
-          if (!fs.existsSync(outputFile)) {
-            const altFiles = fs.readdirSync(tmpDir);
-            const altFile = altFiles.find(f => /\.(mp4|webm|mkv)$/i.test(f));
-            if (altFile) {
-              const altPath = path.join(tmpDir, altFile);
-              fs.renameSync(altPath, outputFile);
-            } else {
-              fs.rmSync(tmpDir, { recursive: true, force: true });
-              return res.status(500).json({ Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: false, error: 'File output tidak ditemukan setelah download' });
-            }
-          }
-          
-          const availableQualities = [...new Set(formats.filter(f => f.vcodec && f.vcodec !== 'none' && f.height).map(f => f.height + 'p'))].sort((a, b) => parseInt(b) - parseInt(a)).slice(0, 5);
-          
-          let actualHeight = 720;
-          if (!isAudio) {
-            const target = parseInt(format) || 720;
-            const match = formats.filter(f => f.vcodec && f.vcodec !== 'none' && f.height).sort((a, b) => Math.abs(a.height - target) - Math.abs(b.height - target))[0];
-            if (match) actualHeight = match.height;
-          }
-          
-          storeSet(route + ':' + code, { filePath: outputFile, k: isAudio ? 'aud' : 'vid', p: prettyName, fn: prettyName, ref: 'https://www.youtube.com/' }, 7200);
-          setTimeout(() => { try { fs.rmSync(tmpDir, { recursive: true, force: true }); } catch {} }, 7200 * 1000);
-          
-          return res.json({
-            Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: true, type: 'download',
-            data: {
-              url: 'https://api.jhx.my.id/' + route + '/' + code + '.' + ext,
-              filename: prettyName + '.' + ext,
-              youtube_url: url,
-              format: isAudio ? 'audio (mp3 192kbps)' : actualHeight + 'p',
-              available_qualities: isAudio ? ['audio'] : availableQualities
-            }
-          });
-        })();
-      } catch (e) {
-        fs.rmSync(tmpDir, { recursive: true, force: true });
-        res.status(500).json({ Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: false, error: 'Parse error: ' + e.message });
-      }
-    });
-  } catch (e) {
-    res.status(500).json({ Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: false, error: e.message });
+    const progRes = await axios.get(progressUrl, { headers: jantung, timeout: 30000, validateStatus: () => true });
+    const pData = progRes.data;
+    if (pData.download_url && String(pData.download_url).trim() !== "") { downloadUrl = pData.download_url; break; }
+    if (pData.error || (pData.success === 0 && (pData.text || "").toLowerCase().includes("error"))) {
+      return res.status(500).json({ Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: false, error: pData.message || 'Progress error' });
+    }
+  } catch (err) {}
+  attempts++;
+  await sleep(2000);
+}
+if (!downloadUrl) return res.status(504).json({ Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: false, error: 'Timeout polling download_url' });
+
+// 3. Proxy via resvid/resaud
+const code = makeCode();
+const route = isAudio ? 'resaud' : 'resvid';
+const ext = isAudio ? 'mp3' : 'mp4';
+const prettyName = 'JHYT_' + cleanTitle(title);
+storeSet(route + ':' + code, { u: downloadUrl, k: isAudio ? 'aud' : 'vid', p: prettyName, fn: prettyName, ref: 'https://www.youtube.com/' }, 7200);
+return res.json({
+  Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: true, type: 'download',
+  data: {
+    url: 'https://api.jhx.my.id/' + route + '/' + code + '.' + ext,
+    filename: prettyName + '.' + ext,
+    youtube_url: url,
+    format: formatQuality,
+    title: title,
+    thumbnail: image
   }
 });
+} catch (e) {
+res.status(500).json({ Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: false, error: 'y2down error: ' + e.message });
+}
+});
+
 app.post('/tk-downloader', async (req, res) => {
   try {
     const url = (req.body && req.body.url) || '';
