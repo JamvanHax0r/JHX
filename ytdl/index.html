@@ -15,6 +15,87 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdn.tailwindcss.com"></script>
 <script>
+
+function showStep(text, icon = '⏳') {
+  const steps = document.getElementById('download-steps');
+  if (!steps) return;
+  steps.style.display = 'block';
+  steps.innerHTML = `
+    <div class="flex items-center gap-3 p-4 rounded-lg bg-violet-500/10 border border-violet-500/20 mb-3">
+      <span class="text-2xl">${icon}</span>
+      <span class="text-slate-300 text-sm">${text}</span>
+    </div>
+  `;
+}
+
+function hideStep() {
+  const steps = document.getElementById('download-steps');
+  if (steps) steps.style.display = 'none';
+}
+
+async function startDownload(url, format) {
+  const modal = document.getElementById('quality-modal');
+  modal.classList.add('hidden');
+  modal.classList.remove('flex');
+  
+  showStep('Memulai proses download...', '🚀');
+  
+  try {
+    showStep('Menghubungi server y2down...', '📡');
+    await new Promise(r => setTimeout(r, 800));
+    
+    showStep('Mengambil metadata video...', '🔍');
+    const res = await fetch('/yt-download', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ url, format })
+    });
+    
+    showStep('Server sedang mengkonversi...', '⚙️');
+    const data = await res.json();
+    
+    if (data.Status) {
+      showStep('Download siap! Link aktif ±1 jam.', '✅');
+      await new Promise(r => setTimeout(r, 1000));
+      
+      const dlUrl = data.data.url;
+      const filename = data.data.filename;
+      
+      const a = document.createElement('a');
+      a.href = dlUrl;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      
+      showStep('File sedang diunduh ke device kamu...', '💾');
+      await new Promise(r => setTimeout(r, 2000));
+      hideStep();
+      
+      showToast('Download berhasil! File: ' + filename, 'success');
+    } else {
+      showStep('Gagal: ' + (data.error || 'Unknown error'), '❌');
+      await new Promise(r => setTimeout(r, 3000));
+      hideStep();
+      showToast('Download gagal: ' + (data.error || 'Unknown error'), 'error');
+    }
+  } catch (e) {
+    showStep('Error: ' + e.message, '❌');
+    await new Promise(r => setTimeout(r, 3000));
+    hideStep();
+    showToast('Error: ' + e.message, 'error');
+  }
+}
+
+function showToast(message, type = 'info') {
+  const toast = document.createElement('div');
+  const bgColor = type === 'success' ? 'bg-emerald-500' : type === 'error' ? 'bg-red-500' : 'bg-violet-500';
+  toast.className = `fixed bottom-4 right-4 ${bgColor} text-white px-6 py-3 rounded-lg shadow-2xl z-[9999] animate-slide-up`;
+  toast.textContent = message;
+  document.body.appendChild(toast);
+  setTimeout(() => toast.remove(), 5000);
+}
+
 tailwind.config = { theme: { extend: {
   fontFamily: { sans:['Inter','sans-serif'], display:['Space Grotesk','sans-serif'], mono:['JetBrains Mono','monospace'] },
   colors: { night:'#05060a', panel:'#0b0e14', line:'rgba(255,255,255,0.07)', cy:'#22d3ee', vi:'#8b5cf6', pk:'#ec4899', lm:'#a3e635', yt:'#FF0000' }
@@ -42,6 +123,13 @@ tailwind.config = { theme: { extend: {
   .modal-box{background:#0b0e14;border:1px solid rgba(255,255,255,.08);border-radius:1.25rem;max-width:860px;width:100%;max-height:92vh;overflow-y:auto;box-shadow:0 40px 80px rgba(0,0,0,.6)}
   ::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:#05060a}::-webkit-scrollbar-thumb{background:#334155;border-radius:3px}
   ::selection{background:#FF0000;color:#fff}
+
+@keyframes slide-up {
+  from { transform: translateY(100%); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+.animate-slide-up { animation: slide-up 0.3s ease-out; }
+
 </style>
 </head>
 <body class="font-sans antialiased">
