@@ -393,8 +393,7 @@ app.post('/faceswap', async (req, res) => {
 });
 
 app.post('/yt-search', async (req, res) => {
-  return res.status(503).json({ Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: false, error: 'YouTube sedang maintenance — tim JH-Tools lagi research sumber yang lebih baik. Coba fitur lain dulu ya (Spotify, TikTok, IG, Twitter, AI Chat) 💜' });
-  try {
+try {
     const q = (req.body && req.body.q) || '';
     if (!q) return res.status(400).json({ Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: false, error: 'Kata kunci pencarian kosong!' });
     
