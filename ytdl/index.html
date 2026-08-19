@@ -154,7 +154,7 @@ tailwind.config = { theme: { extend: {
 <main class="max-w-5xl mx-auto px-4 sm:px-6 pt-28 pb-20">
   <p class="font-mono text-xs text-slate-600 mb-4">~/modules/<span class="text-yt">yt-downloader</span></p>
   <h1 class="font-display font-bold text-4xl sm:text-5xl text-white mb-4">YouTube <span class="tgrad">Downloader</span></h1>
-  <p class="text-slate-400 max-w-2xl leading-relaxed mb-10">Cari video YouTube atau tempel tautan langsung. Pilih kualitas video (4K/1080p/720p/480p/360p) atau ekstrak audio (MP3/M4A/AAC/FLAC/OPUS) — semua tanpa watermark. Powered by JH-Tools 💜
+  <p class="text-slate-400 max-w-2xl leading-relaxed mb-10">Cari video YouTube atau tempel tautan langsung. pilih kualitas video atau ekstrak audio MP3, semua tanpa watermark.
     </p>
 
   <div class="card rounded-2xl p-6 sm:p-8 border-t-2 border-t-yt/60">
@@ -269,7 +269,7 @@ console.log(dl.data.url);</pre>
       <div class="px-5 py-3 border-b border-line font-mono text-xs text-slate-500">catatan</div>
       <ul class="p-5 text-sm text-slate-400 space-y-2.5">
         <li><span class="text-yt">→</span> Support video YouTube, Shorts, dan playlist.</li>
-        <li><span class="text-yt">→</span> → Video: "4k", "1440", "1080", "720", "480", "360", "240", "144" · Audio: "mp3", "m4a", "aac", "flac", "opus", "webm", "wav", "ogg".</li>
+        <li><span class="text-yt">→</span> Video multi-kualitas (hingga 4K) & audio MP3.</li>
         <li><span class="text-yt">→</span> Link unduhan aktif ±1 jam — segera simpan.</li>
       </ul>
     </div>
@@ -298,6 +298,8 @@ console.log(dl.data.url);</pre>
         <p class="font-mono text-[10px] text-slate-500">PILIH KUALITAS</p>
         <div class="flex flex-wrap gap-2" id="pm-pills"></div>
       </div>
+      <div id="pm-steps" class="space-y-2"></div>
+      <p id="pm-size" class="font-mono text-[10px] text-slate-500"></p>
       <video id="pm-video" controls class="w-full max-h-[50vh] rounded-lg bg-black" style="display:none"></video>
       <audio id="pm-audio" controls class="w-full" style="display:none"></audio>
       <p class="font-mono text-[10px] text-amber-400">⏳ link aktif ±1 jam — putar atau simpan segera.</p>
@@ -338,12 +340,10 @@ async function run(){
 
   try {
     if (isUrl) {
-      const r = await fetch('https://api.jhx.my.id/yt-download', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ url: val, format: '720' }) });
-      const j = await r.json();
       clearInterval(iv);
-      if (!j.Status) throw new Error(j.error || 'Gagal mengunduh.');
-      $('status').textContent = '✓ selesai — video siap diputar';
-      openTrack(j.data, null, j.data.available_qualities || ['720p']);
+      const m = val.match(/(?:v=|youtu\.be\/)([\w-]{11})/);
+      $('status').textContent = '✓ pilih kualitas pada panel';
+      openSelect({ url: val, title: 'YouTube video', artist: '', duration: '', thumbnail: m ? 'https://i.ytimg.com/vi/' + m[1] + '/hqdefault.jpg' : '' });
     } else {
       const r = await fetch('https://api.jhx.my.id/yt-search', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ q: val }) });
       const j = await r.json();
@@ -353,17 +353,20 @@ async function run(){
       $('status').textContent = '✓ ' + j.data.length + ' video ditemukan — pilih untuk mengunduh';
       $('rtitle').textContent = 'HASIL PENCARIAN · "' + val.toUpperCase() + '"';
       $('rgrid').innerHTML = lastResults.map((v, i) => `
-        <div class="card rounded-xl overflow-hidden group cursor-pointer" onclick="dlTrack(${i}, this)">
+        <div class="card rounded-xl overflow-hidden group cursor-pointer flex flex-col" onclick="pickTrack(${i})">
           <div class="relative">
             <img src="${v.thumbnail}" onerror="this.style.display='none'" class="w-full aspect-video object-cover group-hover:scale-105 transition-transform duration-500" alt="">
             <span class="absolute bottom-2 right-2 font-mono text-[10px] bg-black/70 text-white border border-line rounded px-2 py-0.5">${escT(v.duration)}</span>
             <span class="absolute inset-0 items-center justify-center hidden group-hover:flex bg-black/40 backdrop-blur-[2px]">
-              <span class="w-12 h-12 rounded-full bg-white/15 border border-white/30 flex items-center justify-center text-white">▶</span>
+              <span class="w-12 h-12 rounded-full bg-white/15 border border-white/30 flex items-center justify-center text-white">⤓</span>
             </span>
           </div>
-          <div class="p-3.5 space-y-2">
+          <div class="p-3.5 space-y-2 flex-1">
             <p class="font-semibold text-sm text-white line-clamp-2 leading-tight">${escT(v.title)}</p>
             <p class="font-mono text-[10px] text-slate-500 truncate">${escT(v.artist)}</p>
+          </div>
+          <div class="px-3.5 pb-3.5">
+            <span class="block text-center font-mono text-[10px] font-bold bg-gradient-to-r from-yt to-cy text-white rounded-lg py-2 group-hover:shadow-[0_0_20px_rgba(255,0,0,.35)] transition-shadow">⤓ PILIH KUALITAS</span>
           </div>
         </div>`).join('');
       $('res').classList.remove('hidden');
@@ -372,58 +375,61 @@ async function run(){
   finally { $('btn').disabled = false; }
 }
 
-async function dlTrack(i, el){
-  const v = lastResults[i];
-  el.style.opacity = '0.5';
-  el.style.pointerEvents = 'none';
-  try {
-    const r = await fetch('https://api.jhx.my.id/yt-download', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ url: v.url, format: '720' }) });
-    const j = await r.json();
-    if (!j.Status) throw new Error(j.error || 'Gagal mengunduh.');
-    openTrack(j.data, v, j.data.available_qualities || ['720p']);
-  } catch(e){ showErr(e.message); }
-  finally { el.style.opacity = '1'; el.style.pointerEvents = 'auto'; }
+function pickTrack(i){
+  openSelect(lastResults[i]);
 }
 
-function openTrack(data, meta, qualities){
-  currentMedia = { data, meta, qualities, selectedFormat: qualities[0] };
-  $('pm-name').textContent = data.filename;
-  $('pm-dl').href = data.url;
-  if (meta) {
-    $('pm-meta').style.display = 'flex';
-    $('pm-cover').src = meta.thumbnail;
-    $('pm-title').textContent = meta.title;
-    $('pm-artist').textContent = meta.artist;
-    $('pm-dur').textContent = meta.duration;
-  } else {
-    $('pm-meta').style.display = 'none';
-  }
-  $('pm-pills').innerHTML = qualities.map((q, i) => `<button onclick="switchQuality('${q}', this)" class="qpill font-mono ${i===0?'on':''}">${q}</button>`).join('') + `<button onclick="switchQuality('audio', this)" class="qpill font-mono">AUDIO</button>`;
+const VID_Q = ['1080', '720', '480', '360', '144'];
+
+function openSelect(v){
+  currentMedia = { meta: v, data: null, selectedFormat: null };
+  $('pm-name').textContent = (v.title || 'YouTube video').slice(0, 60);
+  $('pm-meta').style.display = 'flex';
+  $('pm-cover').src = v.thumbnail || '';
+  $('pm-title').textContent = v.title || 'YouTube video';
+  $('pm-artist').textContent = v.artist || '';
+  $('pm-dur').textContent = v.duration || '';
+  $('pm-pills').innerHTML = VID_Q.map(q => `<button onclick="chooseQuality('${q}', this)" class="qpill font-mono">${q}p</button>`).join('') + `<button onclick="chooseQuality('audio', this)" class="qpill font-mono">MP3</button>`;
+  $('pm-steps').innerHTML = '<p class="font-mono text-[10px] text-slate-500">Pilih kualitas untuk memulai proses.</p>';
+  $('pm-size').textContent = '';
+  $('pm-dl').href = '#';
+  $('pm-dl').classList.add('pointer-events-none', 'opacity-40');
   $('pm-video').style.display = 'none';
   $('pm-audio').style.display = 'none';
   $('pmodal').classList.add('open');
   document.body.style.overflow = 'hidden';
 }
 
-async function switchQuality(q, btn){
+function setStep(text, icon){
+  $('pm-steps').innerHTML = `<div class="flex items-center gap-3 p-3 rounded-lg bg-yt/5 border border-yt/20"><span class="text-lg">${icon}</span><span class="font-mono text-[11px] text-slate-300">${text}</span></div>`;
+}
+
+async function chooseQuality(q, btn){
   document.querySelectorAll('.qpill').forEach(b => b.classList.remove('on'));
   btn.classList.add('on');
   currentMedia.selectedFormat = q;
-  btn.disabled = true;
-  btn.innerHTML = '<span class="spin">◌</span> ' + q;
+  $('pm-dl').classList.add('pointer-events-none', 'opacity-40');
+  setStep('Menghubungi server unduhan…', '📡');
   try {
-    const r = await fetch('https://api.jhx.my.id/yt-download', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ url: currentMedia.data.youtube_url || (currentMedia.meta && currentMedia.meta.url), format: q }) });
+    setStep('Mengkonversi format ' + (q === 'audio' ? 'MP3' : q + 'p') + '…', '⚙️');
+    const r = await fetch('https://api.jhx.my.id/yt-download', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ url: currentMedia.meta.url, format: q }) });
     const j = await r.json();
-    if (!j.Status) throw new Error(j.error);
+    if (!j.Status) throw new Error(j.error || 'Gagal memproses.');
     currentMedia.data = j.data;
     $('pm-name').textContent = j.data.filename;
     $('pm-dl').href = j.data.url;
-  } catch(e){ showErr('Gagal ganti kualitas: ' + e.message); }
-  finally { btn.disabled = false; btn.textContent = q; }
+    $('pm-dl').classList.remove('pointer-events-none', 'opacity-40');
+    $('pm-size').textContent = j.data.sizeHuman ? '📦 ukuran ±' + j.data.sizeHuman : '';
+    setStep('Link siap! Aktif ±1 jam — putar atau simpan.', '✅');
+  } catch(e){
+    setStep('Gagal: ' + e.message, '❌');
+  }
+}
 }
 
 function playMedia(){
-  const isAudio = currentMedia.selectedFormat === 'audio' || currentMedia.data.url.includes('.m4a');
+  if (!currentMedia || !currentMedia.data) { showErr('Pilih kualitas dulu.'); return; }
+  const isAudio = currentMedia.selectedFormat === 'audio' || currentMedia.data.url.includes('.mp3');
   $('pm-video').style.display = isAudio ? 'none' : 'block';
   $('pm-audio').style.display = isAudio ? 'block' : 'none';
   if (isAudio) {

@@ -53,8 +53,25 @@ function cleanTitle(s) {
 }
 function human(sz) { return sz > 0 ? (sz > 1048576 ? (sz / 1048576).toFixed(2) + ' MB' : (sz / 1024).toFixed(1) + ' KB') : null; }
 async function getSize(u) {
-  try { const r = await axios.head(u, { timeout: 8000, headers: { 'User-Agent': UA } }); return parseInt(r.headers['content-length'] || '0') || 0; }
-  catch { return 0; }
+try { const r = await axios.head(u, { timeout: 8000, headers: { 'User-Agent': UA } }); return parseInt(r.headers['content-length'] || '0') || 0; }
+catch { return 0; }
+}
+async function probeSize(u) {
+try {
+const h = await axios.head(u, { timeout: 8000, headers: { 'User-Agent': UA }, validateStatus: () => true });
+const l = parseInt(h.headers['content-length'] || '0', 10);
+if (l > 0) return l;
+} catch (e) {}
+try {
+const r = await axios.get(u, { headers: { 'User-Agent': UA, Range: 'bytes=0-0' }, responseType: 'stream', timeout: 15000, validateStatus: () => true });
+let sz = 0;
+const cr = r.headers['content-range'];
+if (cr && cr.includes('/')) sz = parseInt(cr.split('/')[1], 10) || 0;
+else if (r.headers['content-length']) sz = parseInt(r.headers['content-length'], 10);
+r.data.destroy();
+return sz;
+} catch (e) { return 0; }
+}
 }
 
 app.get('/', (req, res) => res.json({ service: 'JH-Tools API', status: 'operational', uptime: process.uptime(), port: 4100 }));
@@ -597,13 +614,11 @@ const url = (req.body && req.body.url) || '';
 const format = (req.body && req.body.format) || 'best';
 if (!url || !/youtube.com|youtu.be/.test(url)) return res.status(400).json({ Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: false, error: 'URL YouTube tidak valid!' });
 
-const audioFormats = ["mp3", "m4a", "webm", "aac", "flac", "opus", "ogg", "wav"];
-const isAudio = format === 'audio' || audioFormats.includes(format);
-
+const isAudio = format === 'audio' || format === 'mp3';
 let formatQuality = 'mp3';
 if (isAudio) {
-  formatQuality = (format === 'audio') ? 'mp3' : format;
-} else {
+formatQuality = 'mp3';
+} else {} else {
   const h = parseInt(format) || 720;
   if (h >= 2160) formatQuality = '4k';
   else if (h >= 1440) formatQuality = '1440';
@@ -655,13 +670,14 @@ while (attempts < 60) {
   await sleep(2000);
 }
 if (!downloadUrl) return res.status(504).json({ Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: false, error: 'Timeout polling download_url' });
+const fsize = await probeSize(downloadUrl);
 
 // 3. Proxy via resvid/resaud
 const code = makeCode();
 const route = isAudio ? 'resaud' : 'resvid';
 const ext = isAudio ? 'mp3' : 'mp4';
 const prettyName = 'JHYT_' + cleanTitle(title);
-storeSet(route + ':' + code, { u: downloadUrl, k: isAudio ? 'aud' : 'vid', p: prettyName, fn: prettyName, ref: 'https://www.youtube.com/' }, 7200);
+storeSet(route + ':' + code, { u: downloadUrl, k: isAudio ? 'aud' : 'vid', p: prettyName, fn: prettyName, ref: 'https://www.youtube.com/', sz: fsize }, 7200);
 return res.json({
   Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: true, type: 'download',
   data: {
@@ -670,7 +686,9 @@ return res.json({
     youtube_url: url,
     format: formatQuality,
     title: title,
-    thumbnail: image
+    thumbnail: image,
+    size: fsize,
+    sizeHuman: human(fsize)
   }
 });
 } catch (e) {
