@@ -324,7 +324,6 @@ let lastResults = [];
 let currentMedia = null;
 
 function escT(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
-
 async function pasteQ(){ try { $('q').value = await navigator.clipboard.readText(); } catch(e){ $('q').focus(); } }
 
 const steps = ['[1/3] mencari video…','[2/3] mengambil metadata…','[3/3] menyiapkan download…'];
@@ -333,11 +332,9 @@ async function run(){
   $('err').classList.add('hidden'); $('res').classList.add('hidden');
   if (!val) { showErr('Isi kata kunci atau URL YouTube.'); return; }
   const isUrl = /youtube\.com|youtu\.be/i.test(val);
-
   $('btn').disabled = true; $('status').classList.remove('hidden');
   let s = 0; $('status').textContent = steps[0];
   const iv = setInterval(() => { s = Math.min(s+1, 2); $('status').textContent = steps[s]; }, 5000);
-
   try {
     if (isUrl) {
       clearInterval(iv);
@@ -357,9 +354,6 @@ async function run(){
           <div class="relative">
             <img src="${v.thumbnail}" onerror="this.style.display='none'" class="w-full aspect-video object-cover group-hover:scale-105 transition-transform duration-500" alt="">
             <span class="absolute bottom-2 right-2 font-mono text-[10px] bg-black/70 text-white border border-line rounded px-2 py-0.5">${escT(v.duration)}</span>
-            <span class="absolute inset-0 items-center justify-center hidden group-hover:flex bg-black/40 backdrop-blur-[2px]">
-              <span class="w-12 h-12 rounded-full bg-white/15 border border-white/30 flex items-center justify-center text-white">⤓</span>
-            </span>
           </div>
           <div class="p-3.5 space-y-2 flex-1">
             <p class="font-semibold text-sm text-white line-clamp-2 leading-tight">${escT(v.title)}</p>
@@ -375,11 +369,8 @@ async function run(){
   finally { $('btn').disabled = false; }
 }
 
-function pickTrack(i){
-  openSelect(lastResults[i]);
-}
-
 const VID_Q = ['1080', '720', '480', '360', '144'];
+function pickTrack(i){ openSelect(lastResults[i]); }
 
 function openSelect(v){
   currentMedia = { meta: v, data: null, selectedFormat: null };
@@ -389,8 +380,8 @@ function openSelect(v){
   $('pm-title').textContent = v.title || 'YouTube video';
   $('pm-artist').textContent = v.artist || '';
   $('pm-dur').textContent = v.duration || '';
-  $('pm-pills').innerHTML = VID_Q.map(q => `<button onclick="chooseQuality('${q}', this)" class="qpill font-mono">${q}p</button>`).join('') + `<button onclick="chooseQuality('audio', this)" class="qpill font-mono">MP3</button>`;
-  $('pm-steps').innerHTML = '<p class="font-mono text-[10px] text-slate-500">Pilih kualitas untuk memulai proses.</p>';
+  $('pm-pills').innerHTML = VID_Q.map(q => '<button onclick="chooseQuality(\'' + q + '\', this)" class="qpill font-mono">' + q + 'p</button>').join('') + '<button onclick="chooseQuality(\'audio\', this)" class="qpill font-mono">MP3</button>';
+  setStep('Pilih kualitas untuk memulai proses.', '👆');
   $('pm-size').textContent = '';
   $('pm-dl').href = '#';
   $('pm-dl').classList.add('pointer-events-none', 'opacity-40');
@@ -401,7 +392,7 @@ function openSelect(v){
 }
 
 function setStep(text, icon){
-  $('pm-steps').innerHTML = `<div class="flex items-center gap-3 p-3 rounded-lg bg-yt/5 border border-yt/20"><span class="text-lg">${icon}</span><span class="font-mono text-[11px] text-slate-300">${text}</span></div>`;
+  $('pm-steps').innerHTML = '<div class="flex items-center gap-3 p-3 rounded-lg bg-yt/5 border border-yt/20"><span class="text-lg">' + icon + '</span><span class="font-mono text-[11px] text-slate-300">' + text + '</span></div>';
 }
 
 async function chooseQuality(q, btn){
@@ -421,10 +412,7 @@ async function chooseQuality(q, btn){
     $('pm-dl').classList.remove('pointer-events-none', 'opacity-40');
     $('pm-size').textContent = j.data.sizeHuman ? '📦 ukuran ±' + j.data.sizeHuman : '';
     setStep('Link siap! Aktif ±1 jam — putar atau simpan.', '✅');
-  } catch(e){
-    setStep('Gagal: ' + e.message, '❌');
-  }
-}
+  } catch(e){ setStep('Gagal: ' + e.message, '❌'); }
 }
 
 function playMedia(){
@@ -432,20 +420,13 @@ function playMedia(){
   const isAudio = currentMedia.selectedFormat === 'audio' || currentMedia.data.url.includes('.mp3');
   $('pm-video').style.display = isAudio ? 'none' : 'block';
   $('pm-audio').style.display = isAudio ? 'block' : 'none';
-  if (isAudio) {
-    $('pm-audio').src = currentMedia.data.url;
-    $('pm-audio').play();
-  } else {
-    $('pm-video').src = currentMedia.data.url;
-    $('pm-video').play();
-  }
+  if (isAudio) { $('pm-audio').src = currentMedia.data.url; $('pm-audio').play(); }
+  else { $('pm-video').src = currentMedia.data.url; $('pm-video').play(); }
 }
 
 function closeTrack(){
-  $('pm-video').pause();
-  $('pm-video').src = '';
-  $('pm-audio').pause();
-  $('pm-audio').src = '';
+  $('pm-video').pause(); $('pm-video').src = '';
+  $('pm-audio').pause(); $('pm-audio').src = '';
   $('pmodal').classList.remove('open');
   document.body.style.overflow = '';
 }
@@ -465,6 +446,7 @@ function cp(id){
     setTimeout(() => btn.textContent = orig, 1500);
   });
 }
+
 </script>
 </body>
 </html>
