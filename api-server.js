@@ -72,7 +72,6 @@ r.data.destroy();
 return sz;
 } catch (e) { return 0; }
 }
-}
 
 app.get('/', (req, res) => res.json({ service: 'JH-Tools API', status: 'operational', uptime: process.uptime(), port: 4100 }));
 
@@ -618,7 +617,7 @@ const isAudio = format === 'audio' || format === 'mp3';
 let formatQuality = 'mp3';
 if (isAudio) {
 formatQuality = 'mp3';
-} else {} else {
+} else {
   const h = parseInt(format) || 720;
   if (h >= 2160) formatQuality = '4k';
   else if (h >= 1440) formatQuality = '1440';
@@ -1557,6 +1556,7 @@ async function serveProxy(req, res) {
     const fallbackType = kind === 'vid' ? 'video/mp4' : kind === 'aud' ? 'audio/mpeg' : 'image/jpeg';
     res.setHeader('Content-Type', up.headers['content-type'] || fallbackType);
     if (up.headers['content-length']) res.setHeader('Content-Length', up.headers['content-length']);
+else if (item.sz) res.setHeader('Content-Length', item.sz);
     res.setHeader('Content-Disposition', (req.query.play === '1' ? 'inline' : 'attachment') + '; filename="' + baseName + '.' + ext + '"');
     res.setHeader('Cache-Control', 'public, max-age=86400');
     up.data.pipe(res);
