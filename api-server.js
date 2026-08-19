@@ -610,14 +610,12 @@ app.post('/mf-downloader', async (req, res) => {
 app.post('/yt-download', async (req, res) => {
 try {
 const url = (req.body && req.body.url) || '';
-const format = (req.body && req.body.format) || 'best';
+const format = (req.body && req.body.format) || '720';
 if (!url || !/youtube.com|youtu.be/.test(url)) return res.status(400).json({ Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: false, error: 'URL YouTube tidak valid!' });
 
 const isAudio = format === 'audio' || format === 'mp3';
 let formatQuality = 'mp3';
-if (isAudio) {
-formatQuality = 'mp3';
-} else {
+if (!isAudio) {
   const h = parseInt(format) || 720;
   if (h >= 2160) formatQuality = '4k';
   else if (h >= 1440) formatQuality = '1440';
@@ -637,11 +635,7 @@ const jantung = {
   'Priority': 'u=4', 'Pragma': 'no-cache', 'Cache-Control': 'no-cache'
 };
 
-// KEEPALIVE anti-timeout
-res.setHeader('Content-Type', 'application/json');
-const ka = setInterval(() => { try { res.write(' '); } catch (e) {} }, 30000);
-const origJson = res.json.bind(res);
-res.json = (o) => { clearInterval(ka); return origJson(o); };
+
 
 // 1. Init download via y2down
 const initRes = await axios.get('https://p.savenow.to/ajax/download.php', {
@@ -669,27 +663,66 @@ while (attempts < 60) {
   await sleep(2000);
 }
 if (!downloadUrl) return res.status(504).json({ Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: false, error: 'Timeout polling download_url' });
-const fsize = await probeSize(downloadUrl);
 
-// 3. Proxy via resvid/resaud
+// 3. Download FULL ke /tmp (bukan streaming langsung)
 const code = makeCode();
-const route = isAudio ? 'resaud' : 'resvid';
+const tmpDir = path.join(__dirname, 'tmp', 'jh-yt-' + code);
+fs.mkdirSync(tmpDir, { recursive: true });
 const ext = isAudio ? 'mp3' : 'mp4';
+const outputFile = path.join(tmpDir, 'video.' + ext);
 const prettyName = 'JHYT_' + cleanTitle(title);
-storeSet(route + ':' + code, { u: downloadUrl, k: isAudio ? 'aud' : 'vid', p: prettyName, fn: prettyName, ref: 'https://www.youtube.com/', sz: fsize }, 7200);
-return res.json({
-  Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: true, type: 'download',
-  data: {
-    url: 'https://api.jhx.my.id/' + route + '/' + code + '.' + ext,
-    filename: prettyName + '.' + ext,
-    youtube_url: url,
-    format: formatQuality,
-    title: title,
-    thumbnail: image,
-    size: fsize,
-    sizeHuman: human(fsize)
-  }
-});
+
+try {
+  // Download file dari y2down ke /tmp
+  const dlRes = await axios.get(downloadUrl, {
+    headers: { 'User-Agent': UA },
+    responseType: 'stream',
+    timeout: 600000,
+    validateStatus: () => true
+  });
+  const writer = fs.createWriteStream(outputFile);
+  await new Promise((resolve, reject) => {
+    dlRes.data.on('error', reject);
+    dlRes.data.pipe(writer);
+    writer.on('finish', resolve);
+    writer.on('error', reject);
+  });
+
+  // Verify file ada + get size
+  if (!fs.existsSync(outputFile)) throw new Error('File tidak terbentuk di /tmp');
+  const stat = fs.statSync(outputFile);
+  if (stat.size < 1000) throw new Error('File terlalu kecil (kemungkinan corrupt)');
+
+  // 4. Store dengan filePath (serveProxy akan handle Content-Length dari stat.size)
+  const route = isAudio ? 'resaud' : 'resvid';
+  storeSet(route + ':' + code, {
+    filePath: outputFile,
+    k: isAudio ? 'aud' : 'vid',
+    p: prettyName,
+    fn: prettyName,
+    ref: 'https://www.youtube.com/'
+  }, 7200);
+
+  // Auto-delete setelah 2 jam
+  setTimeout(() => { try { fs.rmSync(tmpDir, { recursive: true, force: true }); } catch {} }, 7200 * 1000);
+
+  return res.json({
+    Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: true, type: 'download',
+    data: {
+      url: 'https://api.jhx.my.id/' + route + '/' + code + '.' + ext,
+      filename: prettyName + '.' + ext,
+      youtube_url: url,
+      format: isAudio ? 'audio (mp3)' : formatQuality,
+      title: title,
+      thumbnail: image,
+      size: stat.size,
+      sizeHuman: human(stat.size)
+    }
+  });
+} catch (dlErr) {
+  fs.rmSync(tmpDir, { recursive: true, force: true });
+  return res.status(500).json({ Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: false, error: 'Download ke server gagal: ' + dlErr.message });
+}
 } catch (e) {
 res.status(500).json({ Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: false, error: 'y2down error: ' + e.message });
 }
