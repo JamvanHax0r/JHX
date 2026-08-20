@@ -829,6 +829,57 @@ app.post('/tk-downloader', async (req, res) => {
 });
 
 
+// === BACKGROUND REMOVER ===
+app.post('/bg-remove', async (req, res) => {
+try {
+const { b64, ct, url, bg, type, size } = req.body || {};
+if (!b64 && !url) return res.status(400).json({ Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: false, error: 'Gambar kosong! Kirim base64 atau URL gambar.' });
+let bpersona = null;
+try { bpersona = require('./bg-persona.js'); } catch (e) {}
+if (!bpersona || !bpersona.apiKey || String(bpersona.apiKey).includes('PASTE')) {
+  return res.status(500).json({ Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: false, error: 'API-Key background remover belum di-set di server!' });
+}
+let imgBuf = null, mime = ct || 'image/jpeg';
+if (b64) {
+  imgBuf = Buffer.from(b64, 'base64');
+  if (imgBuf.length > 8 * 1024 * 1024) return res.status(400).json({ Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: false, error: 'Ukuran maksimal 8MB!' });
+}
+const ext = (mime.split('/')[1] || 'jpg').replace('jpeg', 'jpg');
+const boundary = '----jhbg' + makeCode() + makeCode() + Date.now();
+const parts = [];
+const field = (name, val) => parts.push(Buffer.from('--' + boundary + '\r\nContent-Disposition: form-data; name="' + name + '"\r\n\r\n' + val + '\r\n'));
+if (url && !b64) field('image_url', url);
+else {
+  parts.push(Buffer.from('--' + boundary + '\r\nContent-Disposition: form-data; name="image_file"; filename="input.' + ext + '"\r\nContent-Type: ' + mime + '\r\n\r\n'));
+  parts.push(imgBuf);
+  parts.push(Buffer.from('\r\n'));
+}
+field('size', size || 'auto');
+field('type', type || 'auto');
+field('format', 'png');
+if (bg) field('bg_color', bg);
+parts.push(Buffer.from('--' + boundary + '--\r\n'));
+const body = Buffer.concat(parts);
+const r = await axios.post('https://api.remove.bg/v1.0/removebg', body, {
+  headers: { 'X-Api-Key': bpersona.apiKey, 'Content-Type': 'multipart/form-data; boundary=' + boundary },
+  responseType: 'arraybuffer', timeout: 120000, validateStatus: () => true
+});
+const rct = r.headers['content-type'] || '';
+if (r.status !== 200 || !/image\//.test(rct)) {
+  let emsg = 'Gagal memproses gambar (HTTP ' + r.status + ')';
+  try { const j = JSON.parse(Buffer.from(r.data).toString('utf8')); if (j.errors && j.errors[0]) emsg = j.errors[0].title || emsg; } catch (e) {}
+  return res.status(502).json({ Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: false, error: emsg });
+}
+const code = makeCode();
+const prettyName = 'JHBG_' + code;
+storeSet('resimg:' + code, { b64: Buffer.from(r.data).toString('base64'), ct: rct || 'image/png', k: 'img', p: prettyName, fn: prettyName }, 7200);
+res.json({
+  Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: true, type: 'edit',
+  data: { url: 'https://api.jhx.my.id/resimg/' + code + '.png', filename: prettyName + '.png', size: r.data.length, sizeHuman: human(r.data.length), transparent: !bg, background: bg || 'transparan' }
+});
+} catch (e) { res.status(500).json({ Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: false, error: e.message }); }
+});
+
 app.post('/hd-image', async (req, res) => {
   try {
     const { b64, ct, scale } = req.body || {};

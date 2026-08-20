@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Background Remover — JH-Tools</title>
+<meta name="description" content="Hapus background foto otomatis dalam detik. Hasil PNG transparan atau ganti warna background.">
+<meta property="og:title" content="Background Remover — JH-Tools">
+<meta property="og:description" content="Hapus background foto otomatis — PNG transparan, cepat, gratis.">
+<meta property="og:image" content="https://jhax0r.my.id/logo.jpeg">
+<meta name="theme-color" content="#05060a">
+<link rel="icon" href="https://jhax0r.my.id/logo.jpeg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+tailwind.config = { theme: { extend: {
+  fontFamily: { sans:['Inter','sans-serif'], display:['Space Grotesk','sans-serif'], mono:['JetBrains Mono','monospace'] },
+  colors: { night:'#05060a', panel:'#0b0e14', line:'rgba(255,255,255,0.07)', cy:'#22d3ee', tl:'#14b8a6', vi:'#8b5cf6', pk:'#ec4899', lm:'#a3e635' }
+}}}
+</script>
+<style>
+  body{background:#05060a;color:#e6e8ee;overflow-x:hidden}
+  .grid-bg{position:fixed;inset:0;z-index:-2;background-image:linear-gradient(rgba(255,255,255,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.035) 1px,transparent 1px);background-size:56px 56px;mask-image:radial-gradient(ellipse 80% 60% at 50% 0%,black 40%,transparent 100%)}
+  .orb{position:fixed;border-radius:9999px;filter:blur(110px);z-index:-1}
+  .orb-1{width:420px;height:420px;background:#0d9488;top:-140px;right:-120px;opacity:.2}
+  .orb-2{width:380px;height:380px;background:#0e7490;bottom:-120px;left:-120px;opacity:.18}
+  .tgrad{background:linear-gradient(90deg,#14b8a6,#22d3ee,#14b8a6);background-size:300% 100%;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;animation:flow 7s linear infinite}
+  @keyframes flow{0%{background-position:0% 50%}100%{background-position:300% 50%}}
+  .card{background:rgba(11,14,20,.7);border:1px solid rgba(255,255,255,.07);backdrop-filter:blur(14px)}
+  .beat{display:inline-block;animation:beat 1.3s ease-in-out infinite}
+  @keyframes beat{0%,100%{transform:scale(1)}12%{transform:scale(1.25)}24%{transform:scale(1)}36%{transform:scale(1.2)}48%{transform:scale(1)}}
+  .checker{background-image:linear-gradient(45deg,rgba(255,255,255,.09) 25%,transparent 25%,transparent 75%,rgba(255,255,255,.09) 75%),linear-gradient(45deg,rgba(255,255,255,.09) 25%,transparent 25%,transparent 75%,rgba(255,255,255,.09) 75%);background-size:20px 20px;background-position:0 0,10px 10px}
+  .bpill{padding:.4rem .9rem;border-radius:9999px;border:1px solid rgba(255,255,255,.07);color:#94a3b8;font-size:11px;transition:all .2s;cursor:pointer}
+  .bpill.on{background:rgba(20,184,166,.15);color:#14b8a6;border-color:rgba(20,184,166,.4)}
+  ::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:#05060a}::-webkit-scrollbar-thumb{background:#334155;border-radius:3px}
+  ::selection{background:#14b8a6;color:#fff}
+</style>
+</head>
+<body class="font-sans antialiased">
+<div class="grid-bg"></div><div class="orb orb-1"></div><div class="orb orb-2"></div>
+
+<nav class="fixed w-full top-0 z-50 bg-night/75 backdrop-blur-xl border-b border-line">
+  <div class="max-w-5xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+    <div class="flex items-center gap-4">
+      <a href="/" class="font-mono text-xs text-slate-400 hover:text-tl transition-colors">← /</a>
+      <span class="w-px h-4 bg-line"></span>
+      <a href="/" class="flex items-center gap-2.5">
+        <img src="https://jhax0r.my.id/logo.jpeg" class="h-8 w-8 rounded-lg border border-line" alt="JH-Tools">
+        <span class="font-display font-bold text-white">JH-<span class="tgrad">TOOLS</span></span>
+      </a>
+    </div>
+    <span class="flex items-center gap-2 font-mono text-[10px] text-tl border border-tl/25 bg-tl/5 rounded-full px-3 py-1">
+      <span class="w-1.5 h-1.5 rounded-full bg-tl animate-pulse"></span>EDIT MODULE · v1.0
+    </span>
+  </div>
+</nav>
+
+<main class="max-w-5xl mx-auto px-4 sm:px-6 pt-28 pb-20">
+  <p class="font-mono text-xs text-slate-600 mb-4">~/modules/<span class="text-tl">bg-remover</span></p>
+  <h1 class="font-display font-bold text-4xl sm:text-5xl text-white mb-4">Background <span class="tgrad">Remover</span></h1>
+  <p class="text-slate-400 max-w-2xl leading-relaxed mb-10">Hapus background foto otomatis dalam hitungan detik — hasil PNG transparan, atau ganti warna background sesukamu.</p>
+
+  <div class="card rounded-2xl p-6 sm:p-8 border-t-2 border-t-tl/60">
+    <label class="font-mono text-[11px] text-slate-500 tracking-widest block mb-3">1 · UPLOAD GAMBAR (JPG/PNG/WEBP · MAX 8MB)</label>
+    <div class="flex flex-col sm:flex-row gap-3 mb-6">
+      <label class="px-5 py-4 rounded-lg border border-line font-mono text-xs text-slate-300 hover:border-tl/50 hover:text-tl transition-colors cursor-pointer text-center">
+        📁 PILIH FILE
+        <input id="f" type="file" accept="image/*" class="hidden">
+      </label>
+      <input id="u" type="text" placeholder="…atau tempel URL gambar" class="flex-1 bg-black/50 border border-line rounded-lg px-5 py-4 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-tl/60 focus:ring-1 focus:ring-tl/40 transition-all font-mono">
+    </div>
+
+    <div class="grid sm:grid-cols-2 gap-4 mb-6">
+      <div>
+        <p class="font-mono text-[10px] text-slate-500 mb-2">ASLI</p>
+        <div class="rounded-xl border border-line overflow-hidden bg-black/40 aspect-square flex items-center justify-center">
+          <img id="prev1" src="" class="w-full h-full object-contain" style="display:none" alt="">
+          <span id="ph1" class="font-mono text-[10px] text-slate-600">belum ada gambar</span>
+        </div>
+      </div>
+      <div>
+        <p class="font-mono text-[10px] text-slate-500 mb-2">HASIL</p>
+        <div class="rounded-xl border border-line overflow-hidden checker aspect-square flex items-center justify-center">
+          <img id="prev2" src="" class="w-full h-full object-contain" style="display:none" alt="">
+          <span id="ph2" class="font-mono text-[10px] text-slate-600">hasil muncul di sini</span>
+        </div>
+      </div>
+    </div>
+
+    <label class="font-mono text-[11px] text-slate-500 tracking-widest block mb-3">2 · BACKGROUND HASIL</label>
+    <div class="flex flex-wrap items-center gap-2 mb-6">
+      <button onclick="setBg('', this)" class="bpill on">Transparan</button>
+      <button onclick="setBg('fff', this)" class="bpill">Putih</button>
+      <button onclick="setBg('000', this)" class="bpill">Hitam</button>
+      <input id="hex" type="text" placeholder="custom hex (cth: 81d4fa)" class="bg-black/50 border border-line rounded-lg px-4 py-2 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-tl/60 font-mono w-44">
+    </div>
+
+    <button id="btn" onclick="run()" class="w-full py-4 rounded-lg bg-gradient-to-r from-tl to-cy text-white font-semibold text-sm hover:shadow-[0_0_30px_rgba(20,184,166,.4)] transition-shadow disabled:opacity-40 disabled:cursor-not-allowed">✂️ HAPUS BACKGROUND</button>
+    <p id="status" class="hidden font-mono text-[11px] text-tl mt-4"></p>
+    <div id="err" class="hidden mt-5 p-4 rounded-lg bg-red-500/10 border border-red-500/30 text-red-400 text-sm"></div>
+    <a id="dl" href="#" target="_blank" rel="noopener" class="hidden mt-5 block text-center font-mono text-xs bg-white/5 border border-line text-white px-6 py-3 rounded-lg hover:bg-white/10 transition-all">⤓ DOWNLOAD PNG</a>
+  </div>
+
+  <div class="mt-12">
+    <p class="font-mono text-xs text-tl mb-3">DEVELOPER REFERENCE</p>
+    <h2 class="font-display font-bold text-2xl text-white mb-6">Pakai Lewat Kode.</h2>
+    <div class="grid lg:grid-cols-2 gap-5">
+      <div class="card rounded-xl overflow-hidden">
+        <div class="px-5 py-3 border-b border-line flex items-center justify-between">
+          <div class="flex items-center gap-2"><span class="font-mono text-[10px] font-bold text-lm bg-lm/10 border border-lm/25 rounded px-2 py-0.5">POST</span><span class="font-mono text-xs text-white">/bg-remove</span></div>
+          <button class="font-mono text-[10px] text-cy hover:text-white" onclick="cp('bg-req')">copy</button>
+        </div>
+        <pre id="bg-req" class="p-4 font-mono text-[11.5px] leading-relaxed text-slate-300 overflow-x-auto">curl -X POST https://api.jhx.my.id/bg-remove \
+  -H "Content-Type: application/json" \
+  -d '{"url":"IMAGE_URL_HERE"}'</pre>
+      </div>
+      <div class="card rounded-xl overflow-hidden">
+        <div class="px-5 py-3 border-b border-line flex items-center justify-between">
+          <span class="font-mono text-[10px] text-slate-500">RESPONSE · 200 OK</span>
+          <button class="font-mono text-[10px] text-cy hover:text-white" onclick="cp('bg-res')">copy</button>
+        </div>
+        <pre id="bg-res" class="p-4 font-mono text-[11.5px] leading-relaxed text-slate-300 overflow-x-auto">{
+  "Developer": "JH a.k.a Dhika",
+  "Kesayangan": "Fiony Alveria♡",
+  "Status": true,
+  "type": "edit",
+  "data": {
+    "url": "https://api.jhx.my.id/resimg/BG01.png",
+    "filename": "JHBG_BG01.png",
+    "sizeHuman": "1.2 MB",
+    "background": "transparan"
+  }
+}</pre>
+      </div>
+    </div>
+    <div class="mt-4 card rounded-xl overflow-hidden">
+      <div class="px-5 py-3 border-b border-line flex items-center justify-between">
+        <span class="font-mono text-[10px] text-slate-500">NODE.JS EXAMPLE</span>
+        <button class="font-mono text-[10px] text-cy hover:text-white" onclick="cp('bg-node')">copy</button>
+      </div>
+      <pre id="bg-node" class="p-4 font-mono text-[11.5px] leading-relaxed text-slate-300 overflow-x-auto">const res = await fetch('https://api.jhx.my.id/bg-remove', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({ url: 'IMAGE_URL_HERE', bg: '' })
+}).then(r => r.json());
+
+console.log(res.data.url);</pre>
+    </div>
+  </div>
+
+  <div class="grid lg:grid-cols-2 gap-5 mt-10">
+    <div class="card rounded-xl overflow-hidden">
+      <div class="px-5 py-3 border-b border-line font-mono text-xs text-slate-500">endpoints</div>
+      <div class="p-5 font-mono text-sm space-y-2.5">
+        <p><span class="text-lm bg-lm/10 border border-lm/25 rounded px-2 py-0.5 text-[10px] font-semibold">POST</span> <span class="text-white">/bg-remove</span> <span class="text-slate-600 text-xs">— { b64|url, bg?, type? }</span></p>
+        <p><span class="text-tl bg-tl/10 border border-tl/25 rounded px-2 py-0.5 text-[10px] font-semibold">GET</span> <span class="text-white">/resimg/:code.png</span> <span class="text-slate-600 text-xs">— proxy hasil</span></p>
+      </div>
+    </div>
+    <div class="card rounded-xl overflow-hidden">
+      <div class="px-5 py-3 border-b border-line font-mono text-xs text-slate-500">catatan</div>
+      <ul class="p-5 text-sm text-slate-400 space-y-2.5">
+        <li><span class="text-tl">→</span> Support JPG/PNG/WebP, maksimal 8MB.</li>
+        <li><span class="text-tl">→</span> Hasil PNG transparan; bisa ganti background warna custom.</li>
+        <li><span class="text-tl">→</span> Kuota gratis 50 proses/bulan — pakai seperlunya.</li>
+      </ul>
+    </div>
+  </div>
+</main>
+
+<footer class="border-t border-line bg-panel/60 py-9 px-4 text-center space-y-2.5">
+  <p class="text-sm text-slate-400">Made with <span class="beat text-pk">❤</span> by <span class="tgrad font-display font-bold text-base">JamvanHax0r</span></p>
+  <p class="text-sm text-slate-500">Supported by: <span class="text-cy font-medium">BCCTeam</span> <span class="text-slate-700">—</span> <span class="text-vi font-medium">FLMGroup</span> <span class="text-slate-700">—</span> <span class="text-pk font-medium">Fiony Bot</span></p>
+  <p class="font-mono text-xs text-slate-600">© <span id="yr"></span> — All Rights Reserved</p>
+</footer>
+
+<script>
+document.getElementById('yr').textContent = new Date().getFullYear();
+const $ = id => document.getElementById(id);
+let b64 = null, ct = null, bgSel = '';
+
+$('f').addEventListener('change', e => {
+  const file = e.target.files[0];
+  if (!file) return;
+  if (file.size > 8 * 1024 * 1024) { showErr('Ukuran maksimal 8MB!'); return; }
+  ct = file.type || 'image/jpeg';
+  const rd = new FileReader();
+  rd.onload = () => {
+    b64 = String(rd.result).split(',')[1];
+    $('prev1').src = rd.result;
+    $('prev1').style.display = 'block';
+    $('ph1').style.display = 'none';
+  };
+  rd.readAsDataURL(file);
+});
+
+function setBg(v, btn){
+  bgSel = v;
+  $('hex').value = '';
+  document.querySelectorAll('.bpill').forEach(b => b.classList.remove('on'));
+  btn.classList.add('on');
+}
+$('hex').addEventListener('input', e => {
+  const v = e.target.value.replace('#', '').trim();
+  if (v) { bgSel = v; document.querySelectorAll('.bpill').forEach(b => b.classList.remove('on')); }
+});
+
+async function run(){
+  const url = $('u').value.trim();
+  if (!b64 && !url) { showErr('Upload gambar atau isi URL dulu.'); return; }
+  $('err').classList.add('hidden');
+  $('btn').disabled = true;
+  $('status').classList.remove('hidden');
+  $('status').textContent = '✂️ menghapus background…';
+  try {
+    const r = await fetch('https://api.jhx.my.id/bg-remove', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ b64, ct, url: url || undefined, bg: bgSel || undefined }) });
+    const j = await r.json();
+    if (!j.Status) throw new Error(j.error || 'Gagal memproses.');
+    $('prev2').src = j.data.url;
+    $('prev2').style.display = 'block';
+    $('ph2').style.display = 'none';
+    $('dl').href = j.data.url;
+    $('dl').classList.remove('hidden');
+    $('status').textContent = '✓ selesai — ' + (j.data.sizeHuman || '') + ' · background ' + j.data.background;
+  } catch(e){ $('status').classList.add('hidden'); showErr(e.message); }
+  finally { $('btn').disabled = false; }
+}
+
+function showErr(msg){ if (!msg) { $('err').classList.add('hidden'); return; } $('err').textContent = '✗ ' + msg; $('err').classList.remove('hidden'); }
+function cp(id){
+  const el = document.getElementById(id);
+  if (!el) return;
+  navigator.clipboard.writeText(el.textContent).then(() => {
+    const btn = el.parentElement.querySelector('button');
+    if (!btn) return;
+    const orig = btn.textContent;
+    btn.textContent = 'copied ✓';
+    setTimeout(() => btn.textContent = orig, 1500);
+  });
+}
+</script>
+</body>
+</html>
