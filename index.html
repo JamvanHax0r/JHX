@@ -21,7 +21,7 @@
 tailwind.config = {
   theme: { extend: {
     fontFamily: { sans:['Inter','sans-serif'], display:['Space Grotesk','sans-serif'], mono:['JetBrains Mono','monospace'] },
-    colors: { 'cyan': { 400: '#22d3ee', 500: '#06b6d4', 600: '#0891b2' },  night:'#05060a', panel:'#0b0e14', line:'rgba(255,255,255,0.07)', cy:'#22d3ee', gd:'#4285F4', vi:'#8b5cf6', pk:'#ec4899', lm:'#a3e635', yt:'#FF0000', tk:'#FE2C55', tkc:'#25F4EE', hd:'#F59E0B', ly:'#C084FC', th:'#F1F5F9', pt:'#E60023', fb:'#1877F2', em:'#10B981', ai:'#6366F1' }
+    colors: { 'cyan': { 400: '#22d3ee', 500: '#06b6d4', 600: '#0891b2' },  night:'#05060a', panel:'#0b0e14', line:'rgba(255,255,255,0.07)', cy:'#22d3ee', gd:'#4285F4', vi:'#8b5cf6', pk:'#ec4899', lm:'#a3e635', yt:'#FF0000', tk:'#FE2C55', tkc:'#25F4EE', hd:'#F59E0B', ly:'#C084FC', th:'#F1F5F9', pt:'#E60023', fb:'#1877F2', em:'#10B981', ai:'#6366F1', mg:'#d946ef' }
   }}
 }
 </script>
@@ -171,6 +171,18 @@ tailwind.config = {
       <div class="flex items-center justify-between font-mono text-xs">
         <span class="text-slate-500">POST /api/faceswap</span>
         <span class="text-cy group-hover:translate-x-1 transition-transform">/faceswap/ →</span>
+      </div>
+    </a>
+    <a href="/bgremove/" class="reveal card rounded-xl p-7 group block">
+      <div class="flex items-center justify-between mb-5">
+        <span class="w-11 h-11 rounded-lg bg-mg/10 border border-mg/25 flex items-center justify-center"><svg class="w-5 h-5 text-mg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><line x1="20" y1="4" x2="8.12" y2="15.88"/><line x1="14.47" y1="14.48" x2="20" y2="20"/><line x1="8.12" y1="8.12" x2="12" y2="12"/></svg></span>
+        <span class="font-mono text-[10px] text-lm border border-lm/25 bg-lm/5 rounded-full px-2.5 py-1">● STABLE</span>
+      </div>
+      <h3 class="font-display font-bold text-xl text-white mb-2 group-hover:text-mg transition-colors">Background Remover</h3>
+      <p class="text-sm text-slate-400 leading-relaxed mb-6">Hapus background foto otomatis — PNG transparan resolusi penuh, ganti warna background sesukamu.</p>
+      <div class="flex items-center justify-between font-mono text-xs">
+        <span class="text-slate-500">POST /api/bg-remove</span>
+        <span class="text-cy group-hover:translate-x-1 transition-transform">/bgremove/ →</span>
       </div>
     </a>
     <a href="/fbdl/" class="reveal card rounded-xl p-7 group block">
@@ -469,6 +481,11 @@ tailwind.config = {
       <p class="font-display font-bold text-sm text-white group-hover:text-vi transition-colors">AI FaceSwap</p>
       <p class="font-mono text-[10px] text-slate-500 mt-1.5 group-hover:text-vi">BUKA →</p>
     </a>
+    <a href="/bgremove/" class="card rounded-xl p-5 text-center group hover:border-vi/50 hover:-translate-y-1 transition-all">
+      <span class="mx-auto mb-3 w-11 h-11 rounded-lg bg-mg/10 border border-mg/25 flex items-center justify-center"><svg class="w-5 h-5 text-mg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><line x1="20" y1="4" x2="8.12" y2="15.88"/><line x1="14.47" y1="14.48" x2="20" y2="20"/><line x1="8.12" y1="8.12" x2="12" y2="12"/></svg></span>
+      <p class="font-display font-bold text-sm text-white group-hover:text-mg transition-colors">Background Remover</p>
+      <p class="font-mono text-[10px] text-slate-500 mt-1.5 group-hover:text-mg">BUKA →</p>
+    </a>
     <a href="/fbdl/" class="card rounded-xl p-5 text-center group hover:border-fb/50 hover:-translate-y-1 transition-all">
       <span class="mx-auto mb-3 w-11 h-11 rounded-lg bg-fb/10 border border-fb/25 flex items-center justify-center"><svg class="w-5 h-5 text-fb" viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg></span>
       <p class="font-display font-bold text-sm text-white group-hover:text-fb transition-colors">Facebook</p>
@@ -562,6 +579,7 @@ tailwind.config = {
 
         <a href="/aichat/" class="block hover:text-ai transition-colors">AI Assistant</a>
         <a href="/faceswap/" class="block hover:text-vi transition-colors">AI FaceSwap</a>
+        <a href="/bgremove/" class="block hover:text-mg transition-colors">Background Remover</a>
         <a href="/fbdl/" class="block hover:text-fb transition-colors">Facebook Downloader</a>
         <a href="/gdrive/" class="block hover:text-gd transition-colors">Google Drive Downloader</a>
         <a href="/hdimg/" class="block hover:text-hd transition-colors">HD Image Upscaler</a>
@@ -790,6 +808,13 @@ const ENDPOINTS = [
     body: { url: 'https://pin.it/5xBzbdKFA' },
     ok: { Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: true, type: 'download', data: { type: 'video', title: 'Fiony JKT48', quality: '720p', url: 'https://api.jhx.my.id/resvid/PIN01.mp4', filename: 'JHPIN_Fiony_JKT48.mp4', source: 'https://www.pinterest.com/pin/...' } },
     err: { Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: false, error: 'URL Pinterest tidak valid!' }
+  },
+  {
+    id: 'bgr', method: 'POST', path: '/bg-remove', title: 'Background Remover', color: 'mg',
+    desc: 'Hapus background foto otomatis — hasil PNG transparan resolusi penuh. Kirim base64 atau URL gambar, terima hasil PNG siap unduh.',
+    body: { url: 'IMAGE_URL_HERE' },
+    ok: { Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: true, type: 'edit', data: { url: 'https://api.jhx.my.id/resimg/BG01.png', filename: 'JHBG_BG01.png', sizeHuman: '1.2 MB', background: 'transparan' } },
+    err: { Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: false, error: 'Gambar kosong! Kirim base64 atau URL gambar.' }
   },
 ];
 
