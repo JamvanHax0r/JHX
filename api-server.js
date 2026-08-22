@@ -829,53 +829,81 @@ app.post('/tk-downloader', async (req, res) => {
 });
 
 
-// === BACKGROUND REMOVER ===
+// === BACKGROUND REMOVER (JUKEBOX — FULL RES, FREE) ===
 app.post('/bg-remove', async (req, res) => {
 try {
-const { b64, ct, url, bg, type, size } = req.body || {};
+const { b64, ct, url } = req.body || {};
 if (!b64 && !url) return res.status(400).json({ Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: false, error: 'Gambar kosong! Kirim base64 atau URL gambar.' });
-let bpersona = null;
-try { bpersona = require('./bg-persona.js'); } catch (e) {}
-if (!bpersona || !bpersona.apiKey || String(bpersona.apiKey).includes('PASTE')) {
-  return res.status(500).json({ Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: false, error: 'API-Key background remover belum di-set di server!' });
-}
-let imgBuf = null, mime = ct || 'image/jpeg';
+let imgBuf = null, mime = ct || 'image/png';
 if (b64) {
   imgBuf = Buffer.from(b64, 'base64');
-  if (imgBuf.length > 8 * 1024 * 1024) return res.status(400).json({ Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: false, error: 'Ukuran maksimal 8MB!' });
+} else {
+  const r = await axios.get(url, { responseType: 'arraybuffer', timeout: 30000, headers: { 'User-Agent': UA }, validateStatus: () => true });
+  if (r.status !== 200 || !/image\//.test(r.headers['content-type'] || '')) return res.status(400).json({ Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: false, error: 'URL gambar tidak valid!' });
+  imgBuf = Buffer.from(r.data);
+  mime = r.headers['content-type'] || 'image/png';
 }
-const ext = (mime.split('/')[1] || 'jpg').replace('jpeg', 'jpg');
+if (imgBuf.length > 8 * 1024 * 1024) return res.status(400).json({ Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: false, error: 'Ukuran maksimal 8MB!' });
+
+const mainUrl = 'https://www.jukeboxprint.com/tools/remove-background';
+const jantung = {
+  'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+  'Origin': 'https://www.jukeboxprint.com',
+  'Referer': mainUrl,
+  'Accept': 'application/json, text/plain, */*'
+};
+const initRes = await axios.get(mainUrl, { headers: { ...jantung, 'Accept': 'text/html,*/*' }, timeout: 30000 });
+jantung['Cookie'] = (initRes.headers['set-cookie'] || []).map(c => c.split(';')[0].trim()).join('; ');
+const html = String(initRes.data);
+const csrf = (html.match(/id="csrf"[^>]+value="([^"]+)"/i) || html.match(/name="token"\s+value="([^"]+)"/i) || [])[1];
+const propsStr = (html.match(/<script type="application\/json" id="props-background-removal-page">([\s\S]*?)<\/script>/i) || [])[1] || '{}';
+let props = {};
+try { props = JSON.parse(propsStr); } catch (e) {}
+const toolsConfig = props.toolsConfig || {};
+const turnstileSiteKey = props.turnstileSiteKey;
+if (!csrf || !toolsConfig.sessionId || !toolsConfig.pageToken || !turnstileSiteKey) throw new Error('Gagal ekstraksi data halaman sumber.');
+
+const { data: capTask } = await axios.post('https://cap.jhx.my.id/api/createTask', { url: mainUrl, type: 'turnstile-min', sitekey: turnstileSiteKey }, { timeout: 30000 });
+let turnstileToken = null;
+for (let i = 0; i < 20; i++) {
+  await sleep(3000);
+  const { data: capRes } = await axios.post('https://cap.jhx.my.id/api/getResult', { jobId: capTask.jobId }, { timeout: 15000 });
+  if (capRes.status === 'ready') { turnstileToken = capRes.solution.token; break; }
+  if (capRes.status === 'failed') throw new Error('Captcha solver gagal.');
+}
+if (!turnstileToken) throw new Error('Captcha solver timeout — coba lagi.');
+
+const { data: tokenData } = await axios.get('https://www.jukeboxprint.com/api/tools/token?csrf=' + encodeURIComponent(csrf), { headers: { ...jantung, 'X-Requested-With': 'XMLHttpRequest' }, timeout: 30000 });
+if (!tokenData || !tokenData.token) throw new Error('Gagal autentikasi ke sumber.');
+jantung['Authorization'] = 'Bearer ' + tokenData.token;
+
 const boundary = '----jhbg' + makeCode() + makeCode() + Date.now();
-const parts = [];
-const field = (name, val) => parts.push(Buffer.from('--' + boundary + '\r\nContent-Disposition: form-data; name="' + name + '"\r\n\r\n' + val + '\r\n'));
-if (url && !b64) field('image_url', url);
-else {
-  parts.push(Buffer.from('--' + boundary + '\r\nContent-Disposition: form-data; name="image_file"; filename="input.' + ext + '"\r\nContent-Type: ' + mime + '\r\n\r\n'));
-  parts.push(imgBuf);
-  parts.push(Buffer.from('\r\n'));
-}
-field('size', size || 'auto');
-field('type', type || 'auto');
-field('format', 'png');
-if (bg) field('bg_color', bg);
-parts.push(Buffer.from('--' + boundary + '--\r\n'));
-const body = Buffer.concat(parts);
-const r = await axios.post('https://api.remove.bg/v1.0/removebg', body, {
-  headers: { 'X-Api-Key': bpersona.apiKey, 'Content-Type': 'multipart/form-data; boundary=' + boundary },
-  responseType: 'arraybuffer', timeout: 120000, validateStatus: () => true
-});
-const rct = r.headers['content-type'] || '';
-if (r.status !== 200 || !/image\//.test(rct)) {
-  let emsg = 'Gagal memproses gambar (HTTP ' + r.status + ')';
-  try { const j = JSON.parse(Buffer.from(r.data).toString('utf8')); if (j.errors && j.errors[0]) emsg = j.errors[0].title || emsg; } catch (e) {}
-  return res.status(502).json({ Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: false, error: emsg });
-}
+const fname = 'JHBG_' + Math.floor(1000 + Math.random() * 9000) + '.png';
+const body = Buffer.concat([
+  Buffer.from('--' + boundary + '\r\nContent-Disposition: form-data; name="file"; filename="' + fname + '"\r\nContent-Type: image/png\r\n\r\n'),
+  imgBuf,
+  Buffer.from('\r\n--' + boundary + '--\r\n')
+]);
+const uploadUrl = 'https://tools.jukeboxprint.com/files/upload/?session_id=' + encodeURIComponent(toolsConfig.sessionId) + '&endpoint=remove_background_tool';
+const { data: uploadData } = await axios.post(uploadUrl, body, { headers: { ...jantung, 'Content-Type': 'multipart/form-data; boundary=' + boundary }, timeout: 120000, validateStatus: () => true });
+if (!uploadData || !uploadData.uuid) throw new Error('Upload gambar gagal.');
+
+const { data: processData } = await axios.post('https://www.jukeboxprint.com/tools/remove-background/process', {
+  uuid: uploadData.uuid,
+  turnstileToken: turnstileToken,
+  batchId: Date.now() + '-' + Math.random().toString(36).substring(2, 11),
+  pageToken: toolsConfig.pageToken
+}, { headers: jantung, timeout: 180000, validateStatus: () => true });
+if (!processData || !processData.resultUrl) throw new Error('Proses remove background gagal.');
+
+const outBuf = Buffer.from(String(processData.resultUrl).replace(/^data:image\/\w+;base64,/, ''), 'base64');
+if (outBuf.length < 500) throw new Error('Hasil kosong dari sumber.');
 const code = makeCode();
 const prettyName = 'JHBG_' + code;
-storeSet('resimg:' + code, { b64: Buffer.from(r.data).toString('base64'), ct: rct || 'image/png', k: 'img', p: prettyName, fn: prettyName }, 7200);
+storeSet('resimg:' + code, { b64: outBuf.toString('base64'), ct: 'image/png', k: 'img', p: prettyName, fn: prettyName }, 7200);
 res.json({
   Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: true, type: 'edit',
-  data: { url: 'https://api.jhx.my.id/resimg/' + code + '.png', filename: prettyName + '.png', size: r.data.length, sizeHuman: human(r.data.length), transparent: !bg, background: bg || 'transparan' }
+  data: { url: 'https://api.jhx.my.id/resimg/' + code + '.png', filename: prettyName + '.png', size: outBuf.length, sizeHuman: human(outBuf.length), transparent: true, background: 'transparan' }
 });
 } catch (e) { res.status(500).json({ Developer: 'JH a.k.a Dhika', Kesayangan: 'Fiony Alveria♡', Status: false, error: e.message }); }
 });
